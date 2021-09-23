@@ -89,5 +89,4 @@ VLC media playerの「ネットワークストリーミングを開く」で入�
 
 
 ### Copyright
-このパッケージ内に添付されるrootfs_hack.ext4にはGPLソフトウェアであるBusyBox,lftpが含まれます。
-それぞれのソースコードが必要な場合は hiromitu2120@gmail.com へ連絡ください。
+LICENSEファイルを参照してください
