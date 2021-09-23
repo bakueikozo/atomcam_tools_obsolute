@@ -138,7 +138,7 @@ ELEMENT=`echo -e $QUERY_STRING | tr '&' '\t' |  cut -f $i`
 		if [ $MODE = "cmd_reboot" ]; then
 			echo "REBOOTING NOW ......"
 			echo "<a href=\"honeylab.cgi\"> RELOAD </a>"
-			killall -9 iCamera_app
+			touch /tmp/cmd_reboot
 		fi
 				
 		if [ $MODE = "cmd_clear_alarm" ]; then
@@ -361,17 +361,17 @@ echo "<input type=\"checkbox\" name=\"ALARMREC\" $ALARMRECCHECK>Save Alarm MP4 i
 echo "<input type=\"submit\" value=\"Apply Alarm Setting\"><br>"
 echo "</form>"
 
-echo "<form action=\"honeylab.cgi\" method=\"get\">"
+echo "<form action=\"honeylab.cgi\" method=\"post\">"
 echo "<input type=\"hidden\" name=\"mode\" value=\"cmd_clear_alarm\">"
 echo "<input type=\"submit\" value=\"Clean Alarm Save Folder (/mmc/alarm_record))\"><br>"
 echo "</form>"
 echo "<hr>"
 
 echo "<h2>FTP Setting</h2>"
-echo "<form action=\"honeylab.cgi\" method=\"get\">"
+echo "<form action=\"honeylab.cgi\" method=\"post\">"
 echo "<input type=\"hidden\" name=\"group\" value=\"FTP\">"
 echo "<input type=\"hidden\" name=\"mode\" value=\"set_ini\">"
-echo "<input type=\"checkbox\" name=\"FTPSERVER\" $F_FTPSERVER >Enable FTP Server<br>"
+echo "<input type=\"checkbox\" name=\"FTPSERVER\" $F_FTPSERVER >Enable FTP Server (Need to Reeboot)<br>"
 echo "<input type=\"checkbox\" name=\"FTPCLIENT\" $F_FTPCLIENT >Working as FTP Client<br>"
 echo "<table>"
 echo "<tr><td>FTP Server IP Address</td>"
@@ -402,7 +402,7 @@ echo "<input type=\"submit\" value=\"Apply FTP Setting\"><br>"
 echo "</form>"
 
 
-echo "<form action=\"honeylab.cgi\" method=\"get\">"
+echo "<form action=\"honeylab.cgi\" method=\"post\">"
 echo "<input type=\"hidden\" name=\"mode\" value=\"cmd_ftptest\" target=\"_blank\">"
 echo "<input type=\"submit\" value=\"FTP setting Test\"><br>"
 echo "</form>"
@@ -517,7 +517,7 @@ echo "</form>"
 echo "<hr>"
 echo "<h2>Swap file on SD Card</h2>"
 echo "Swap file size"
-echo "<form action=\"honeylab.cgi\" method=\"get\">"
+echo "<form action=\"honeylab.cgi\" method=\"post\">"
 echo "<input type=\"hidden\" name=\"group\" value=\"SWAP\">"
 echo "<input type=\"hidden\" name=\"mode\" value=\"set_ini\">"
 echo "<input type=\"textbox\" value=\"$SWAPSIZE\" name=\"SWAPSIZE\"> MB ( 0 = disabled)"
@@ -527,7 +527,7 @@ echo "<hr>"
 echo "<h2>Reboot Setting</h2>"
 
 
-echo "<form action=\"honeylab.cgi\" method=\"get\">"
+echo "<form action=\"honeylab.cgi\" method=\"post\">"
 echo "<input type=\"hidden\" name=\"group\" value=\"REBOOT\">"
 echo "<input type=\"hidden\" name=\"mode\" value=\"set_ini\">"
 echo "Reboot in each <input type=\"textbox\" value=\"$REBOOTEACH\" name=\"REBOOTEACH\"> hours.( 0 = disabled)"
@@ -538,7 +538,8 @@ IPADDR=`cat /tmp/ipaddr`
 
 echo "<hr>"
 echo "<h2>RTSP setting (not recommended)</h2>"
-echo "<form action=\"honeylab.cgi\" method=\"get\">"
+echo " !!!! MUST Set swap file > 40MB !!!! <br>" 
+echo "<form action=\"honeylab.cgi\" method=\"post\">"
 echo "<input type=\"hidden\" name=\"group\" value=\"RTSP\">"
 echo "<input type=\"hidden\" name=\"mode\" value=\"set_ini\">"
 echo "<input type=\"checkbox\" name=\"RTSPSERVER\" $F_RTSPSERVER> USE RTSP Streaming"
@@ -546,7 +547,6 @@ echo "<input type=\"submit\" value=\"Apply RTSP Setting\">(Need to reboot)<br>"
 
 
 echo "streaming URL :  <input type=\"textbox\" size=\"64\" value=\"rtsp://$IPADDR:8554/unicast\"><br>"
- 
 RTSPWORKING=`ps -w | grep 'v4l2rtspserver' | grep -v 'grep' | wc -l`
 
 echo "Working state : "
@@ -560,12 +560,12 @@ echo "</form>"
 
 echo "<hr>"
 echo "<h2>Maintenance</h2>"
-echo "<form action=\"honeylab.cgi\" method=\"get\">"
+echo "<form action=\"honeylab.cgi\" method=\"post\">"
 echo "<input type=\"hidden\" name=\"mode\" value=\"cmd_reboot\" target=\"_blank\">"
 echo "<input type=\"submit\" value=\"DO REBOOT NOW\"><br>"
 echo "</form>"
 
-echo "<form action=\"honeylab.cgi\" method=\"get\">"
+echo "<form action=\"honeylab.cgi\" method=\"post\">"
 echo "<input type=\"hidden\" name=\"mode\" value=\"cmd_clear_alarm\">"
 echo "<input type=\"submit\" value=\"Clean Alarm Save Folder (/mmc/alarm_record))\"><br>"
 echo "</form>"

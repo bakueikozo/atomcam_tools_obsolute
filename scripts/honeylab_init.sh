@@ -160,7 +160,11 @@ do
 		busybox rm -rf /tmp/ftperr.log
 		busybox rm -rf /tmp/ftptest
 	fi 
-
+	if [ -f /tmp/cmd_reboot ]; then
+		sleep 10
+		sync;sync;sync;
+		reboot
+	fi
 	sleep 2
 
 done
