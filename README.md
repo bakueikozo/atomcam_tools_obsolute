@@ -88,3 +88,6 @@ RTSPサーバを使用するためには、40MB程度のサイズを設定して
 VLC media playerの「ネットワークストリーミングを開く」で入力するURLが表示されます。
 
 
+### Copyright
+このパッケージ内に添付されるrootfs_hack.ext4にはGPLソフトウェアであるBusyBox,lftpが含まれます。
+それぞれのソースコードが必要な場合は hiromitu2120@gmail.com へ連絡ください。
