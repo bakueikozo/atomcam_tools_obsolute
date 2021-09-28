@@ -153,8 +153,7 @@ do
 		/tmp/busybox rm /tmp/ftperr.log
 		/tmp/busybox rm /tmp/ftptest.log
 		dd if=/dev/urandom of=/tmp/test.bin bs=1024 count=1
-		TZ=JST-9 LD_LIBRARY_PATH=/tmp/newroot/lib:/tmp/newroot/usr/lib:/lib:/usr/lib /tmp/newroot/lib/ld.so.1 /tmp/newroot/usr/bin/lftp -e "set xfer:log-file /tmp/ftp.log; set net:timeout 60; set net:max-retries 3 ;set net:reconnect-interval-base 10; open -u $FTPUSER,$FTPPASS $FTPADDR ; mkdir -p ftptest ; put -O ftptest /tmp/test.bin  -o test.bin; rm ftptest/test.bin ; rmdir ftptest; quit" 2>/tmp/ftperr.log
-		cat /tmp/ftperr.log > /tmp/ftptest.log
+		TZ=JST-9 LD_LIBRARY_PATH=/tmp/newroot/lib:/tmp/newroot/usr/lib:/lib:/usr/lib /tmp/newroot/lib/ld.so.1 /tmp/newroot/usr/bin/lftp -e "set xfer:log-file /tmp/ftp.log; set net:timeout 60; set net:max-retries 3 ;set net:reconnect-interval-base 10; open -u $FTPUSER,$FTPPASS $FTPADDR ; mkdir -p $FTPFOLDER/ftptest ; put -O $FTPFOLDER/ftptest /tmp/test.bin -o test.bin; rm $FTPFOLDER/ftptest/test.bin ; rmdir $FTPFOLDER/ftptest; quit" 2>/tmp/ftperr.log		cat /tmp/ftperr.log > /tmp/ftptest.log
 		cat /tmp/ftp.log >> /tmp/ftptest.log
 		busybox rm -rf /tmp/ftp.log
 		busybox rm -rf /tmp/ftperr.log

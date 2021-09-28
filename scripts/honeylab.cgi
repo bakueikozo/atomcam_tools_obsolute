@@ -109,7 +109,7 @@ ELEMENT=`echo -e $QUERY_STRING | tr '&' '\t' |  cut -f $i`
 #echo $ELEMENT
 
 	KEY=`echo $ELEMENT |  cut -d "=" -f 1`
-	VALUE=`echo $ELEMENT | cut -d "=" -f 2`
+	VALUE=`echo $ELEMENT | cut -d "=" -f 2 | sed -e 's|%2f|/|ig'`
 #	echo $KEY,$VALUE
 
 
