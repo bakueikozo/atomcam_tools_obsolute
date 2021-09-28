@@ -142,7 +142,7 @@ do
 	ifconfig wlan0 | awk '/inet / {print $2}' | awk -F: '{print $2}' > /tmp/ipaddr
 
 	if [ -f /tmp/ftptest ]; then
-	
+		killall -9 lftp
 		FTPCLIENT=$(awk -F "=" '/FTPCLIENT/ {print $2}' $HACK_INI)
 		FTPADDR=$(awk -F "=" '/FTPADDR/ {print $2}' $HACK_INI)
 		FTPUSER=$(awk -F "=" '/FTPUSER/ {print $2}' $HACK_INI)
