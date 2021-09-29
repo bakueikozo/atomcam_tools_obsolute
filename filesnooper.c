@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <fcntl.h>
 #include <linux/videodev2.h>
-
+#include <pthread.h>
 #include <time.h>
 
 static ssize_t (*real_write)(int fd, const void *buf, size_t count) = NULL;
@@ -29,14 +29,6 @@ struct v4l2_format vid_format2;
 int v4l2_fd2;
 char v4l2_device_path2[255];
 
-
-struct tm *gmtime_r_(const time_t *timep, struct tm *result)
-{
-	fprintf(stderr,"!!! called gmtime_r!!!\n");
-	fflush(stderr);
-
-    return ((gmtime_r_t)dlsym(RTLD_NEXT, "gmtime_r"))(timep, result);
-}
 int cnt2=0;
 static uint32_t test_capture(void *param){
     int ret=0;
@@ -137,7 +129,26 @@ static uint32_t test_captureyuv(void *param){
     
     return 0;
 }
+static void *jpg_stream_thread(void *m)
+{
+    int n=0;
+    char filename[255];
+    fprintf(stderr,"jpeg_stream_thread_start");
+    while(1){
+        FILE *fp;
+        fp=fopen("/tmp/get_jpeg", "r");
+        if( fp ){
+            sprintf(filename,"/tmp/snapshot.jpg");
+            local_sdk_video_get_jpeg(0,filename);
+            remove("/tmp/get_jpeg");
+            fclose(fp);
+            sleep(0);
+        }else{
+            
+        }
+    }
 
+}
 uint32_t local_sdk_video_set_encode_frame_callback(uint32_t param1,uint32_t param2){
     void *handle;
 	fprintf(stderr,"!!! called local_sdk_video_set_encode_frame_callback !!!\n");
@@ -158,6 +169,8 @@ uint32_t local_sdk_video_set_encode_frame_callback(uint32_t param1,uint32_t para
         fprintf(stderr,"enc func injection save pcb=0x%x\n",pfunccb);
         param2=(uint32_t)test_capture;
         fprintf(stderr,"override to 0x%x\n",param2);
+        pthread_t tid; /* Stream capture in another thread */
+    	pthread_create(&tid, NULL, jpg_stream_thread, NULL);
     }
     int ret=real_local_sdk_video_set_encode_frame_callback(param1,param2);
 /*

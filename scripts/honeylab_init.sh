@@ -70,8 +70,10 @@ mkdir /tmp/www
 mkdir /tmp/www/cgi-bin
 chmod 755 /tmp/www/cgi-bin
 cp /tmp/mmc/scripts/honeylab.cgi /tmp/www/cgi-bin
+cp /tmp/mmc/scripts/get_jpeg.cgi /tmp/www/cgi-bin
 chmod 755 /tmp/www/cgi-bin/honeylab.cgi
-
+chmod 755 /tmp/www/cgi-bin/get_jpeg.cgi
+cp /tmp/mmc/scripts/still_image.html /tmp/www
 
 echo "run /tmp/mmc/scripts/pre.sh"
 source /tmp/mmc/scripts/pre.sh
