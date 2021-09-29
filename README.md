@@ -24,8 +24,11 @@ telnetパスワード以外のことについてのDMでの質問は、他の方
 
 ## 使用法
 
-https://github.com/bakueikozo/atomcam_tools/releases  
+https://github.com/bakueikozo/atomcam_tools/releases/tag/v1.0rc
+
 からatomcam_tools.zipをダウンロードし、適当なツールで解凍します。  
+<img src="https://github.com/bakueikozo/atomcam_tools/blob/main/images/extract.png">
+
 解凍されて出てきたすべてのファイルを、ATOMCam2で使用可能なmicroSDカードのルートフォルダに保存します  
 保存したmicroSDカードをATOMCam2に入れて電源を入れます  
 
