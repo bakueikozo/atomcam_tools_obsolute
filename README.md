@@ -93,3 +93,9 @@ VLC media playerの「ネットワークストリーミングを開く」で入�
 
 ### Copyright
 LICENSEファイルを参照してください
+
+### 寄付について
+このアプリの使用条件は特にありませんが、以下のリンクから買い物をすると、売り上げの一部が私に還元されます。
+<iframe src="https://rcm-fe.amazon-adsystem.com/e/cm?o=9&p=13&l=ez&f=ifr&linkID=10735bf7f8d0d2f203c7df8ff9fa1573&t=bakueikozo-22&tracking_id=bakueikozo-22" width="468" height="60" scrolling="no" border="0" marginwidth="0" style="border:none;" frameborder="0"></iframe>
+
+<a href="https://www.amazon.co.jp/gp/product/B094YDG7ZV?pf_rd_r=VKEJYWBHVP8M8V515SJV&pf_rd_p=3a18ae70-29cd-40df-b252-334783771910&pd_rd_r=ed9f946a-2028-4e1a-80ee-46b3c359272c&pd_rd_w=HCkGr&pd_rd_wg=qxKNg&linkCode=li2&tag=bakueikozo-22&linkId=80f4a66e75c2bd5909c8b36557b16cbf&language=ja_JP&ref_=as_li_ss_il" target="_blank"><img border="0" src="//ws-fe.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B094YDG7ZV&Format=_SL160_&ID=AsinImage&MarketPlace=JP&ServiceVersion=20070822&WS=1&tag=bakueikozo-22&language=ja_JP" ></a><img src="https://ir-jp.amazon-adsystem.com/e/ir?t=bakueikozo-22&language=ja_JP&l=li2&o=9&a=B094YDG7ZV" width="1" height="1" border="0" alt="" style="border:none !important; margin:0px !important;" />
