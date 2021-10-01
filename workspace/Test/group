@@ -1,0 +1,4 @@
+root:x:0:
+avahi:x:1000:
+sshd:x:1001:
+

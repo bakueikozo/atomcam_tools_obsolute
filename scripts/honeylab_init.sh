@@ -12,6 +12,7 @@ echo "overmount busybox and passwords"
 cp /tmp/Test/busybox /tmp
 cp /tmp/Test/passwd /tmp
 cp /tmp/Test/shadow /tmp
+cp /tmp/Test/group /tmp
 
 
 
@@ -35,6 +36,7 @@ mount -t ext2 /tmp/mmc/rootfs_hack.ext2 /tmp/newroot
 
 mount -o bind /tmp/passwd /etc/passwd
 mount -o bind /tmp/shadow /etc/shadow
+mount -o bind /tmp/group /etc/group
 
 SWAPSIZE=$(awk -F "=" '/SWAPSIZE/ {print $2}' $HACK_INI)
 
@@ -61,9 +63,34 @@ umount /usr/boa/boa.conf
 
 
 cp -r /usr /tmp/newroot/mnt
+cp /tmp/mmc/scripts/scp.sh /tmp/newroot/mnt/usr/bin/scp
+chmod 755 /tmp/newroot/mnt/usr/bin/scp
 mkdir /tmp/newroot/mnt/usr/lib
 mount /tmp/newroot/usr/lib /tmp/newroot/mnt/usr/lib
 mount -o rbind /tmp/newroot/mnt/usr /usr
+
+
+cp -r /etc /tmp/newroot/mnt
+cp -r /tmp/newroot/etc/ssh /tmp/newroot/mnt/etc
+cp -r /tmp/newroot/etc/avahi /tmp/newroot/mnt/etc
+mount -o rbind /tmp/newroot/mnt/etc /etc
+
+cp -r /var /tmp/newroot/mnt
+mkdir -p /tmp/newroot/mnt/var/empty
+mkdir -p /tmp/newroot/mnt/var/root/.ssh
+chmod 700 /tmp/newroot/mnt/var/root/.ssh
+[ -f /tmp/mmc/authorized_keys ] && cp /tmp/mmc/authorized_keys /tmp/newroot/mnt/var/root/.ssh
+mount -o rbind /tmp/newroot/mnt/var /var
+
+echo "atomcam" > /tmp/hostname
+[ -f /tmp/mmc/hostname ] && cp /tmp/mmc/hostname /tmp/hostname
+mount -o bind /tmp/hostname /etc/hostname
+hostname -F /etc/hostname
+
+LD_LIBRARY_PATH=/tmp/newroot/lib:/tmp/newroot/usr/lib:/lib:/usr/lib /tmp/newroot/lib/ld.so.1 /tmp/newroot/usr/bin/ssh-keygen -A
+LD_LIBRARY_PATH=/tmp/newroot/lib:/tmp/newroot/usr/lib:/lib:/usr/lib /tmp/newroot/lib/ld.so.1 /tmp/newroot/usr/sbin/sshd
+LD_LIBRARY_PATH=/tmp/newroot/lib:/tmp/newroot/usr/lib:/lib:/usr/lib /tmp/newroot/lib/ld.so.1 /tmp/newroot/usr/sbin/avahi-daemon -D
+
 
 
 mkdir /tmp/www
@@ -109,7 +136,7 @@ echo "run /tmp/mmc/post.sh"
 source /tmp/mmc/scripts/post.sh
 
 /tmp/mmc/scripts/ftpc_and_schedule.sh &
-/tmp/mmc/scripts/telnet.sh &
+[ -f /tmp/mmc/disable_telnet ] || /tmp/mmc/scripts/telnet.sh &
 
 
 while true

@@ -13,10 +13,17 @@ telnetパスワード以外のことについてのDMでの質問は、他の方
 ## 実現される機能
 - WebUI (Port: 8080)
 - FTPサーバー機能 (Port:21)
-- Telnet (Port:22)
+- Telnet (Port:23)
   - rootユーザー、パスワードはこのこのカメラ(2世代目)の商品名を英数小文字、8文字で入力したものです。  
       - わからなければTwitterのDMで聞いてください。  
-
+      - microSDカードのroot directoryにdisable\_telnetという名前のファイルをつくるとtelnetをdisableすることができます。
+- avahi(mDNS)機能
+  - microSDカードのroot directoryにAtomCamの名前をhostnameのファイル名で書いてください。
+  - hostnameの命名規則は英数と-(hyphen)のみ（RFC952,1123で規定)です。\_(underscore)は使用できません。defaultはatomcamになっています。
+  - mDNS対応しているOSからは[hostname].localでアクセスできるようになります。
+- sshd (Port:22)
+  - microSDカードのroot directoryにsshの公開鍵をauthorized\_keysの名前のファイルで置いてください。rootアカウントなのでパスワードではloginできない設定になっています。
+  - ssh root@[ATOMCam2のIPアドレス] or ssh root@[hsotname].local でloginできます。
 ## セキュリティに関わる重要事項
 上記項目に書いてある各ポートが利用可能となります。  
 現時点ではこのポートはセキュリティ上の懸念材料となりますので、  
@@ -61,7 +68,7 @@ Save Alarm MP4 into alarm_record folder (Note: No remove automatically.)
  毎分録画を [upload folder]/record/yyyy/mm/dd/yyyymmdd_hhmm.mp4 として転送します
 #### ALARM RECORD FILES
  検出動画(12秒)を [upload folder]/alarm_record/yyyymmdd_hhmm.mp4 として転送します。
- 
+
 ### Schedule Recording
 録画された毎分動画を残す設定を行います。
 #### ALL HOURS
