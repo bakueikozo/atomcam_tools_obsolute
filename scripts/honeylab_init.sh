@@ -80,7 +80,16 @@ mkdir -p /tmp/newroot/mnt/var/empty
 mkdir -p /tmp/newroot/mnt/var/root/.ssh
 chmod 700 /tmp/newroot/mnt/var/root/.ssh
 [ -f /tmp/mmc/authorized_keys ] && cp /tmp/mmc/authorized_keys /tmp/newroot/mnt/var/root/.ssh
+cat << EOF > /tmp/newroot/mnt/var/root/
+#!/bin/sh
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/tmp/newroot/lib:/tmp/newroot/usr/lib:/lib:/usr/lib
+PATH=/tmp/newroot/usr/bin:/tmp/newroot/usr/sbin:/tmp/newroot/bin:/tmp/newroot/sbin:$PATH
+EOF
 mount -o rbind /tmp/newroot/mnt/var /var
+
+cp -r /lib /tmp/newroot/mnt
+cp /tmp/newroot/lib/ld.so.1 /tmp/newroot/mnt/lib
+mount -o bind /tmp/newroot/mnt/lib /lib
 
 echo "atomcam" > /tmp/hostname
 [ -f /tmp/mmc/hostname ] && cp /tmp/mmc/hostname /tmp/hostname
