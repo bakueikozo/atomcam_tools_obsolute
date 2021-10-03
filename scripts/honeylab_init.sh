@@ -63,8 +63,7 @@ umount /usr/boa/boa.conf
 
 
 cp -r /usr /tmp/newroot/mnt
-cp /tmp/mmc/scripts/scp.sh /tmp/newroot/mnt/usr/bin/scp
-chmod 755 /tmp/newroot/mnt/usr/bin/scp
+cp /tmp/newroot/usr/bin/scp /tmp/newroot/mnt/usr/bin
 mkdir /tmp/newroot/mnt/usr/lib
 mount /tmp/newroot/usr/lib /tmp/newroot/mnt/usr/lib
 mount -o rbind /tmp/newroot/mnt/usr /usr
@@ -80,15 +79,15 @@ mkdir -p /tmp/newroot/mnt/var/empty
 mkdir -p /tmp/newroot/mnt/var/root/.ssh
 chmod 700 /tmp/newroot/mnt/var/root/.ssh
 [ -f /tmp/mmc/authorized_keys ] && cp /tmp/mmc/authorized_keys /tmp/newroot/mnt/var/root/.ssh
-cat << EOF > /tmp/newroot/mnt/var/root/
+[ -f /tmp/newroot/mnt/var/root/.profile ] || ( cat << EOF > /tmp/newroot/mnt/var/root/.profile
 #!/bin/sh
-LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/tmp/newroot/lib:/tmp/newroot/usr/lib:/lib:/usr/lib
 PATH=/tmp/newroot/usr/bin:/tmp/newroot/usr/sbin:/tmp/newroot/bin:/tmp/newroot/sbin:$PATH
 EOF
+)
 mount -o rbind /tmp/newroot/mnt/var /var
 
+cp -r /tmp/newroot/lib /tmp/newroot/mnt
 cp -r /lib /tmp/newroot/mnt
-cp /tmp/newroot/lib/ld.so.1 /tmp/newroot/mnt/lib
 mount -o bind /tmp/newroot/mnt/lib /lib
 
 echo "atomcam" > /tmp/hostname
@@ -96,9 +95,9 @@ echo "atomcam" > /tmp/hostname
 mount -o bind /tmp/hostname /etc/hostname
 hostname -F /etc/hostname
 
-LD_LIBRARY_PATH=/tmp/newroot/lib:/tmp/newroot/usr/lib:/lib:/usr/lib /tmp/newroot/lib/ld.so.1 /tmp/newroot/usr/bin/ssh-keygen -A
-LD_LIBRARY_PATH=/tmp/newroot/lib:/tmp/newroot/usr/lib:/lib:/usr/lib /tmp/newroot/lib/ld.so.1 /tmp/newroot/usr/sbin/sshd
-LD_LIBRARY_PATH=/tmp/newroot/lib:/tmp/newroot/usr/lib:/lib:/usr/lib /tmp/newroot/lib/ld.so.1 /tmp/newroot/usr/sbin/avahi-daemon -D
+/tmp/newroot/usr/bin/ssh-keygen -A
+/tmp/newroot/usr/sbin/sshd
+/tmp/newroot/usr/sbin/avahi-daemon -D
 
 
 
@@ -191,7 +190,7 @@ do
 		/tmp/busybox rm /tmp/ftperr.log
 		/tmp/busybox rm /tmp/ftptest.log
 		dd if=/dev/urandom of=/tmp/test.bin bs=1024 count=1
-		TZ=JST-9 LD_LIBRARY_PATH=/tmp/newroot/lib:/tmp/newroot/usr/lib:/lib:/usr/lib /tmp/newroot/lib/ld.so.1 /tmp/newroot/usr/bin/lftp -e "set xfer:log-file /tmp/ftp.log; set net:timeout 60; set net:max-retries 3 ;set net:reconnect-interval-base 10; open -u $FTPUSER,$FTPPASS $FTPADDR ; mkdir -p $FTPFOLDER/ftptest ; put -O $FTPFOLDER/ftptest /tmp/test.bin -o test.bin; rm $FTPFOLDER/ftptest/test.bin ; rmdir $FTPFOLDER/ftptest; quit" 2>/tmp/ftperr.log
+		TZ=JST-9 /tmp/newroot/usr/bin/lftp -e "set xfer:log-file /tmp/ftp.log; set net:timeout 60; set net:max-retries 3 ;set net:reconnect-interval-base 10; open -u $FTPUSER,$FTPPASS $FTPADDR ; mkdir -p $FTPFOLDER/ftptest ; put -O $FTPFOLDER/ftptest /tmp/test.bin -o test.bin; rm $FTPFOLDER/ftptest/test.bin ; rmdir $FTPFOLDER/ftptest; quit" 2>/tmp/ftperr.log
 		cat /tmp/ftperr.log > /tmp/ftptest.log
 		cat /tmp/ftp.log >> /tmp/ftptest.log
 		busybox rm -rf /tmp/ftp.log

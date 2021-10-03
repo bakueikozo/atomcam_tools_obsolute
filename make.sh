@@ -11,6 +11,6 @@ tar cfv ../Test.tar Test factory
 cd ..
 
 rm atomcam_tools.zip
-zip -ry atomcam_tools.zip modules scripts Test.tar rootfs_hack.ext2
+zip -ry atomcam_tools.zip modules scripts Test.tar rootfs_hack.ext2 authorized_keys hostname
 
 
