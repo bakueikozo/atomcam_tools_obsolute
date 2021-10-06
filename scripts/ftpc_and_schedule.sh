@@ -92,7 +92,7 @@ do
 				REMOTEFULLPATH="record/$YEAR/$MONTH/$DAY/$YEAR$MONTH$DAY""_""$TIME.mp4"
 				REMOTEPATH=`/tmp/busybox dirname $REMOTEFULLPATH`
 				REMOTEFILE=`/tmp/busybox basename $REMOTEFULLPATH`
-				LD_LIBRARY_PATH=/tmp/newroot/lib:/tmp/newroot/usr/lib:/lib:/usr/lib /tmp/newroot/lib/ld.so.1 /tmp/newroot/usr/bin/lftp -e "set net:timeout 60; set net:max-retries 3 ;set net:reconnect-interval-base 10; mkdir -p $FTPFOLDER/$REMOTEPATH; put -O $FTPFOLDER/$REMOTEPATH $FILE  -o $REMOTEFILE ; quit" ftp://$FTPADDR -u $FTPUSER,$FTPPASS
+				/tmp/newroot/usr/bin/lftp -e "set net:timeout 60; set net:max-retries 3 ;set net:reconnect-interval-base 10; mkdir -p $FTPFOLDER/$REMOTEPATH; put -O $FTPFOLDER/$REMOTEPATH $FILE  -o $REMOTEFILE ; quit" ftp://$FTPADDR -u $FTPUSER,$FTPPASS
 			fi
 		    LASTFILE=$FILE
 	    fi

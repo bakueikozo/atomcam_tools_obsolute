@@ -44,7 +44,7 @@ if [ $FTPCLIENT = "on" ]; then
 	if [ $FTPTRANSALARM = "on" ]; then
 		if [ "$FILE" = "/tmp/alarm_record.mp4" ]; then
 	        
-		LD_LIBRARY_PATH=/tmp/newroot/lib:/tmp/newroot/usr/lib:/lib:/usr/lib /tmp/newroot/lib/ld.so.1 /tmp/newroot/usr/bin/lftp -e "mkdir -p $FTPFOLDER/alarm_record; put -O $FTPFOLDER/alarm_record $FILE  -o $FMT.mp4 ; quit" ftp://$FTPADDR -u $FTPUSER,$FTPPASS
+		  /tmp/newroot/usr/bin/lftp -e "mkdir -p $FTPFOLDER/alarm_record; put -O $FTPFOLDER/alarm_record $FILE -o $FMT.mp4 ; quit" ftp://$FTPADDR -u $FTPUSER,$FTPPASS
 
 		fi
 

@@ -137,7 +137,7 @@ if [ $RTSPSERVER = "on" ]; then
 # for enable rtsp server , remove coment merker
  sleep 15
  insmod /tmp/mmc/modules/v4l2loopback.ko video_nr=1
- LD_LIBRARY_PATH=/tmp/newroot/lib:/tmp/newroot/usr/lib:/lib:/usr/lib /tmp/newroot/lib/ld.so.1 /tmp/newroot/usr/bin/v4l2rtspserver  /dev/video1 &
+ /tmp/newroot/usr/bin/v4l2rtspserver /dev/video1 &
 fi
 
 echo "run /tmp/mmc/post.sh"
