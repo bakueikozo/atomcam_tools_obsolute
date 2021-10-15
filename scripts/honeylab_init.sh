@@ -2,156 +2,116 @@
 
 #set -x
 
-echo '\n------------honeylab_init------------'
-export PATH='/media/mmc/scripts:/system/bin:/bin:/sbin:/usr/bin:/usr/sbin'
-HACK_INI=/tmp/mmc/hack.ini
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+HACK_INI=/media/mmc/hack.ini
+RTSPSERVER=$(awk -F "=" '/RTSPSERVER/ {print $2}' $HACK_INI)
 
-echo "called from app_init.sh"
-echo "overmount busybox and passwords"
-
-cp /tmp/Test/busybox /tmp
-cp /tmp/Test/passwd /tmp
-cp /tmp/Test/shadow /tmp
-cp /tmp/Test/group /tmp
-
-
-
-cp -r /bin /tmp/bin
-rm -r /tmp/bin/rm
-
-mount -o bind /tmp/busybox /bin/busybox
-mount -o bind /tmp/bin /bin
-cp /tmp/mmc/scripts/rm.sh /bin/rm
-chmod 755 /bin/rm
-
-echo "insmod ext2 driver"
-insmod /tmp/mmc/modules/crc16.ko
-insmod /tmp/mmc/modules/mbcache.ko
-insmod /tmp/mmc/modules/jbd2.ko
-insmod /tmp/mmc/modules/ext4.ko
-
-echo "mount ext2 new rootfs"
-mkdir /tmp/newroot
-mount -t ext2 /tmp/mmc/rootfs_hack.ext2 /tmp/newroot
-
-mount -o bind /tmp/passwd /etc/passwd
-mount -o bind /tmp/shadow /etc/shadow
-mount -o bind /tmp/group /etc/group
-
-SWAPSIZE=$(awk -F "=" '/SWAPSIZE/ {print $2}' $HACK_INI)
-
-if [ -z "$SWAPSIZE" ]; then
-	SWAPSIZE=0
+# atomcam system
+if [ "$0" != "atom_mounted"] ; then
+  mount -a
+  mkdir /atom
+  mount -t squashfs /dev/mtdblock2 /atom
+  mount -t squashfs /dev/mtdblock3 /atom/system
+  mount -t jffs2 /dev/mtdblock6 /atom/configs
 fi
+mount -t proc proc /atom/proc
+mount -o rbind /dev /atom/dev
+mount -t sysfs sysfs /atom/sys
+mount -o bind /tmp /atom/tmp
+mount -o rbind /media /atom/media
+mkdir /system
+mount -o bind /atom/system /system
 
+# sawap
+SWAPSIZE=$(awk -F "=" '/SWAPSIZE/ {print $2}' $HACK_INI)
+[ -z "$SWAPSIZE" ] && SWAPSIZE=0
 if [ $SWAPSIZE = 0 ]; then
 	echo " no swap"
-	/tmp/busybox rm /tmp/mmc/swap
+	rm /media/mmc/swap
 else
-	dd if=/dev/zero of=/tmp/mmc/swap bs=1M count=$SWAPSIZE
-	mkswap /tmp/mmc/swap
-	swapon /tmp/mmc/swap
+	dd if=/dev/zero of=/media/mmc/swap bs=1M count=$SWAPSIZE
+	mkswap /media/mmc/swap
+	swapon /media/mmc/swap
 fi
 
-
-ln -s   /usr/boa/boa /tmp/boa2
-cp /usr/boa/boa.conf /tmp/boa.conf
-sed -e "s/Port 80/Port 8080/g" /tmp/boa.conf > /tmp/boa2.conf
-mount -o bind /tmp/boa2.conf /usr/boa/boa.conf
-/tmp/boa2
-umount /usr/boa/boa.conf
-
-
-cp -r /usr /tmp/newroot/mnt
-cp /tmp/newroot/usr/bin/scp /tmp/newroot/mnt/usr/bin
-mkdir /tmp/newroot/mnt/usr/lib
-mount /tmp/newroot/usr/lib /tmp/newroot/mnt/usr/lib
-mount -o rbind /tmp/newroot/mnt/usr /usr
-
-
-cp -r /etc /tmp/newroot/mnt
-cp -r /tmp/newroot/etc/ssh /tmp/newroot/mnt/etc
-cp -r /tmp/newroot/etc/avahi /tmp/newroot/mnt/etc
-mount -o rbind /tmp/newroot/mnt/etc /etc
-
-cp -r /var /tmp/newroot/mnt
-mkdir -p /tmp/newroot/mnt/var/empty
-mkdir -p /tmp/newroot/mnt/var/root/.ssh
-chmod 700 /tmp/newroot/mnt/var/root/.ssh
-[ -f /tmp/mmc/authorized_keys ] && cp /tmp/mmc/authorized_keys /tmp/newroot/mnt/var/root/.ssh
-[ -f /tmp/newroot/mnt/var/root/.profile ] || ( cat << EOF > /tmp/newroot/mnt/var/root/.profile
-#!/bin/sh
-PATH=/tmp/newroot/usr/bin:/tmp/newroot/usr/sbin:/tmp/newroot/bin:/tmp/newroot/sbin:$PATH
+# /root
+mkdir -p /root/etc_default
+ln -sf /atom/system/etc/wpa_supplicant.conf /root/etc_default/wpa_supplicant.conf
+mkdir -p /root/.ssh
+chmod 700 /root/.ssh
+[ -f /media/mmc/authorized_keys ] && cp /media/mmc/authorized_keys /root/.ssh
+[ -f /root/.profile ] || cat << EOF > /root/.profile
+if [ "$PS1" ]; then
+	if [ "`id -u`" -eq 0 ]; then
+		export PS1='[\u@\h:\W]# '
+	else
+		export PS1='[\u@\h:\W]$ '
+	fi
+fi
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+umask 022
 EOF
-)
-mount -o rbind /tmp/newroot/mnt/var /var
 
-cp -r /tmp/newroot/lib /tmp/newroot/mnt
-cp -r /lib /tmp/newroot/mnt
-mount -o bind /tmp/newroot/mnt/lib /lib
+# atomcam patch for assis external commands
+cp /atom/lib/ld-uClibc* /lib
+mkdir /tmp/system_bin
+cp /atom/system/bin/* /tmp/system_bin
+cp /media/mmc/scripts/rm.sh /tmp/system_bin/rm
+chmod 755 /tmp/system_bin/rm
+for i in `ls /tmp/system_bin`
+do
+  if file /tmp/system_bin/$i | grep 'uClibc' > /dev/null ; then
+    mv /tmp/system_bin/$i /tmp/system_bin/${i}_org
+    cp /media/mmc/scripts/atom_patch.sh /tmp/system_bin/$i
+    chmod 755 /tmp/system_bin/$i
+  fi
+done
+mount -o bind /tmp/system_bin /system/bin
 
-echo "atomcam" > /tmp/hostname
-[ -f /tmp/mmc/hostname ] && cp /tmp/mmc/hostname /tmp/hostname
-mount -o bind /tmp/hostname /etc/hostname
+# atomcam iCamera_app
+[ $RTSPSERVER = "on" ] && insmod /media/mmc/modules/v4l2loopback.ko video_nr=1
+PATH=/system/bin:/bin:/sbin:/usr/bin:/usr/sbin chroot /atom /media/mmc/scripts/atom_init.sh $RTSPSERVER
+
+# /etc/hostname
+[ ! -f /etc/hostname ] && echo "atomcam" > /etc/hostname
+[ -f /media/mmc/hostname ] && cp /media/mmc/hostname /etc/hostname
 hostname -F /etc/hostname
 
-/tmp/newroot/usr/bin/ssh-keygen -A
-/tmp/newroot/usr/sbin/sshd
-/tmp/newroot/usr/sbin/avahi-daemon -D
+# ssh
+mkdir -p /var/empty
+/usr/bin/ssh-keygen -A
+/usr/sbin/sshd
 
+#avahi
+/usr/sbin/avahi-daemon -D
 
-
+#boa
 mkdir /tmp/www
 mkdir /tmp/www/cgi-bin
 chmod 755 /tmp/www/cgi-bin
-cp /tmp/mmc/scripts/honeylab.cgi /tmp/www/cgi-bin
-cp /tmp/mmc/scripts/get_jpeg.cgi /tmp/www/cgi-bin
+cp /media/mmc/scripts/honeylab.cgi /tmp/www/cgi-bin
 chmod 755 /tmp/www/cgi-bin/honeylab.cgi
+cp /media/mmc/scripts/get_jpeg.cgi /tmp/www/cgi-bin
 chmod 755 /tmp/www/cgi-bin/get_jpeg.cgi
-cp /tmp/mmc/scripts/still_image.html /tmp/www
+cp /media/mmc/scripts/still_image.html /tmp/www
+/usr/sbin/boa -f /media/mmc/scripts/boa.conf
 
-echo "run /tmp/mmc/scripts/pre.sh"
-source /tmp/mmc/scripts/pre.sh
-
-/system/bin/hl_client &
-
-RTSPSERVER=$(awk -F "=" '/RTSPSERVER/ {print $2}' $HACK_INI)
-if [ $RTSPSERVER = "on" ]; then
-
-	insmod /tmp/mmc/modules/v4l2loopback.ko video_nr=1
-	LD_PRELOAD=/tmp/mmc/modules/libcallback.so /system/bin/iCamera_app &
-else
-	/system/bin/iCamera_app &
-
-fi
-
-/system/bin/dongle_app &
-
-
+# ftp server
 FTPSERVER=$(awk -F "=" '/FTPSERVER/ {print $2}' $HACK_INI)
-if [ $FTPSERVER = "on" ]; then
-	/tmp/busybox tcpsvd -vE 0.0.0.0 21 /tmp/busybox ftpd / &
-fi
+[ $FTPSERVER = "on" ] && tcpsvd -vE 0.0.0.0 21 ftpd / &
 
-if [ $RTSPSERVER = "on" ]; then
-# for enable rtsp server , remove coment merker
- sleep 15
- insmod /tmp/mmc/modules/v4l2loopback.ko video_nr=1
- /tmp/newroot/usr/bin/v4l2rtspserver /dev/video1 &
-fi
+# rtsp server
+[ $RTSPSERVER = "on" ] && (sleep 15; /usr/bin/v4l2rtspserver /dev/video1) &
 
-echo "run /tmp/mmc/post.sh"
-source /tmp/mmc/scripts/post.sh
+# ftp client and scheduler
+/media/mmc/scripts/ftpc_and_schedule.sh &
 
-/tmp/mmc/scripts/ftpc_and_schedule.sh &
-[ -f /tmp/mmc/disable_telnet ] || /tmp/mmc/scripts/telnet.sh &
-
+# telnetd
+TELNETD=$(awk -F "=" '/TELNETD/ {print $2}' $HACK_INI)
+[ $TELNETD = "on" ] && /media/mmc/scripts/telnet.sh &
 
 while true
 do
-
-#	echo 'retain in honeylab_init'
-
 #	echo 'check reboot time'
 	REBOOTEACH=$(awk -F "=" '/REBOOTEACH/ {print $2}' $HACK_INI)
 	if [ -z "$REBOOTEACH" ]; then
@@ -162,9 +122,9 @@ do
 		echo 'REBOOTEACH is disabled'
 	else
 		if [ $REBOOTEACH -ne 0 ]; then
-			UPTIME=`cat /proc/uptime | cut -f 1 -d ' ' | awk '{printf("%d\n",$1)}`
+			UPTIME=`cat /proc/uptime | cut -f 1 -d ' ' | awk '{printf("%d\n",$1)}'`
 			echo $UPTIME
-			REBOOTSEC=`/tmp/busybox expr $REBOOTEACH '*' 3600`
+			REBOOTSEC=`expr $REBOOTEACH '*' 3600`
 			echo $REBOOTSEC
 			if [ $REBOOTSEC -lt $UPTIME ]; then
 				echo 'REBOOOOOOT!!!!!'
@@ -172,12 +132,10 @@ do
 			else
 				echo 'time is not reached'
 			fi
-			
-		
 		fi
 	fi
-	ifconfig wlan0 | awk '/inet / {print $2}' | awk -F: '{print $2}' > /tmp/ipaddr
 
+# ftp test
 	if [ -f /tmp/ftptest ]; then
 		killall -9 lftp
 		FTPCLIENT=$(awk -F "=" '/FTPCLIENT/ {print $2}' $HACK_INI)
@@ -186,23 +144,24 @@ do
 		FTPPASS=$(awk -F "=" '/FTPPASS/ {print $2}' $HACK_INI)
 		FTPFOLDER=$(awk -F "=" '/FTPFOLDER/ {print $2}' $HACK_INI)
 		FTPTRANSNORMAL=$(awk -F "=" '/FTPTRANSNORMAL/ {print $2}' $HACK_INI)
-		/tmp/busybox rm /tmp/ftp.log
-		/tmp/busybox rm /tmp/ftperr.log
-		/tmp/busybox rm /tmp/ftptest.log
+		rm /tmp/log/ftp.log
+		rm /tmp/log/ftperr.log
+    rm /tmp/log/ftptest.log
 		dd if=/dev/urandom of=/tmp/test.bin bs=1024 count=1
-		TZ=JST-9 /tmp/newroot/usr/bin/lftp -e "set xfer:log-file /tmp/ftp.log; set net:timeout 60; set net:max-retries 3 ;set net:reconnect-interval-base 10; open -u $FTPUSER,$FTPPASS $FTPADDR ; mkdir -p $FTPFOLDER/ftptest ; put -O $FTPFOLDER/ftptest /tmp/test.bin -o test.bin; rm $FTPFOLDER/ftptest/test.bin ; rmdir $FTPFOLDER/ftptest; quit" 2>/tmp/ftperr.log
-		cat /tmp/ftperr.log > /tmp/ftptest.log
-		cat /tmp/ftp.log >> /tmp/ftptest.log
-		busybox rm -rf /tmp/ftp.log
-		busybox rm -rf /tmp/ftperr.log
-		busybox rm -rf /tmp/ftptest
-	fi 
+		TZ=JST-9 lftp -e "set xfer:log-file /tmp/log/ftp.log; set net:timeout 60; set net:max-retries 3 ;set net:reconnect-interval-base 10; open -u $FTPUSER,$FTPPASS $FTPADDR ; mkdir -p $FTPFOLDER/ftptest ; put -O $FTPFOLDER/ftptest /tmp/test.bin -o test.bin; rm $FTPFOLDER/ftptest/test.bin ; rmdir $FTPFOLDER/ftptest; quit" 2>/tmp/log/ftperr.log
+		cat /tmp/log/ftperr.log > /tmp/log/ftptest.log
+		cat /tmp/log/ftp.log >> /tmp/log/ftptest.log
+		rm -rf /tmp/log/ftp.log
+    rm -rf /tmp/log/ftperr.log
+    rm -rf /tmp/ftptest
+	fi
+
+# reboot
 	if [ -f /tmp/cmd_reboot ]; then
-		sleep 10
 		sync;sync;sync;
 		reboot
 	fi
-	sleep 2
 
+	sleep 1
 done
 

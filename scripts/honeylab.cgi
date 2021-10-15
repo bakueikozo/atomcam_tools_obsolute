@@ -4,11 +4,12 @@ echo Content-type: text/html
 echo 
 echo
 
-HACK_INI=/tmp/mmc/hack.ini
-SAVE_INI=/tmp/mmc/hack.ini
+HACK_INI=/media/mmc/hack.ini
+SAVE_INI=/media/mmc/hack.ini
 
 FTPSERVER="off"
 FTPCLIENT="off"
+TELNETD="off"
 RTSPSERVER="off"
 ALARMREC="off"
 FTPTRANSNORMAL="off"
@@ -41,6 +42,8 @@ load_ini(){
 		REBOOTEACH=0
 	fi
 	
+	TELNETD=$(awk -F "=" '/TELNETD/ {print $2}' $HACK_INI)
+
 	RTSPSERVER=$(awk -F "=" '/RTSPSERVER/ {print $2}' $HACK_INI)
 
 	SCHEDULE=$(awk -F "=" '/SCHEDULE/ {print $2}' $HACK_INI)
@@ -73,6 +76,7 @@ save_ini(){
 	echo "SWAPSIZE=$SWAPSIZE" >> $SAVE_INI
 	echo "FTPRECORD=$FTPRECORD"  >> $SAVE_INI
 	echo "REBOOTEACH=$REBOOTEACH" >> $SAVE_INI
+	echo "TELNETD=$TELNETD" >> $SAVE_INI
 	echo "RTSPSERVER=$RTSPSERVER" >> $SAVE_INI
 	echo "SCHEDULE=$SCHEDULE" >> $SAVE_INI
 	echo "MON=$MON" >> $SAVE_INI
@@ -131,6 +135,10 @@ ELEMENT=`echo -e $QUERY_STRING | tr '&' '\t' |  cut -f $i`
 			ALARMREC="off"
 		fi
 		
+		if [ $GROUP = "TELNET" ]; then
+			TELNETD="off"
+		fi
+		
 		if [ $GROUP = "RTSP" ]; then
 			RTSPSERVER="off"
 		fi
@@ -142,7 +150,7 @@ ELEMENT=`echo -e $QUERY_STRING | tr '&' '\t' |  cut -f $i`
 		fi
 				
 		if [ $MODE = "cmd_clear_alarm" ]; then
-			/tmp/busybox rm -rf /media/mmc/alarm_record
+			rm -rf /media/mmc/alarm_record
 			echo "Complete."
 			echo "<a href=\"honeylab.cgi\"> RELOAD </a>"
 		fi
@@ -158,7 +166,7 @@ ELEMENT=`echo -e $QUERY_STRING | tr '&' '\t' |  cut -f $i`
 					break
 				fi
 
-				RETRY=`/tmp/busybox expr $RETRY + 1`
+				RETRY=`expr $RETRY + 1`
 				if [ $RETRY == "10" ]; then
 					echo "FTP Test is not completed in 10 sec"
 					break
@@ -192,7 +200,7 @@ ELEMENT=`echo -e $QUERY_STRING | tr '&' '\t' |  cut -f $i`
 #		echo "hour=$HOUR"
 
 #		echo "mon<br>"
-		CMD="/tmp/busybox expr $HOUR + 1"
+		CMD="expr $HOUR + 1"
 #		echo "CMD=$CMD"
 		OFFSET=`$CMD`
 #		echo "offset=$OFFSET"
@@ -233,6 +241,12 @@ ELEMENT=`echo -e $QUERY_STRING | tr '&' '\t' |  cut -f $i`
 	if [ $GROUP = "SWAP" ]; then
 		if [ $KEY = "SWAPSIZE" ]; then
 			SWAPSIZE=$VALUE
+		fi
+	fi
+
+	if [ $GROUP = "TELNET" ]; then
+		if [ $KEY = "TELNETD" ]; then
+			TELNETD=$VALUE
 		fi
 	fi
 
@@ -330,6 +344,13 @@ else
 fi
 
 
+if [ $TELNETD = "on" ]; then
+  F_TELNETD="checked"
+else
+  F_TELNETD =""
+fi
+
+
 if [ $RTSPSERVER = "on" ]; then
   F_RTSPSERVER="checked"
 else
@@ -349,7 +370,7 @@ echo "<h2> Status </h2>"
 echo "ATOMCam Application Version : "`awk -F "=" '/appver/ {print $2}' /configs/app.ver`"<br>"
 echo "ATOMCam MODEL : "`awk -F "=" '/PRODUCT_MODEL/ {print $2}' /configs/.product_config`"<br>"
 echo "System Time : "`TZ=JST-9 date`"<br>"
-echo "Uptime : "`/tmp/busybox uptime`"<br>"
+echo "Uptime : "`uptime`"<br>"
 echo "Linux Kernel : "`cat /proc/version`"<br>"
 
 echo "<h2>Alarm File Save</h2>"
@@ -408,9 +429,9 @@ echo "<input type=\"submit\" value=\"FTP setting Test\"><br>"
 echo "</form>"
 
 
-if [ -f /tmp/ftptest.log ]; then
+if [ -f /tmp/log/ftptest.log ]; then
 echo "<textarea rows=\"10\" cols=\"120\">"
-DATA=`cat /tmp/ftptest.log `
+DATA=`cat /tmp/log/ftptest.log `
 while read line
 do
   echo $line
@@ -420,7 +441,7 @@ FILE
 
 
 echo "</textarea>"
-/tmp/busybox rm /tmp/ftptest.log
+rm /tmp/log/ftptest.log
 fi
 
 if [ $SCHEDULE = "all" ]; then
@@ -457,12 +478,12 @@ do
 	else
 		echo "<td>$d</td>"
 	fi
-	DWW=`/tmp/busybox expr $DWW + 1`
+	DWW=`expr $DWW + 1`
 
 	for i in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23
 	do
 		if [ $d == "---" ]; then
-			if [ `/tmp/busybox expr $HOUR + 0` ==  `/tmp/busybox expr $i + 0` ]; then
+			if [ `expr $HOUR + 0` ==  `expr $i + 0` ]; then
 				echo "<td><b>$i</b></td>"
 			else
 				echo "<td>$i</td>"
@@ -534,7 +555,16 @@ echo "Reboot in each <input type=\"textbox\" value=\"$REBOOTEACH\" name=\"REBOOT
 echo "<input type=\"submit\" value=\"Apply Reboot setting\"><br>"
 echo "</form>"
 
-IPADDR=`cat /tmp/ipaddr`
+echo "<hr>"
+echo "<h2>Telnetd setting</h2>"
+echo "<form action=\"honeylab.cgi\" method=\"post\">"
+echo "<input type=\"hidden\" name=\"group\" value=\"TELNET\">"
+echo "<input type=\"hidden\" name=\"mode\" value=\"set_ini\">"
+echo "<input type=\"checkbox\" name=\"TELNETD\" $F_TELNETD> USE Telnetd"
+echo "<input type=\"submit\" value=\"Apply Telnetd Setting\">(Need to reboot)<br>"
+
+
+IPADDR=${HTTP_HOST%:*}
 
 echo "<hr>"
 echo "<h2>RTSP setting (not recommended)</h2>"
