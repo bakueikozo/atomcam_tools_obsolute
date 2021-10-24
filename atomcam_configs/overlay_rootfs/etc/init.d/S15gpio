@@ -1,0 +1,27 @@
+#!/bin/sh
+#
+#
+
+case "$1" in
+  start)
+	cd /sys/class/gpio
+	echo 77 > export
+	cd gpio77
+	echo out > direction
+	echo 0 > active_low
+	echo 1 > value
+	;;
+  stop)
+	;;
+  restart|reload)
+	"$0" stop
+	"$0" start
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?
+
+

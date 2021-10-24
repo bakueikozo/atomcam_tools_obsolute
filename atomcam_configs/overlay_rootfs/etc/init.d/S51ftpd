@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# Start ftpd
+#
+
+HACK_INI=/media/mmc/hack.ini
+FTPSERVER=$(awk -F "=" '/FTPSERVER/ {print $2}' $HACK_INI)
+
+case "$1" in
+    start)
+	[ $FTPSERVER = "on" ] && tcpsvd -vE 0.0.0.0 21 ftpd / &
+	;;
+    stop)
+	;;
+    restart|reload)
+	$0 stop
+	$0 start
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?

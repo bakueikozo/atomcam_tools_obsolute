@@ -1,16 +1,23 @@
 #!/bin/sh
 
 set -x
-#sudo docker cp b95f6c00696a:/openmiko/build/buildroot-2016.02/output/images/rootfs.ext2 ./rootfs_hack.ext2
-rm libcallback.so
-mips-linux-uclibc-gnu-gcc -fPIC -shared -o libcallback.so filesnooper.c -ldl
-cp libcallback.so modules
-cd workspace
-chmod a+x Test/test.sh
-tar cfv ../Test.tar Test factory
+
+if docker ps | grep openmiko_builder_1 ; then
+  docker stop openmiko_builder_1
+fi
+
+git clone https://github.com/openmiko/openmiko.git -b v0.0.28
+cp -pr atomcam_configs openmiko
+mkdir -p openmiko/libcallback
+cp filesnooper.c openmiko/libcallback
+cd openmiko
+(cd libcallback; git clone https://github.com/Dafang-Hacks/mips-gcc472-glibc216-64bit.git)
+cp -pr atomcam_configs/overlay_initramfs/* initramfs_skeleton
+
+docker-compose up -d
+docker-compose exec builder /src/atomcam_configs/scripts/build_all
+
+mv uImage.lzma ../factory_t31_ZMC6tiIDQN
+mv rootfs.ext2 ../rootfs_hack.ext2
 cd ..
-
-rm atomcam_tools.zip
-zip -ry atomcam_tools.zip modules scripts Test.tar rootfs_hack.ext2 authorized_keys hostname
-
-
+zip -ry atomcam_tools.zip factory_t31_ZMC6tiIDQN rootfs_hack.ext2 hostname authorized_keys

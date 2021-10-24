@@ -1,0 +1,43 @@
+#!/bin/bash
+#
+# Swaps on the sdcard if available
+#
+
+HACK_INI=/media/mmc/hack.ini
+SWAPFILE=/media/mmc/swap
+[ ! -e $HACK_INI ] && touch $HACK_INI
+SWAPSIZE=$(awk -F "=" '/SWAPSIZE/ {print $2}' $HACK_INI)
+[ -z "$SWAPSIZE" ] && SWAPSIZE=0
+
+case "$1" in
+  start)
+	if [ $SWAPSIZE = 0 ]; then
+		echo " no swap"
+		rm -f $SWAPFILE
+		exit 0
+	fi
+
+ 	echo "Starting swap on sdcard using $SWAPFILE"
+	if [ ! -f $SWAPFILE ] || [ "`du -m $SWAPFILE | cut -f1`" != "$SWAPSIZE"] ; then
+		rm -rf $SWAPFILE
+		dd if=/dev/zero of=$SWAPFILE bs=1M count=$SWAPSIZE
+	fi
+	mkswap $SWAPFILE
+	swapon $SWAPFILE
+	echo 2048 > /proc/sys/vm/min_free_kbytes
+	;;
+  stop)
+	swapoff $SWAPFILE
+	;;
+  restart|reload)
+	"$0" stop
+	"$0" start
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?
+
+

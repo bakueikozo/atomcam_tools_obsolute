@@ -1,0 +1,21 @@
+#!/bin/sh
+#
+# Start boa
+#
+
+case "$1" in
+    start)
+	/usr/sbin/boa -f /etc/boa.conf
+	;;
+    stop)
+	;;
+    restart|reload)
+	$0 stop
+	$0 start
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?

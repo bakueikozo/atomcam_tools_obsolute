@@ -1,0 +1,25 @@
+#!/bin/sh
+#
+# set hostname
+#
+
+
+case "$1" in
+  start)
+	[ -f /media/mmc/hostname ] && cp /media/mmc/hostname /etc/hostname
+	[ ! -f /etc/hostname ] && echo "atomcam" > /etc/hostname
+	hostname -F /etc/hostname
+	;;
+  stop)
+	;;
+  restart|reload)
+	"$0" stop
+	"$0" start
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?
+
