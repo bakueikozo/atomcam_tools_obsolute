@@ -2,3 +2,5 @@
 scripts/alarmhook.sh
 private_scripts
 openmiko/*
+factory_t31_ZMC6tiIDQN
+rootfs_hack.ext2

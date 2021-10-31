@@ -1,0 +1,13 @@
+#!/bin/sh
+cd /openmiko/build/buildroot-2016.02/output
+rm -rf target
+mkdir -p target/sbin
+mkdir -p target/lib
+mkdir -p target/usr/lib
+cp -a staging/sbin/* target/sbin/
+cp -a staging/lib/* target/lib/
+cp -a staging/usr/lib/* target/usr/lib/
+rm -f build/.root
+find . -name ".stamp_target_installed*" -print | xargs rm -f
+cd ..
+make

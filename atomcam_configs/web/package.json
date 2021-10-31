@@ -1,0 +1,33 @@
+{
+  "name": "atomcam_setting",
+  "version": "0.1.0",
+  "description": "ATOMCam setting page",
+  "main": "source/js/index.js",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "axios": "^0.24.0",
+    "compression-webpack-plugin": "^9.0.0",
+    "css-loader": "^6.2.0",
+    "element-ui": "^2.15.1",
+    "eslint": "8.2",
+    "eslint-plugin-vue": "8.0",
+    "eslint-webpack-plugin": "^3.0.1",
+    "style-loader": "^3.0.0",
+    "vue": "^2.6.12",
+    "vue-loader": "^15.9.8",
+    "vue-template-compiler": "^2.6.12",
+    "webpack": "^5.24.3",
+    "webpack-bundle-analyzer": "^4.4.2",
+    "webpack-cli": "^4.3.1"
+  },
+  "repository": {
+    "type": "git"
+  },
+  "author": "Mitsuru Nakada(mitsuru_nakada@mac.com)",
+  "license": "MIT"
+}

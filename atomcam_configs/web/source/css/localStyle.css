@@ -1,0 +1,167 @@
+html {
+  height: 100%;
+  font-size: 14px;
+  overflow: hidden;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif;
+  font-weight: 300;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+* {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+input, textarea, code, .modal-window * {
+  -moz-user-select: auto;
+  -khtml-user-select: auto;
+  -webkit-user-select: auto;
+  -webkit-touch-callout: auto;
+  user-select: auto;
+}
+
+h1, h2, h3, h4, h5, h6, h7 {
+  white-space:nowrap;
+}
+
+h1.error, h2.error, h3.error, h4.error, h5.error, h6.error, h7.error {
+  color: red;
+  white-space: normal;
+}
+
+h1,
+.h1 {
+  font-size: 2.6rem;
+  font-weight: 700;
+}
+
+h2,
+.h2 {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+h3,
+.h3 {
+  font-size: 1.7rem;
+  font-weight: 500;
+}
+
+h4,
+.h4 {
+  font-size: 1.3rem;
+  font-weight: 500;
+}
+
+h5,
+.h5 {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+h6,
+.h6 {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+p {
+  margin: 0 0 10px;
+}
+
+hr {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border: 0;
+  border-top: 1px solid #eee;
+}
+
+.well, .well-transparent {
+  background-color: white;
+  padding: 0.5vh 1vw;
+  margin: 0.1vh 0;
+  border: 1px solid #e3e3e3;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.05);
+}
+
+.well-transparent {
+  background-color: rgba(255,255,255,0);
+  border-color: rgba(255,255,255,0);
+  box-shadow: none;
+}
+
+.well {
+  margin: 0.5vh 0;
+}
+
+.well hr {
+  margin: 1vh -1vw;
+}
+
+.well .el-row, .well-transparent .el-row  {
+  margin: 1vh 0;
+}
+
+.well h4, .well-transparent h4 {
+  margin: 0;
+  font-weight: 300;
+  display:inline-block;
+  vertical-align: middle;
+}
+
+.well h5, .well-transparent h5 {
+  margin: 0;
+  font-weight: 300;
+  display:inline-block;
+  vertical-align: middle;
+}
+
+.well h6, .well-transparent h6 {
+  margin: 0;
+  font-weight: 300;
+  display:inline-block;
+  vertical-align: middle;
+}
+
+
+.scrollable {
+  position: relative;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  height: 100%;
+}
+
+.code, textarea {
+  width: 100%;
+  font-family: Courier, 'NotoSansMonoCJKjp', monospace;
+}
+
+.pull-right {
+  float: right !important;
+}
+
+.pull-left {
+  float: left !important;
+}
+
+/* for mobile */
+@media only screen
+       and (max-width: 767px) {
+  .no-mobile {
+    display: none;
+  }
+}

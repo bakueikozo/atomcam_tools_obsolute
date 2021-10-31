@@ -2,8 +2,6 @@
 #
 # build atomcam environment
 #
-HACK_INI=/media/mmc/hack.ini
-RTSPSERVER=$(awk -F "=" '/RTSPSERVER/ {print $2}' $HACK_INI)
 
 case "$1" in
   start)
@@ -15,13 +13,14 @@ case "$1" in
 	mount -t proc proc /atom/proc
 	mount -o rbind /dev /atom/dev
 	mount -t sysfs sysfs /atom/sys
-	mount -t tmpfs tmpfs /atom/run
+	mount -o bind /run /atom/run
 	mount -o bind /tmp /atom/tmp
 	mount -o rbind /media /atom/media
 	mkdir -p /tmp/system/bin
 	cp /scripts/atom_init.sh /tmp/system/bin
-	cp /usr/bin/lftp /tmp/system/bin
 	cp /scripts/rm.sh /tmp/system/bin/rm
+	cp /scripts/mv.sh /tmp/system/bin/mv
+	cp /usr/bin/curl /tmp/system/bin
 	mkdir -p /tmp/system/modules
 	cp /lib/modules/libcallback.so /tmp/system/modules
 	mkdir -p /tmp/system/lib
@@ -30,11 +29,14 @@ case "$1" in
 	mkdir -p /tmp/system/usr/lib
 	mount -o bind /tmp/system/usr /atom/usr
 	mount -o bind /usr/lib /atom/usr/lib
+	cp -pr /atom/etc /tmp/system
+	cp /etc/nsswitch.conf /tmp/system/etc
+	mount -o bind /tmp/system/etc /atom/etc
+	cp /bin/busybox /tmp/system/bin
 
-	[ $RTSPSERVER = "on" ] && insmod /lib/modules/3.10.14__isvp_swan_1.0__/extra/v4l2loopback.ko video_nr=1
-	chroot /atom /tmp/system/bin/atom_init.sh $RTSPSERVER
-	[ $RTSPSERVER = "on" ] && (sleep 15; /usr/bin/v4l2rtspserver /dev/video1 > /tmp/log/rtspserver.log 2>&1 ) &
-	;;
+	insmod /lib/modules/3.10.14__isvp_swan_1.0__/extra/v4l2loopback.ko video_nr=1
+	chroot /atom /tmp/system/bin/atom_init.sh
+  ;;
   stop)
 	;;
   restart|reload)

@@ -1,0 +1,28 @@
+#!/bin/sh
+#
+# rtsp server
+#
+HACK_INI=/media/mmc/hack.ini
+RTSPSERVER=$(awk -F "=" '/RTSPSERVER *=/ {print $2}' $HACK_INI)
+
+case "$1" in
+  start)
+    echo "setup atomcam environment"
+    if [ $RTSPSERVER = "on" ]; then
+      /scripts/rtspserver.sh on
+    fi
+    ;;
+  stop)
+      /scripts/rtspserver.sh off
+	  ;;
+  restart|reload)
+      /scripts/rtspserver.sh off
+      /scripts/rtspserver.sh on
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?
+
