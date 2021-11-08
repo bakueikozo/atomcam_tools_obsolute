@@ -12,13 +12,13 @@ HACK_INI=/media/mmc/hack.ini
 RECORDING_LOCAL_SCHEDULE=$(awk -F "=" '/RECORDING_LOCAL_SCHEDULE *=/ {print $2}' $HACK_INI)
 STORAGE_SDCARD=$(awk -F "=" '/STORAGE_SDCARD *=/ {print $2}' $HACK_INI)
 STORAGE_CIFS=$(awk -F "=" '/STORAGE_CIFS *=/ {print $2}' $HACK_INI)
-STORAGE_CIFSSERVER=$(awk -F "=" '/STORAGE_CIFSSERVER *=/ {print $2}' $HACK_INI)
+STORAGE_CIFSSERVER=$(awk -F "=" '/STORAGE_CIFSSERVER *=/ {gsub(/\/$/, "", $2); print $2}' $HACK_INI)
 STORAGE_CIFSUSER=$(awk -F "=" '/STORAGE_CIFSUSER *=/ {print $2}' $HACK_INI)
 STORAGE_CIFSPASSWD=$(awk -F "=" '/STORAGE_CIFSPASSWD *=/ {print $2}' $HACK_INI)
 HOSTNAME=`hostname`
 
-USER_CONFIG=/atom/configs/.user_config
-SCHEDULE_CONFIG=/atom/configs/.multiplealarm_config
+USER_CONFIG=/configs/.user_config
+SCHEDULE_CONFIG=/configs/.multiplealarm_config
 ALARMDATE=$(awk -F "=" '/alarmDate *=/ {print $2}' $USER_CONFIG)
 RECORDTYPE=$(awk -F "=" '/recordType *=/ {print $2}' $USER_CONFIG)
 if [ "$RECORDTYPE" = "1" ] && [ "$RECORDING_LOCAL_SCHEDULE" = "on" ]; then

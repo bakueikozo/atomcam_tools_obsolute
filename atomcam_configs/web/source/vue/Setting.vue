@@ -15,14 +15,14 @@
     </div>
     <div class="well-transparent container">
       <div class="image-frame" :style="imageFrameStyle">
-        <ElTooltip placement="top" :content="stillFullView?'clickで縮小します':'clickで拡大します'" effect="light" :open-delay="500">
+        <ElTooltip :tabindex="-1" placement="top" :content="stillFullView?'clickで縮小します':'clickで拡大します'" effect="light" :open-delay="500">
           <img class="still-image" :src="`/cgi-bin/get_jpeg.cgi?r=${stillCount}`" @click="stillFullView=!stillFullView">
         </ElTooltip>
       </div>
       <h3>基本設定</h3>
       <ElRow>
         <ElCol :offset="1" :span="8">
-          <ElTooltip placement="top" content="NASの保存フォルダ名やリモートアクセスのための名前を設定します" effect="light" :open-delay="500">
+          <ElTooltip :tabindex="-1" placement="top" content="NASの保存フォルダ名やリモートアクセスのための名前を設定します" effect="light" :open-delay="500">
             <h4>デバイス名</h4>
           </ElTooltip>
         </ElCol>
@@ -34,7 +34,7 @@
       <h3>録画</h3>
       <ElRow>
         <ElCol :offset="1" :span="8">
-          <ElTooltip placement="top" content="モーション／サウンド検出したときの12秒の映像をローカルにも録画します" effect="light" :open-delay="500">
+          <ElTooltip :tabindex="-1" placement="top" content="モーション／サウンド検出したときの12秒の映像をローカルにも録画します" effect="light" :open-delay="500">
             <h4>検出通知のローカル録画</h4>
           </ElTooltip>
         </ElCol>
@@ -45,7 +45,7 @@
 
       <ElRow>
         <ElCol :offset="1" :span="8">
-          <ElTooltip placement="top" content="SD-Card/NASに録画される時間帯を設定します。" effect="light" :open-delay="500">
+          <ElTooltip :tabindex="-1" placement="top" content="SD-Card/NASに録画される時間帯を設定します。" effect="light" :open-delay="500">
             <h4>ローカル録画スケジュール</h4>
           </ElTooltip>
         </ElCol>
@@ -84,7 +84,7 @@
       <h3>記録メディア</h3>
       <ElRow>
         <ElCol :offset="1" :span="8">
-          <ElTooltip placement="top" content="SD-Cardへの記録をします" effect="light" :open-delay="500">
+          <ElTooltip :tabindex="-1" placement="top" content="SD-Cardへの記録をします" effect="light" :open-delay="500">
             <h4>SD-Card</h4>
           </ElTooltip>
         </ElCol>
@@ -94,7 +94,7 @@
       </ElRow>
       <ElRow v-if="config.STORAGE_SDCARD === 'on'">
         <ElCol :offset="2" :span="7">
-          <ElTooltip placement="top" content="ATOMCamのSD-CardをCIFS(smb) serverとしてLAN内に公開します" effect="light" :open-delay="500">
+          <ElTooltip :tabindex="-1" placement="top" content="ATOMCamのSD-CardをCIFS(smb) serverとしてLAN内に公開します" effect="light" :open-delay="500">
             <h4>ネットワークアクセス</h4>
           </ElTooltip>
         </ElCol>
@@ -105,7 +105,7 @@
 
       <ElRow>
         <ElCol :offset="1" :span="8">
-          <ElTooltip placement="top" content="NAS(CIFS Server)への記録をします" effect="light" :open-delay="500">
+          <ElTooltip :tabindex="-1" placement="top" content="NAS(CIFS Server)への記録をします" effect="light" :open-delay="500">
             <h4>NAS</h4>
           </ElTooltip>
         </ElCol>
@@ -116,7 +116,7 @@
 
       <ElRow v-if="config.STORAGE_CIFS === 'on'">
         <ElCol :offset="2" :span="7">
-          <ElTooltip placement="top" content="NASのパスを設定。(//server/folder/の形式で指定)" effect="light" :open-delay="500">
+          <ElTooltip :tabindex="-1" placement="top" content="NASのパスを設定。(//server/folder/の形式で指定)" effect="light" :open-delay="500">
             <h4>ネットワークパス</h4>
           </ElTooltip>
         </ElCol>
@@ -126,7 +126,7 @@
       </ElRow>
       <ElRow v-if="config.STORAGE_CIFS === 'on'">
         <ElCol :offset="2" :span="7">
-          <ElTooltip placement="top" content="NASのユーザー名を設定します" effect="light" :open-delay="500">
+          <ElTooltip :tabindex="-1" placement="top" content="NASのユーザー名を設定します" effect="light" :open-delay="500">
             <h4>アカウント</h4>
           </ElTooltip>
         </ElCol>
@@ -136,7 +136,7 @@
       </ElRow>
       <ElRow v-if="config.STORAGE_CIFS === 'on'">
         <ElCol :offset="2" :span="7">
-          <ElTooltip placement="top" content="NASのパスワードを設定します" effect="light" :open-delay="500">
+          <ElTooltip :tabindex="-1" placement="top" content="NASのパスワードを設定します" effect="light" :open-delay="500">
             <h4>パスワード</h4>
           </ElTooltip>
         </ElCol>
@@ -148,7 +148,7 @@
       <h3>ストリーミング</h3>
       <ElRow>
         <ElCol :offset="1" :span="8">
-          <ElTooltip placement="top" content="RTSPサーバーを起動します" effect="light" :open-delay="500">
+          <ElTooltip :tabindex="-1" placement="top" content="RTSPサーバーを起動します" effect="light" :open-delay="500">
             <h4>RTSP</h4>
           </ElTooltip>
         </ElCol>
@@ -168,7 +168,7 @@
       <h3>イベント通知</h3>
       <ElRow>
         <ElCol :offset="1" :span="8">
-          <ElTooltip placement="top" content="WebHookを設定します" effect="light" :open-delay="500">
+          <ElTooltip :tabindex="-1" placement="top" content="WebHookを設定します" effect="light" :open-delay="500">
             <h4>WebHook</h4>
           </ElTooltip>
         </ElCol>
@@ -178,7 +178,7 @@
       </ElRow>
       <ElRow v-if="config.WEBHOOK === 'on'">
         <ElCol :offset="2" :span="7">
-          <ElTooltip placement="top" content="WebHookのイベント発生時にpostするURL" effect="light" :open-delay="500">
+          <ElTooltip :tabindex="-1" placement="top" content="WebHookのイベント発生時にpostするURL" effect="light" :open-delay="500">
             <h4>通知URL</h4>
           </ElTooltip>
         </ElCol>
@@ -189,7 +189,7 @@
 
       <ElRow v-if="config.WEBHOOK === 'on'">
         <ElCol :offset="2" :span="7">
-          <ElTooltip placement="top" content="Alarm発生を通知します" effect="light" :open-delay="500">
+          <ElTooltip :tabindex="-1" placement="top" content="Alarm発生を通知します" effect="light" :open-delay="500">
             <h4>動体検知</h4>
           </ElTooltip>
         </ElCol>
@@ -203,7 +203,7 @@
 
       <ElRow v-if="config.WEBHOOK === 'on'">
         <ElCol :offset="2" :span="7">
-          <ElTooltip placement="top" content="Alarm発生時に認識情報を通知します" effect="light" :open-delay="500">
+          <ElTooltip :tabindex="-1" placement="top" content="Alarm発生時に認識情報を通知します" effect="light" :open-delay="500">
             <h4>動体認識情報</h4>
           </ElTooltip>
         </ElCol>
@@ -217,7 +217,7 @@
 
       <ElRow v-if="config.WEBHOOK === 'on'">
         <ElCol :offset="2" :span="7">
-          <ElTooltip placement="top" content="Alarm発生時に録画保存を通知します" effect="light" :open-delay="500">
+          <ElTooltip :tabindex="-1" placement="top" content="Alarm発生時に録画保存を通知します" effect="light" :open-delay="500">
             <h4>動体検知録画終了</h4>
           </ElTooltip>
         </ElCol>
@@ -231,7 +231,7 @@
 
       <ElRow v-if="config.WEBHOOK === 'on'">
         <ElCol :offset="2" :span="7">
-          <ElTooltip placement="top" content="Alarm発生時に静止画保存を通知します" effect="light" :open-delay="500">
+          <ElTooltip :tabindex="-1" placement="top" content="Alarm発生時に静止画保存を通知します" effect="light" :open-delay="500">
             <h4>動体検知静止画保存</h4>
           </ElTooltip>
         </ElCol>
@@ -245,7 +245,7 @@
 
       <ElRow v-if="config.WEBHOOK === 'on'">
         <ElCol :offset="2" :span="7">
-          <ElTooltip placement="top" content="録画保存を通知します" effect="light" :open-delay="500">
+          <ElTooltip :tabindex="-1" placement="top" content="録画保存を通知します" effect="light" :open-delay="500">
             <h4>定常録画保存</h4>
           </ElTooltip>
         </ElCol>
@@ -259,7 +259,7 @@
 
       <ElRow v-if="config.WEBHOOK === 'on'">
         <ElCol :offset="2" :span="7">
-          <ElTooltip placement="top" content="タイムラプスイベントを通知します" effect="light" :open-delay="500">
+          <ElTooltip :tabindex="-1" placement="top" content="タイムラプスイベントを通知します" effect="light" :open-delay="500">
             <h4>タイムラプス記録</h4>
           </ElTooltip>
         </ElCol>
@@ -273,7 +273,7 @@
 
       <ElRow v-if="config.WEBHOOK === 'on'">
         <ElCol :offset="2" :span="7">
-          <ElTooltip placement="top" content="タイムラプス録画完了を通知します" effect="light" :open-delay="500">
+          <ElTooltip :tabindex="-1" placement="top" content="タイムラプス録画完了を通知します" effect="light" :open-delay="500">
             <h4>タイムラプス録画完了</h4>
           </ElTooltip>
         </ElCol>
@@ -288,7 +288,7 @@
       <h3>メンテナンス</h3>
       <ElRow>
         <ElCol :offset="2" :span="7">
-          <ElTooltip placement="top" content="定期的に再起動する設定をします" effect="light" :open-delay="500">
+          <ElTooltip :tabindex="-1" placement="top" content="定期的に再起動する設定をします" effect="light" :open-delay="500">
             <h4>定期リスタート</h4>
           </ElTooltip>
         </ElCol>
@@ -318,7 +318,7 @@
 
       <ElRow>
         <ElCol :offset="2" :span="7">
-          <ElTooltip placement="top" content="再起動します" effect="light" :open-delay="500">
+          <ElTooltip :tabindex="-1" placement="top" content="再起動します" effect="light" :open-delay="500">
             <h4>リブート</h4>
           </ElTooltip>
         </ElCol>
@@ -332,7 +332,7 @@
 
       <ElRow>
         <ElCol :offset="2" :span="7">
-          <ElTooltip placement="top" content="SD-Cardの録画フォルダを消去します" effect="light" :open-delay="500">
+          <ElTooltip :tabindex="-1" placement="top" content="SD-Cardの録画フォルダを消去します" effect="light" :open-delay="500">
             <h4>SD-Card消去</h4>
           </ElTooltip>
         </ElCol>
@@ -349,10 +349,10 @@
         <ElButton @click="Submit" type="primary" :disabled="stillFullView">設定</ElButton>
       </ElCol>
     </ElRow>
-    <ElDrawer title="設定中" :visible.sync="executing" direction="btt" show-close="false" wrapperClosable="false">
+    <ElDrawer title="設定中" :visible.sync="executing" direction="btt" :show-close="false" :wrapperClosable="false">
       <h4 class="comment">設定変更中。暫くお待ち下さい。</h4>
     </ElDrawer>
-    <ElDrawer title="再起動中" :visible.sync="rebooting" direction="btt" show-close="false" wrapperClosable="false">
+    <ElDrawer title="再起動中" :visible.sync="rebooting" direction="btt" :show-close="false" :wrapperClosable="false">
       <h4 class="comment">起動するまで暫くお待ち下さい。(約80秒)</h4>
     </ElDrawer>
   </div>
@@ -403,8 +403,8 @@
           WEBHOOK_URL: '',
           WEBHOOK_ALARM_EVENT: 'off',
           WEBHOOK_ALARM_INFO: 'off',
-          WEBHOOK_ALERM_VIDEO_FINISH: 'off',
-          WEBHOOK_ALERM_PICT_FINISH: 'off',
+          WEBHOOK_ALARM_VIDEO_FINISH: 'off',
+          WEBHOOK_ALARM_PICT_FINISH: 'off',
           WEBHOOK_RECORD_EVENT: 'off',
           WEBHOOK_TIMELAPSE_EVENT: 'off',
           WEBHOOK_TIMELAPSE_FINISH: 'off',

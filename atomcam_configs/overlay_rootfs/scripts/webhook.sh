@@ -12,18 +12,18 @@ BEGIN {
 }
 
 /alarm_uploadNotify/ {
-  if(ENV["WEBHOOK_ALERM_EVENT"] == "on") Post("alarmEvent");
+  if(ENV["WEBHOOK_ALARM_EVENT"] == "on") Post("alarmEvent");
 }
 /\[curl_post.*?\]snd:/ {
   gsub(/^.*snd:\[/,"");
   gsub(/\]$/, "");
-  if(ENV["WEBHOOK_ALERM_INFO"] == "on") Post("recognitionNotify", $0);
+  if(ENV["WEBHOOK_ALARM_INFO"] == "on") Post("recognitionNotify", $0);
 }
 /upload video succes!/ {
-  if(ENV["WEBHOOK_ALERM_VIDEO_FINISH"] == "on") Post("uploadVideoFinish");
+  if(ENV["WEBHOOK_ALARM_VIDEO_FINISH"] == "on") Post("uploadVideoFinish");
 }
 /upload pic succes!/ {
-  if(ENV["WEBHOOK_ALERM_PICT_FINISH"] == "on") Post("uploadPictureFinish");
+  if(ENV["WEBHOOK_ALARM_PICT_FINISH"] == "on") Post("uploadPictureFinish");
 }
 /\[exec-iCame,.* cmd:\[mv/ {
   gsub(/^.*\/media\/mmc/, "");

@@ -11,23 +11,33 @@
 telnetパスワード以外のことについてのDMでの質問は、他の方への情報共有が滞りますのでもったいないです。
 
 ## 実現される機能
-- WebUI (Port: 8080)
-- FTPサーバー機能 (Port:21)
-- Telnet (Port:23)
-  - rootユーザー、パスワードはこのこのカメラ(2世代目)の商品名を英数小文字、8文字で入力したものです。  
-      - わからなければTwitterのDMで聞いてください。  
-      - microSDカードのroot directoryにdisable\_telnetという名前のファイルをつくるとtelnetをdisableすることができます。
-- avahi(mDNS)機能
-  - microSDカードのroot directoryにAtomCamの名前をhostnameのファイル名で書いてください。
+- WebUI (Port: 80)
+  - ATOMCamのアプリから設定できない追加機能について設定します。
+- CIFS(Samba4.0)サーバー(Port:137,138,139,445)
+  - SD-Cardの保存されている映像のフォルダーをLAN内にguestアカウントで共有します。
+- NASへの保存
+  - CIFS(smb)プロトコルでNASへSD-Cardへ保存している映像と同じものを保存します。
+- RTSPServer(Port:8554)
+  - RTSP streaming を送出します。
+- avahi(mDNS)機能(Port:5353)
+  - microSDカードのhostnameファイルを編集することでデバイス名を変更できます（WebUIからも変更可能）
   - hostnameの命名規則は英数と-(hyphen)のみ（RFC952,1123で規定)です。\_(underscore)は使用できません。defaultはatomcamになっています。
-  - mDNS対応しているOSからは[hostname].localでアクセスできるようになります。
+  - mDNS対応しているOS（Windows10以降/MacOS/avahi入りlinux）からは[hostname].localでアクセスできるようになります。
 - sshd (Port:22)
   - microSDカードのroot directoryにsshの公開鍵をauthorized\_keysの名前のファイルで置いてください。rootアカウントなのでパスワードではloginできない設定になっています。
   - ssh root@[ATOMCam2のIPアドレス] or ssh root@[hsotname].local でloginできます。
+- webHook機能(experimental)
+  - 各種イベント発生時に指定したURLにpostで通知します。
 ## セキュリティに関わる重要事項
 上記項目に書いてある各ポートが利用可能となります。  
 現時点ではこのポートはセキュリティ上の懸念材料となりますので、  
 ネットワークのセキュリティーを各自十分に保つように心がけてください。
+
+WebUI、video、jpegに関してはLAN内からは自由に見える設定になっています。
+
+sshは物理的にSD-Cardへアクセスして公開鍵を書かないとloginできないようにしています。
+
+ただし、ATOMCamはSSID,passwordを平文でカメラ内のフラッシュメモリ（SD-Cardではない）に保存しているのでカメラを盗難されて中を見られるとWiFiにアクセスされる可能性がありますのでご注意ください。
 
 ## 使用法
 
@@ -41,64 +51,143 @@ https://github.com/bakueikozo/atomcam_tools/releases/tag/v1.0rc
 
 ## Web設定画面
 
-ATOMCam純正アプリや、IPアドレス確認ツールなどでATOMCam2のIPアドレスを確認し、  
-ブラウザで http://[ATOMCam2のIPアドレス]:8080/cgi-bin/honeylab.cgi を開きます  
+ http://atomcam.local を開くと設定画面にアクセスできます。
+
+mDNS未対応で開けない場合は、ATOMCam純正アプリや、IPアドレス確認ツールなどでATOMCam2のIPアドレスを確認し、 ブラウザで http://[ATOMCam2のIPアドレス] を開きます。
+
 この設定画面で行った設定は microSDカード内、hack.ini　に保存され、次回再起動後からは自動的に読み込まれます。  
 
-### Alarm File Save
-Save Alarm MP4 into alarm_record folder (Note: No remove automatically.)  
-にチェックを入れると、検出機能によって生成された12秒動画を内蔵microSDカードのalarm_recordフォルダに保存します。  
-！！！　このファイルは自動的には削除されないため、FTPサーバ機能などを使って随時削除する必要があります。！！！  
-または、「Clean Alarm Save Folder」を押すことによってもファイル削除が行えます。  
 
-### FTP Setting
-「Enable FTP Server」にチェックを入れると、FTPサーバ機能が起動します(再起動が必要です)  
-「Working as FTP Client」にチェックを入れると、FTPクライアントとして動作し、  
-特定のFTPサーバに毎分録画を送信することができます  
-#### FTP Server IP Address
- FTPサーバのアドレスを入力します
-#### Login User as
- FTPサーバに登録されたユーザ名を入力します
-#### Password
- FTPサーバに登録されたパスワードを入力します
-#### upload folder
- 各カメラごと違う名前で、動画をアップロードするフォルダ名を指定します。
 
-#### ALL NORMAL RECORD FILES
- 毎分録画を [upload folder]/record/yyyy/mm/dd/yyyymmdd_hhmm.mp4 として転送します
-#### ALARM RECORD FILES
- 検出動画(12秒)を [upload folder]/alarm_record/yyyymmdd_hhmm.mp4 として転送します。
+### 基本設定
 
-### Schedule Recording
-録画された毎分動画を残す設定を行います。
-#### ALL HOURS
-これにチェックを入れておくと、すべての録画を行う通常の動作となります。
-#### CUSTOM
-これにチェックを入れておくと、曜日・時刻マトリックスのチェックボックスがONになっていない時間は、 
-録画されたファイルを随時削除します。  
-明らかに不要な時間帯を除外することで、長い日数の録画を残せるようにするための試みです  
+#### デバイス名
 
-### Swap file on SD Card
-#### Swap file size MB ( 0 = disabled)  (Need to reboot)
-動作を安定させるための仮想メモリのサイズを設定します。
-RTSPサーバを使用するためには、40MB程度のサイズを設定しておくと安定性が高まることが確認されています。
-また、この場合microSDへの書き込み回数が多くなるため、信頼性の高いディスクを使用することが必要です。
+カメラのデバイス名を設定します。
 
-### Reboot Setting
-#### Reboot in each  x Hours.( 0 = disabled) 
-ネットワークの不調など、何らかの理由でATOMCamが連続稼働することができない場合、  
-一定時間ごとに再起動を試みます。  
-必ずしもこれによって問題が解決するとは限りません。  
+ここで設定した名前はCIFS(Samba) / mDNS(avahi) / NASのフォルダー名に使用されます。
 
-### RTSP setting (not recommended)
-#### USE RTSP Streaming (Need to reboot)
-チェックを入れると、RTSPストリーミングを行います。 　
+
+
+### 録画
+
+#### 検出通知のローカル録画
+
+ATOMCamアプリで設定した検出時にクラウドサーバーに保存される12秒の映像をSD-Card/NASにも記録します。記録されるフォルダーは alarm_record です。
+
+！！！　このファイルは自動的には削除されないため、CIFSサーバ機能などを使って随時削除する必要があります。！！！ 
+または、「SD-Card消去」を押すことによってもファイル削除が行えます。  
+
+### 
+
+##### #### ローカル録画スケジュール
+
+スケジュールを選ぶと、曜日と時間帯を指定する項目が追加されます。
+
+ATOMCamアプリの「録画およびストレージ管理」の「ローカル録画」で記録される映像の記録する時間帯を設定します。
+
+右端のー/＋で指定項目を削除/追加できます。複数の項目はor条件で効きます。
+
+
+
+### 記録メディア
+
+#### SD-Card
+
+offにするとATOMCamアプリの「Micro SDへのローカル録画」がonでもSD-Cardに記録されなくなります。
+
+NASへのみ記録する場合はここをoffにしてください。（ただしフォルダーだけできてしまいます※そのうち対応します）
+
+##### - ネットワークアクセス
+
+onにするとSD-Cardの /record, /time_lapse, /alarm_record をSamba4.0でデバイス名のネットワークフォルダとしてLAN内に公開します。
+
+#### NAS
+
+ATOMCamアプリの「Micro SDへのローカル録画」、この設定画面の「検出通知のローカル録画」の映像をNASにも記録します。
+
+##### - ネットワークパス
+
+NASのホスト名＋フォルダー名を//\[ホスト名]/[フォルダー名] の形式で指定します。
+
+##### - アカウント
+
+NASにアクセスするためのアカウント（ユーザー名）を指定します。
+
+##### - パスワード
+
+NASにアクセスするためのパスワードを指定します。（このパスワードは生値でSD-Cardに保存されます）
+
+
+
+### ストリーミング
+
+#### RTSP (not recommended)
+
+チェックを入れると、RTSPストリーミングを行います。 
+
 特に、システムの安定性に関わるため、利用には十分なテストを行ってください。  
-#### streaming URL 
+
+##### - URL
+
 VLC media playerの「ネットワークストリーミングを開く」で入力するURLが表示されます。
 
 
+
+### イベント通知
+
+#### WebHook(experimental)
+
+動体検知や録画ファイルの書き込み等のイベントのタイミングで指定のURLに通知します。
+
+##### - 通知URL
+
+WebHookを受け取るURLを指定します。今のところ実験的な実装なのでLAN内のnon-secureなpostを想定しています。
+
+{ type: 'event名', data: あれば何か }の形式でpostします。
+
+##### - 動体検知
+
+動体検知が働いた時に通知URLに type: alarmEvent をpostします。
+
+##### - 動体認識情報
+
+動体検知の認識情報取得時に通知URLに type: recognitionNotify, data: recognition data をpostします。
+
+##### - 動体検知録画終了
+
+動体検知での録画が終了した時に通知URLに type: uploadVideoFinish をpostします。
+
+##### - 動体検知静止画保存
+
+動体検知での静止画保存完了時に通知URLに type: uploadPictureFinishをpostします。
+
+##### - 定常録画保存
+
+１分間の定常録画が終了するたびに通知URLに type: recordEventをpostします。
+
+##### - タイムラプス記録
+
+タイムラプス記録のたびに通知URLに type: timelapseCurrentをpostします。
+
+##### - タイムラプス録画終了
+
+タイムラプス録画終了時に通知URLに type: timelapseFinishをpostします。
+
+##### 
+
+### メンテナンス
+
+#### 定期リスタート
+
+カメラのシステムを指定したスケジュールで再起動します。
+
+ネットワークの不調など、何らかの理由でATOMCamが連続稼働することができない場合の対応ですが、必ずしもこれによって問題が解決するとは限りません。  
+
+ 
+
 ### Copyright
+
 LICENSEファイルを参照してください
 
 ### 寄付について

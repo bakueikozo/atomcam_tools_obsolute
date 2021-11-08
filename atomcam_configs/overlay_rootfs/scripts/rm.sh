@@ -14,7 +14,7 @@ HACK_INI=/media/mmc/hack.ini
 RECORDING_ALARM=$(awk -F "=" '/RECORDING_ALARM *=/ {print $2}' $HACK_INI)
 STORAGE_SDCARD=$(awk -F "=" '/STORAGE_SDCARD *=/ {print $2}' $HACK_INI)
 STORAGE_CIFS=$(awk -F "=" '/STORAGE_CIFS *=/ {print $2}' $HACK_INI)
-STORAGE_CIFSSERVER=$(awk -F "=" '/STORAGE_CIFSSERVER *=/ {print $2}' $HACK_INI)
+STORAGE_CIFSSERVER=$(awk -F "=" '/STORAGE_CIFSSERVER *=/ {gsub(/\/$/, "", $2); print $2}' $HACK_INI)
 STORAGE_CIFSUSER=$(awk -F "=" '/STORAGE_CIFSUSER *=/ {print $2}' $HACK_INI)
 STORAGE_CIFSPASSWD=$(awk -F "=" '/STORAGE_CIFSPASSWD *=/ {print $2}' $HACK_INI)
 WEBHOOK_URL=$(awk -F "=" '/WEBHOOK_URL *=/ {print $2}' $HACK_INI)
@@ -22,8 +22,8 @@ WEBHOOK_ALERM_PICT=$(awk -F "=" '/WEBHOOK_ALERM_PICT *=/ {print $2}' $HACK_INI)
 WEBHOOK_ALERM_VIDEO=$(awk -F "=" '/WEBHOOK_ALERM_VIDEO *=/ {print $2}' $HACK_INI)
 HOSTNAME=`hostname`
 
-USER_CONFIG=/atom/configs/.user_config
-ALARM_CONFIG=/atom/configs/.multiplealarm_config
+USER_CONFIG=/configs/.user_config
+ALARM_CONFIG=/configs/.multiplealarm_config
 ALARMDATE=$(awk -F "=" '/alarmDate *=/ {print $2}' $USER_CONFIG)
 if [ "$ALARMDATE" = "0" ] && [ -f $ALARM_CONFIG ]; then
   FMT=`TZ=JST-9 awk '
