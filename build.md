@@ -116,13 +116,12 @@ WiFiはatom側のシステムが起動しているので、rootfs側は起動し
 
 ​	その後、chrootで/atomの/tmp/system/bin/atom_init.shを呼び出します。
 
+ ​  ここまではglibcの世界で動作しています。
+
 ##### atom_init.sh
 
-​	本来のATOMCamの初期化シーケンスを実行します。
-
-​	iCamera_appの実行時にlibcallback.soを噛ませて映像の横流しとwebHookのためのctorsへのsetlinebufの設定をしています。
-
-​	さらにwebHookのためにlogを/tmp/log/に出力させています。
+​	本来のATOMCamの初期化シーケンスを実行します。ここからuClibcの世界に入ります。
+​	iCamera_appの実行時にlibcallback.soを噛ませて映像の横流しとwebHookのためのctorsへのsetlinebufの設定をしています。さらにwebHookのためにlogを/tmp/log/に出力させています。
 
 ​	これを実行するとwatchdogが起動するため、assisとiCamera_appは止められなくなります。
 
