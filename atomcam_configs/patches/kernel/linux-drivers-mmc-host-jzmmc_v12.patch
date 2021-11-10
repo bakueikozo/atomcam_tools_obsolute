@@ -2,6 +2,17 @@ diff --git a/drivers/mmc/host/jzmmc_v12.c b/drivers/mmc/host/jzmmc_v12.c
 index 4e688b5e..6ac83140 100644
 --- a/drivers/mmc/host/jzmmc_v12.c
 +++ b/drivers/mmc/host/jzmmc_v12.c
+@@ -9,8 +9,8 @@
+  * published by the Free Software Foundation.
+  */
+ 
+-#define VERBOSE_DEBUG
+-#define DEBUG
++//#define VERBOSE_DEBUG
++//#define DEBUG
+ #include <linux/platform_device.h>
+ #include <linux/mmc/host.h>
+ #include <linux/mmc/card.h>
 @@ -21,8 +21,8 @@
  #include <linux/dma-mapping.h>
  #include <linux/gpio.h>
