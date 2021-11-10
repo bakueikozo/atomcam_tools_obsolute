@@ -1,7 +1,7 @@
 #!/bin/sh
 
 HACK_INI=/media/mmc/hack.ini
-tail -F /tmp/log/atom.log | awk '
+tail -F /tmp/log/atom.log | TZ=JST-9 awk '
 BEGIN {
   FS = "=";
   while(getline < HACK_INI) {
@@ -36,6 +36,12 @@ BEGIN {
 }
 /time_lapse_stop_job/ {
   if(ENV["WEBHOOK_TIMELAPSE_FINISH"] == "on") Post("timelapseFinish");
+}
+/__NTP Set SysTime To/ {
+  gsub(/^.*__NTP Set SysTime To /, "");
+  gsub(/__.*$/, "000");
+  print strftime("Reboot Time : %Y/%m/%d %H:%M:%S") >> "/media/mmc/atomhack.log";
+  fflush("/media/mmc/atomhack.log");
 }
 
 function Post(event, data) {

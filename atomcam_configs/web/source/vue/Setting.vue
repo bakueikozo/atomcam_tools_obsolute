@@ -231,6 +231,20 @@
 
       <ElRow v-if="config.WEBHOOK === 'on'">
         <ElCol :offset="2" :span="7">
+          <ElTooltip :tabindex="-1" placement="top" content="Alarm発生時に録画ファイルを転送します" effect="light" :open-delay="500">
+            <h4>動体検知録画転送</h4>
+          </ElTooltip>
+        </ElCol>
+        <ElCol :span="4">
+          <ElSwitch v-model="config.WEBHOOK_ALERM_VIDEO" active-value="on" inactive-value="off" />
+        </ElCol>
+        <ElCol v-if="config.WEBHOOK_ALERM_VIDEO === 'on'" :span="4">
+          mime: video/mp4
+        </ElCol>
+      </ElRow>
+
+      <ElRow v-if="config.WEBHOOK === 'on'">
+        <ElCol :offset="2" :span="7">
           <ElTooltip :tabindex="-1" placement="top" content="Alarm発生時に静止画保存を通知します" effect="light" :open-delay="500">
             <h4>動体検知静止画保存</h4>
           </ElTooltip>
@@ -240,6 +254,20 @@
         </ElCol>
         <ElCol v-if="config.WEBHOOK_ALARM_PICT_FINISH === 'on'" :span="4">
           type: uploadPictureFinish
+        </ElCol>
+      </ElRow>
+
+      <ElRow v-if="config.WEBHOOK === 'on'">
+        <ElCol :offset="2" :span="7">
+          <ElTooltip :tabindex="-1" placement="top" content="Alarm発生時に静止画ファイルを転送します" effect="light" :open-delay="500">
+            <h4>動体検知静止画転送</h4>
+          </ElTooltip>
+        </ElCol>
+        <ElCol :span="4">
+          <ElSwitch v-model="config.WEBHOOK_ALERM_PICT" active-value="on" inactive-value="off" />
+        </ElCol>
+        <ElCol v-if="config.WEBHOOK_ALERM_PICT === 'on'" :span="4">
+          mime: image/jpeg
         </ElCol>
       </ElRow>
 
@@ -404,7 +432,9 @@
           WEBHOOK_ALARM_EVENT: 'off',
           WEBHOOK_ALARM_INFO: 'off',
           WEBHOOK_ALARM_VIDEO_FINISH: 'off',
+          WEBHOOK_ALERM_VIDEO: 'off',
           WEBHOOK_ALARM_PICT_FINISH: 'off',
+          WEBHOOK_ALERM_PICT: 'off',
           WEBHOOK_RECORD_EVENT: 'off',
           WEBHOOK_TIMELAPSE_EVENT: 'off',
           WEBHOOK_TIMELAPSE_FINISH: 'off',
@@ -590,8 +620,6 @@
         }
       },
       async Exec(cmd) {
-        // eslint-disable-next-line no-console
-        console.log('Exec ', cmd);
         await axios.post('./cgi-bin/exec.cgi', { exec: `${cmd}` }).catch(err => {
           // eslint-disable-next-line no-console
           console.log(err);
