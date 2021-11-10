@@ -1,21 +1,32 @@
 #!/bin/sh
 #
-# skip network time daemon
+# Start network time daemon
 #
 
 case "$1" in
   start)
-	;;
+    logger -s "Starting ntpd: "
+    (
+      while ! ifconfig wlan0 | grep 'inet addr'
+      do
+        sleep 1
+      done
+      /usr/sbin/ntpd
+      [ $? == 0 ] && logger -s "OK" || logger -s "FAIL"
+    ) &
+  ;;
   stop)
-	;;
+    logger -s "Stopping ntpd: "
+    killall ntpd
+    [ $? == 0 ] && logger -s "OK" || logger -s "FAIL"
+  ;;
   restart|reload)
-	"$0" stop
-	"$0" start
-	;;
+    "$0" stop
+    "$0" start
+  ;;
   *)
-	echo "Usage: $0 {start|stop|restart}"
-	exit 1
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
 esac
 
 exit $?
-
