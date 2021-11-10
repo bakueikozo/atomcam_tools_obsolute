@@ -41,8 +41,7 @@ sshは物理的にSD-Cardへアクセスして公開鍵を書かないとlogin�
 
 ## 使用法
 
-https://github.com/mnakada/atomcam_tools/releases/tag/v1.0rc3
-
+https://github.com/mnakada/atomcam_tools/releases/tag/v1.0RC4
 からatomcam_tools.zipをダウンロードし、適当なツールで解凍します。  
 <img src="https://github.com/bakueikozo/atomcam_tools/blob/main/images/extract.png">
 
