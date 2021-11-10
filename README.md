@@ -41,7 +41,7 @@ sshは物理的にSD-Cardへアクセスして公開鍵を書かないとlogin�
 
 ## 使用法
 
-https://github.com/bakueikozo/atomcam_tools/releases/tag/v1.0rc
+https://github.com/mnakada/atomcam_tools/releases/tag/v1.0rc3
 
 からatomcam_tools.zipをダウンロードし、適当なツールで解凍します。  
 <img src="https://github.com/bakueikozo/atomcam_tools/blob/main/images/extract.png">
@@ -52,6 +52,8 @@ https://github.com/bakueikozo/atomcam_tools/releases/tag/v1.0rc
 ## Web設定画面
 
  http://atomcam.local を開くと設定画面にアクセスできます。
+
+<img src="https://github.com/mnakada/atomcam_tools/blob/ssh-support/images/local_web.png">
 
 mDNS未対応で開けない場合は、ATOMCam純正アプリや、IPアドレス確認ツールなどでATOMCam2のIPアドレスを確認し、 ブラウザで http://[ATOMCam2のIPアドレス] を開きます。
 
