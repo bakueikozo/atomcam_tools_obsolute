@@ -20,20 +20,6 @@ if [ "$REQUEST_METHOD" = "POST" ]; then
   }
   ' > /media/mmc/hack.ini
 
-  REBOOT_SCHEDULE = `awk '/REBOOT_SCHEDULE *=/ { gsub(/^REBOOT_SCHEDULE *=/, ''); print; }' /media/mmc/hack.ini`
-  awk '
-  /\/scripts\/reboot\.sh/ {
-    next;
-  }
-  {
-    print;
-  }
-  END {
-    if(REBOOT_SCHEDULE != "") print REBOOT_SCHEDULE " /scripts/reboot.sh";
-  }
-  ' -v REBOOT_SCHEDULE="$REBOOT_SCHEDULE" /var/spool/cron/crontabs/root > /var/spool/cron/crontabs/root.new
-  busybox mv /var/spool/cron/crontabs/root.new /var/spool/cron/crontabs/root
-
   awk '
   BEGIN {
     FS=";";

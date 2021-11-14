@@ -41,9 +41,9 @@ sshは物理的にSD-Cardへアクセスして公開鍵を書かないとlogin�
 
 ## 使用法
 
-https://github.com/mnakada/atomcam_tools/releases/tag/v1.0RC4
+https://github.com/mnakada/atomcam_tools/releases/tag/v1.0RC5
 からatomcam_tools.zipをダウンロードし、適当なツールで解凍します。  
-<img src="https://github.com/bakueikozo/atomcam_tools/blob/main/images/extract.png">
+<img src="https://github.com/mnakada/atomcam_tools/blob/main/images/extract.png">
 
 解凍されて出てきたすべてのファイルを、ATOMCam2で使用可能なmicroSDカードのルートフォルダに保存します  
 保存したmicroSDカードをATOMCam2に入れて電源を入れます  
@@ -158,9 +158,17 @@ WebHookを受け取るURLを指定します。今のところ実験的な実装�
 
 動体検知での録画が終了した時に通知URLに type: uploadVideoFinish をpostします。
 
+##### - 動体検知録画転送
+
+動体検知での録画が終了した時に通知URLに mime:video/mp4で録画ファイル をpostします。
+
 ##### - 動体検知静止画保存
 
 動体検知での静止画保存完了時に通知URLに type: uploadPictureFinishをpostします。
+
+##### - 動体検知静止画転送
+
+動体検知での静止画保存完了時に通知URLに mime:image/jpegで静止画ファイルをpostします。
 
 ##### - 定常録画保存
 

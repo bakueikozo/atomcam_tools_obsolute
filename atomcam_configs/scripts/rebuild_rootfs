@@ -9,5 +9,24 @@ cp -a staging/lib/* target/lib/
 cp -a staging/usr/lib/* target/usr/lib/
 rm -f build/.root
 find . -name ".stamp_target_installed*" -print | xargs rm -f
-cd ..
+
+# build libcallback.so
+PATH=$PATH:/openmiko/build/mips-gcc472-glibc216-64bit/bin
+cd /src/atomcam_configs/libcallback
+mips-linux-uclibc-gnu-gcc -fPIC -shared -o libcallback.so filesnooper.c setlinebuf.c -ldl
+mkdir -p /src/atomcam_configs/overlay_rootfs/lib/modules/
+cp libcallback.so /src/atomcam_configs/overlay_rootfs/lib/modules/
+
+# build webpage
+PATH=$PATH:/root/.nvm/versions/node/v16.10.0/bin
+cd /src/atomcam_configs/web
+npm install -g npm
+npm install
+./node_modules/.bin/webpack --mode production --progress
+cp -pr frontend/* /src/atomcam_configs/overlay_rootfs/var/www
+
+
+cd /openmiko/build/buildroot-2016.02
 make
+cp /openmiko/build/buildroot-2016.02/output/images/rootfs.ext2 /src
+cp /openmiko/build/buildroot-2016.02/output/images/uImage.lzma /src

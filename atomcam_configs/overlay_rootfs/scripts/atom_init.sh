@@ -39,3 +39,11 @@ chmod 777 /tmp/log
 LD_PRELOAD=/tmp/system/modules/libcallback.so /system/bin/iCamera_app >> /tmp/log/atom.log 2>&1 &
 
 /system/bin/dongle_app >> /tmp/log/dongle.log &
+
+(
+while sleep 3600
+do
+  TZ=JST-9 date >> /media/mmc/atomhack.log
+  free >> /media/mmc/atomhack.log
+done
+) &

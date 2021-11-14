@@ -572,6 +572,7 @@
           str += `DelFlags=1;`;
         }
         this.config.RECORDING_LOCAL_SCHEDULE_LIST = str;
+        if(this.config.SDCARD !== "on") this.config.STORAGE_SDCARD_PUBLISH = "off";
 
         str = parseInt(this.reboot.time.slice(-2)) + ' ';
         str += parseInt(this.reboot.time.slice(0, 2)) + ' * * ';
@@ -599,6 +600,9 @@
         }
         if(Object.keys(this.config).some(prop => (prop.search(/WEBHOOK/) === 0) && (this.config[prop] !== this.oldConfig[prop]))) {
           execCmds.push('setwebhook');
+        }
+        if(this.config.REBOOT_SCHEDULE !== this.oldConfig.REBOOT_SCHEDULE) {
+          execCmds.push(`scheduleReboot ${this.config.REBOOT_SCHEDULE}`);
         }
         if(this.config.HOSTNAME !== this.oldConfig.HOSTNAME) {
           execCmds.push(`hostname ${this.config.HOSTNAME}`);

@@ -3,6 +3,7 @@
 # rtsp server
 #
 HACK_INI=/media/mmc/hack.ini
+touch $HACK_INI
 RTSPSERVER=$(awk -F "=" '/RTSPSERVER *=/ {print $2}' $HACK_INI)
 
 case "$1" in
