@@ -9,7 +9,7 @@ RTSPSERVER=$(awk -F "=" '/RTSPSERVER *=/ {print $2}' $HACK_INI)
 case "$1" in
   start)
     echo "setup atomcam environment"
-    if [ $RTSPSERVER = "on" ]; then
+    if [ "$RTSPSERVER" = "on" ]; then
       /scripts/rtspserver.sh on
     fi
     ;;

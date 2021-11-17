@@ -2,6 +2,8 @@
 
 export PATH=/tmp/system/bin:/system/bin:/bin:/sbin:/usr/bin:/usr/sbin
 export LD_LIBRARY_PATH=/thirdlib:/system/lib:/tmp
+
+sleep 1
 insmod /system/driver/tx-isp-t31.ko isp_clk=100000000
 insmod /system/driver/exfat.ko
 insmod /system/driver/audio.ko spk_gpio=-1
@@ -9,10 +11,11 @@ insmod /system/driver/avpu.ko
 insmod /system/driver/sinfo.ko
 insmod /system/driver/sample_pwm_core.ko
 insmod /system/driver/sample_pwm_hal.ko
-insmod /system/driver/mmc_detect_test.ko || VENDERID="0x024c"
 insmod /system/driver/speaker_ctl.ko
 
-if [ "$VENDERID" = "" ]; then
+VENDERID="0x024c"
+if [ -f /system/driver/mmc_detect_test.ko ]; then
+  insmod /system/driver/mmc_detect_test.ko
   while [ ! -f /sys/bus/mmc/devices/mmc1\:0001/mmc1\:0001\:1/vendor ]; do
 	  sleep 0.1
   done

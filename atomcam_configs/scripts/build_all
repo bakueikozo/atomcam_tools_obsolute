@@ -19,6 +19,9 @@ npm install
 ./node_modules/.bin/webpack --mode production --progress
 cp -pr frontend/* /src/atomcam_configs/overlay_rootfs/var/www
 
+# set version
+cp /src/atomcam_configs/atomhack.ver /src/atomcam_configs/overlay_rootfs/etc
+
 # build kernel and rootfs
 cd /openmiko/build/buildroot-2016.02
 cp /src/atomcam_configs/openmiko.config .config

@@ -4,7 +4,7 @@
       <div>
         ATOMCam Hack
         <span class="version">
-          Hack Ver.{{ version }}
+          Hack Ver.{{ config.ATOMHACKVER }}
         </span>
       </div>
       <span class="atomcam">
@@ -409,10 +409,10 @@
     },
     data() {
       return {
-        version: '0.1.0',
         RTSP_URL: '',
         config: {
           appver: '', // ATOMCam app_ver (/atom/config/app.ver)
+          ATOMHACKVER: '', // AtomHack Ver (/etc/atomhack.ver)
           PRODUCT_MODEL: '', // ATOMCam Model (/atom/configs/.product_config)
           HOSTNAME: 'atomcam', // ATOMHack hostname (/media/mmc/hostname)
           REBOOT: 'off',
@@ -521,7 +521,8 @@
           console.log(err);
           return '';
         });
-        if(res !== '') this.rebooting = false;
+        if(res === '') return;
+        if(new Date() - this.rebootStart > 10 * 1000) this.rebooting = false;
         this.intervalValue = res.data.split('\n').reduce((d, l) => {
           const name = l.split(/[ \t=]/)[0].trim();
           if(name) d[name] = l.replace(new RegExp(name + '[ \t=]*'), '').trim();
@@ -550,6 +551,7 @@
       DoReboot() {
         setTimeout(() => { location.reload(); }, 80000);
         this.rebooting = true;
+        this.rebootStart = new Date();
         this.Exec('reboot');
       },
       DoErase() {
