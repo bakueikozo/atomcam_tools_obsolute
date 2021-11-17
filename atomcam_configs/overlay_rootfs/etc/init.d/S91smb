@@ -21,11 +21,11 @@ start() {
 
 stop() {
   printf "Shutting down SMB services: "
-  kill -9 `pidof smbd`
+  [ pidof smbd ] && kill -9 `pidof smbd`
   [ $? = 0 ] && echo "OK" || echo "FAIL"
 
   printf "Shutting down NMB services: "
-  kill -9 `pidof nmbd`
+  [ pidof nmbd ] && kill -9 `pidof nmbd`
   [ $? = 0 ] && echo "OK" || echo "FAIL"
 }
 
