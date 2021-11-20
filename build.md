@@ -91,7 +91,7 @@ WiFiはatom側のシステムが起動しているので、rootfs側は起動し
 
 ### 起動シーケンス
 
-##### u-boot -> kernelが内のinitramfsの/init_atomcam
+##### u-boot -> kernel内蔵のinitramfs上の/init_atomcam
 
 ​	*initramfsはopenmiko/initramfs_skeletonにatomcam_configs/overlay_initramfsを重ねています。*
 
