@@ -79,10 +79,10 @@ fi
 
 if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
   if [ "$WEBHOOK_ALERM_PICT" = "on" ] && [ "$FILE" = "/tmp/alarm.jpg" ]; then
-     LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -F "image=@$FILE;type=image/jpeg" $WEBHOOK_URL
+     LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -F "image=@$FILE" -F"type=image/jpeg" -F"device=${HOSTNAME}" $WEBHOOK_URL
   fi
   if [ "$WEBHOOK_ALERM_VIDEO" = "on" ] && [ "$FILE" = "/tmp/alarm_record.mp4" ]; then
-     LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -F "video=@$FILE;type=video/mp4" $WEBHOOK_URL
+     LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -F "video=@$FILE" -F "type=video/mp4" -F"device=${HOSTNAME}" $WEBHOOK_URL
   fi
 fi
 
