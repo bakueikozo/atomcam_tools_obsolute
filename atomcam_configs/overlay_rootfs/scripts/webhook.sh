@@ -9,6 +9,7 @@ BEGIN {
   while(getline < HACK_INI) {
     ENV[$1]=$2;
   }
+  "hostname" | getline HOSTNAME;
 }
 
 /__NTP Set SysTime To/ {
@@ -52,9 +53,9 @@ BEGIN {
 
 function Post(event, data) {
   if(data == "") {
-    system("curl -X POST -H \x27Content-Type: application/json\x27 -d \x27{\"type\":\"" event "\"}\x27 " ENV["WEBHOOK_URL"]);
+    system("curl -X POST -H \x27Content-Type: application/json\x27 -d \x27{\"type\":\"" event "\", \"device\":\"" HOSTNAME "\"}\x27 " ENV["WEBHOOK_URL"]);
   } else {
-    system("curl -X POST -H \x27Content-Type: application/json\x27 -d \x27{\"type\":\"" event "\", \"data\":" data "}\x27 " ENV["WEBHOOK_URL"]);
+    system("curl -X POST -H \x27Content-Type: application/json\x27 -d \x27{\"type\":\"" event "\", \"device\":\"" HOSTNAME "\", \"data\":" data "}\x27 " ENV["WEBHOOK_URL"]);
   }
 }
 ' -v HACK_INI=$HACK_INI
