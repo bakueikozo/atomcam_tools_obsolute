@@ -574,7 +574,7 @@
           str += `DelFlags=1;`;
         }
         this.config.RECORDING_LOCAL_SCHEDULE_LIST = str;
-        if(this.config.SDCARD !== "on") this.config.STORAGE_SDCARD_PUBLISH = "off";
+        if(this.config.STORAGE_SDCARD !== "on") this.config.STORAGE_SDCARD_PUBLISH = "off";
 
         str = parseInt(this.reboot.time.slice(-2)) + ' ';
         str += parseInt(this.reboot.time.slice(0, 2)) + ' * * ';
