@@ -12,6 +12,7 @@ fi
 
 HACK_INI=/media/mmc/hack.ini
 RECORDING_ALARM=$(awk -F "=" '/RECORDING_ALARM *=/ {print $2}' $HACK_INI)
+RECORDING_PATH=$(awk -F "=" '/RECORDING_PATH *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
 STORAGE_SDCARD=$(awk -F "=" '/STORAGE_SDCARD *=/ {print $2}' $HACK_INI)
 STORAGE_CIFS=$(awk -F "=" '/STORAGE_CIFS *=/ {print $2}' $HACK_INI)
 STORAGE_CIFSSERVER=$(awk -F "=" '/STORAGE_CIFSSERVER *=/ {gsub(/\/$/, "", $2); print $2}' $HACK_INI)
@@ -92,7 +93,7 @@ if [ "$FMT" != "" ] && [ "$RECORDING_ALARM" = "on" ]; then
       LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib:/usr/lib/samba /tmp/system/lib/ld.so.1 /tmp/system/bin/busybox mount -t cifs -ousername=$STORAGE_CIFSUSER,password=$STORAGE_CIFSPASSWD $STORAGE_CIFSSERVER /mnt
     fi
     if [ $? = 0 ]; then
-      OUTFILE=/mnt/$HOSTNAME/alarm_record/$FMT.mp4
+      OUTFILE=`TZ=JST-9 date +"/mnt/$HOSTNAME/alarm_record/$RECORDING_PATH.mp4"`
       DIR_PATH=${OUTFILE%/*}
       mkdir -p $DIR_PATH
       cp $FILE $OUTFILE
@@ -100,7 +101,7 @@ if [ "$FMT" != "" ] && [ "$RECORDING_ALARM" = "on" ]; then
   fi
 
   if [ "$STORAGE_SDCARD" = "on" ]; then
-    OUTFILE=/media/mmc/alarm_record/$FMT.mp4
+    OUTFILE=`TZ=JST-9 date +"/media/mmc/alarm_record/$RECORDING_PATH.mp4"`
     DIR_PATH=${OUTFILE%/*}
     mkdir -p $DIR_PATH
     /bin/busybox mv $FILE $OUTFILE

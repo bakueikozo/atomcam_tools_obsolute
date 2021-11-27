@@ -10,6 +10,7 @@ fi
 
 HACK_INI=/media/mmc/hack.ini
 RECORDING_LOCAL_SCHEDULE=$(awk -F "=" '/RECORDING_LOCAL_SCHEDULE *=/ {print $2}' $HACK_INI)
+RECORDING_PATH=$(awk -F "=" '/RECORDING_PATH *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
 STORAGE_SDCARD=$(awk -F "=" '/STORAGE_SDCARD *=/ {print $2}' $HACK_INI)
 STORAGE_CIFS=$(awk -F "=" '/STORAGE_CIFS *=/ {print $2}' $HACK_INI)
 STORAGE_CIFSSERVER=$(awk -F "=" '/STORAGE_CIFSSERVER *=/ {gsub(/\/$/, "", $2); print $2}' $HACK_INI)
@@ -82,7 +83,8 @@ if [ "$FMT" != "" ]; then
       LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib:/usr/lib/samba /tmp/system/lib/ld.so.1 /tmp/system/bin/busybox mount -t cifs -ousername=$STORAGE_CIFSUSER,password=$STORAGE_CIFSPASSWD $STORAGE_CIFSSERVER /mnt
     fi
     if [ $? = 0 ]; then
-      OUTFILE=/mnt/$HOSTNAME/${2##/media/mmc/}
+      TIME=`echo $2 | sed -e 's|^/media/mmc/record/||' -e 's|/||g' -e 's|.mp4$||'`
+      OUTFILE=`TZ=JST-9 date -d $TIME +"/mnt/$HOSTNAME/record/$RECORDING_PATH.mp4"`
       DIR_PATH=${OUTFILE%/*}
       mkdir -p $DIR_PATH
       cp $1 $OUTFILE

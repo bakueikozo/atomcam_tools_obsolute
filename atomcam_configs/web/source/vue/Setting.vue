@@ -100,6 +100,16 @@
           <ElInputNumber v-model="config.STORAGE_REMOVE_DAYS" :min="1" :step-strictly="true" size="mini" />
         </ElCol>
       </ElRow>
+      <ElRow>
+        <ElCol :offset="1" :span="8">
+          <ElTooltip :tabindex="-1" placement="top" content="録画するPATHをstrftimeの書式指定で記述します。SD-Cardの録画ファイルには効きません。" effect="light" :open-delay="500">
+            <h4>録画ファイルのPATH</h4>
+          </ElTooltip>
+        </ElCol>
+        <ElCol :span="6">
+          <ElInput type="text" v-model="config.RECORDING_PATH" />
+        </ElCol>
+      </ElRow>
 
       <h3>記録メディア</h3>
       <ElRow>
@@ -141,7 +151,7 @@
           </ElTooltip>
         </ElCol>
         <ElCol :span="10">
-          <ElInput type="text" v-model="config.STORAGE_CIFSSERVER" @change="SetConfig" />
+          <ElInput type="text" v-model="config.STORAGE_CIFSSERVER" />
         </ElCol>
       </ElRow>
       <ElRow v-if="config.STORAGE_CIFS === 'on'">
@@ -151,7 +161,7 @@
           </ElTooltip>
         </ElCol>
         <ElCol :span="6">
-          <ElInput type="text" name="account" v-model="config.STORAGE_CIFSUSER" @change="SetConfig" />
+          <ElInput type="text" name="account" v-model="config.STORAGE_CIFSUSER" />
         </ElCol>
       </ElRow>
       <ElRow v-if="config.STORAGE_CIFS === 'on'">
@@ -161,7 +171,7 @@
           </ElTooltip>
         </ElCol>
         <ElCol :span="6">
-          <ElInput type="text" name="password" v-model="config.STORAGE_CIFSPASSWD" show-password @change="SetConfig" />
+          <ElInput type="text" name="password" v-model="config.STORAGE_CIFSPASSWD" show-password />
         </ElCol>
       </ElRow>
 
@@ -203,7 +213,7 @@
           </ElTooltip>
         </ElCol>
         <ElCol :span="10">
-          <ElInput type="text" v-model="config.WEBHOOK_URL" @change="SetConfig" />
+          <ElInput type="text" v-model="config.WEBHOOK_URL" />
         </ElCol>
       </ElRow>
 
@@ -442,6 +452,7 @@
           RECORDING_ALARM: 'on',
           RECORDING_LOCAL_SCHEDULE: 'off',
           RECORDING_LOCAL_SCHEDULE_LIST: '', // -> /media/mmc/local_schedule
+          RECORDING_PATH: '%Y%m%d/%H%M%S',
           RTSPSERVER: 'off',
           STORAGE_CIFS: 'off',
           STORAGE_REMOVE: 'off',
