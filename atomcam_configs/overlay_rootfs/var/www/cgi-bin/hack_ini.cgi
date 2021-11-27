@@ -13,6 +13,8 @@ if [ "$REQUEST_METHOD" = "POST" ]; then
   /appver/ { next; }
   /PRODUCT_MODEL/ { next; }
   /HOSTNAME/ { next; }
+  /KERNELVER/ { next; }
+  /ATOMHACKVER/ { next; }
   {
     gsub(/\"[ \t]*:[ \t]*\"?/, "=");
     gsub(/\"/, "");
