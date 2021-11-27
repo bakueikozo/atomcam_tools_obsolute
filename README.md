@@ -35,7 +35,7 @@ sshは物理的にSD-Cardへアクセスして公開鍵を書かないとlogin�
 
 ## 使用法
 
-https://github.com/mnakada/atomcam_tools/releases/tag/Ver.1.0.6
+https://github.com/mnakada/atomcam_tools/releases/tag/Ver.1.0.7
 からatomcam_tools.zipをダウンロードし、適当なツールで解凍します。  
 <img src="https://github.com/mnakada/atomcam_tools/blob/main/images/extract.png">
 
@@ -72,13 +72,31 @@ ATOMCamアプリで設定した検出時にクラウドサーバーに保存さ�
 または、「SD-Card消去」を押すことによってもファイル削除が行えます。  
 
 
-##### ローカル録画スケジュール
+#### ローカル録画スケジュール
 
 スケジュールを選ぶと、曜日と時間帯を指定する項目が追加されます。
 
 ATOMCamアプリの「録画およびストレージ管理」の「ローカル録画」で記録される映像の記録する時間帯を設定します。
 
 右端のー/＋で指定項目を削除/追加できます。複数の項目はor条件で効きます。
+
+#### 録画ファイルの自動削除
+
+録画しているファイルを自動削除する機能です。
+
+自動で削除したくない場合はoffにしてください。
+
+##### 保存日数
+
+録画ファイルを保存しておく日数です。この日数経過すると自動的に削除されます。
+
+#### 録画ファイルのPATH
+
+SD-Cardのalarm_reocrdフォルダ、NASのalarm_record, recordフォルダ以下のファイルのPATHを設定できます。書式はstrftimeの指定形式です。最後の/以降はファイル名として後ろに.mp4が付加されます。
+
+例えば %Y%m%d/%H%M%S を指定するとNASのrecordフォルダの場合、 //NASname/atomcam/record/20211128/223000.mp4 というようなファイルが作られます。 
+
+フォルダがない場合は自動で作成します。
 
 
 ### 記録メディア
@@ -180,7 +198,7 @@ WebHookを受け取るURLを指定します。今のところ実験的な実装�
 
 ネットワークの不調など、何らかの理由でATOMCamが連続稼働することができない場合の対応ですが、必ずしもこれによって問題が解決するとは限りません。  
 
- 
+
 ### Copyright
 
 LICENSEファイルを参照してください
