@@ -80,6 +80,26 @@
           </ElCol>
         </ElRow>
       </div>
+      <ElRow>
+        <ElCol :offset="1" :span="8">
+          <ElTooltip :tabindex="-1" placement="top" content="SD-Card/CIFS Serverに録画したファイルを自動的に削除します" effect="light" :open-delay="500">
+            <h4>録画ファイルの自動削除</h4>
+          </ElTooltip>
+        </ElCol>
+        <ElCol :span="3">
+          <ElSwitch v-model="config.STORAGE_REMOVE" active-value="on" inactive-value="off" />
+        </ElCol>
+      </ElRow>
+      <ElRow v-if="config.STORAGE_REMOVE === 'on'">
+        <ElCol :offset="1" :span="8">
+          <ElTooltip :tabindex="-1" placement="top" content="指定日数後に削除します" effect="light" :open-delay="500">
+            <h4>保存日数</h4>
+          </ElTooltip>
+        </ElCol>
+        <ElCol :span="3">
+          <ElInputNumber v-model="config.STORAGE_REMOVE_DAYS" :min="1" :step-strictly="true" size="mini" />
+        </ElCol>
+      </ElRow>
 
       <h3>記録メディア</h3>
       <ElRow>
@@ -388,10 +408,11 @@
 
 <script>
   import axios from 'axios';
-  import { Tooltip, Switch, Input, CheckboxGroup, CheckboxButton, TimePicker, Drawer } from 'element-ui';
+  import { Tooltip, Switch, Input, InputNumber, CheckboxGroup, CheckboxButton, TimePicker, Drawer } from 'element-ui';
   import 'element-ui/lib/theme-chalk/tooltip.css';
   import 'element-ui/lib/theme-chalk/switch.css';
   import 'element-ui/lib/theme-chalk/input.css';
+  import 'element-ui/lib/theme-chalk/input-number.css';
   import 'element-ui/lib/theme-chalk/checkbox.css';
   import 'element-ui/lib/theme-chalk/time-picker.css';
   import 'element-ui/lib/theme-chalk/drawer.css';
@@ -402,6 +423,7 @@
       ElTooltip: Tooltip,
       ElSwitch: Switch,
       ElInput: Input,
+      ElInputNumber: InputNumber,
       ElCheckboxGroup: CheckboxGroup,
       ElCheckboxButton: CheckboxButton,
       ElTimePicker: TimePicker,
@@ -416,12 +438,14 @@
           PRODUCT_MODEL: '', // ATOMCam Model (/atom/configs/.product_config)
           HOSTNAME: 'atomcam', // ATOMHack hostname (/media/mmc/hostname)
           REBOOT: 'off',
-          REBOOT_SCHEDULE: '', // -> /var/spool/crontabs/root
+          REBOOT_SCHEDULE: '0 2 * * 7', // -> /var/spool/crontabs/root
           RECORDING_ALARM: 'on',
           RECORDING_LOCAL_SCHEDULE: 'off',
           RECORDING_LOCAL_SCHEDULE_LIST: '', // -> /media/mmc/local_schedule
           RTSPSERVER: 'off',
           STORAGE_CIFS: 'off',
+          STORAGE_REMOVE: 'off',
+          STORAGE_REMOVE_DAYS: 30,
           STORAGE_CIFSSERVER: '',
           STORAGE_CIFSUSER: '',
           STORAGE_CIFSPASSWD: '',

@@ -14,7 +14,7 @@ if [ "$REQUEST_METHOD" = "POST" ]; then
   /PRODUCT_MODEL/ { next; }
   /HOSTNAME/ { next; }
   {
-    gsub(/\"[ \t]*:[ \t]*\"/, "=");
+    gsub(/\"[ \t]*:[ \t]*\"?/, "=");
     gsub(/\"/, "");
     print;
   }
