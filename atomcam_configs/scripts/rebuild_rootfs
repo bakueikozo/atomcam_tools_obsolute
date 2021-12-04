@@ -13,7 +13,7 @@ find . -name ".stamp_target_installed*" -print | xargs rm -f
 # build libcallback.so
 PATH=$PATH:/openmiko/build/mips-gcc472-glibc216-64bit/bin
 cd /src/atomcam_configs/libcallback
-mips-linux-uclibc-gnu-gcc -fPIC -shared -o libcallback.so filesnooper.c setlinebuf.c -ldl
+mips-linux-uclibc-gnu-gcc -fPIC -shared -o libcallback.so filesnooper.c setlinebuf.c mmc_format.c -ldl
 mkdir -p /src/atomcam_configs/overlay_rootfs/lib/modules/
 cp libcallback.so /src/atomcam_configs/overlay_rootfs/lib/modules/
 
