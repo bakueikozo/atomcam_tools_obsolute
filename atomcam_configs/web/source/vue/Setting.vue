@@ -616,7 +616,7 @@
         str += this.reboot.dayOfWeekSelect.reduce((s, v) => {
           const d = this.weekDays.indexOf(v) + 1;
           if(d <= 0) return s;
-          if(s.length) s += ',';
+          if(s.length) s += ':';
           s += d;
           return s;
         }, '');

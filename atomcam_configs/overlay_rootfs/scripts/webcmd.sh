@@ -21,7 +21,7 @@ do
     cat << EOF | crontab -
 */15 * * * * /usr/sbin/logrotate /etc/logrotate.conf
 0 * * * * /scripts/remove_old.sh
-${params} /scripts/reboot.sh
+${params//:/,} /scripts/reboot.sh
 EOF
   fi
   if [ "$cmd" = "setwebhook" ]; then
