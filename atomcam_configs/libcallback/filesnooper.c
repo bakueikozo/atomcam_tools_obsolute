@@ -13,7 +13,6 @@ typedef uint32_t (* framecb)(uint32_t);
 void *pfunccb = NULL;
 struct v4l2_format vid_format;
 const char *v4l2_device_path = "/dev/video1";
-static int stream_enable = 1;
 
 static void __attribute ((constructor)) filesnooper_init(void) {
   void *handle = dlopen ("/system/lib/liblocalsdk.so", RTLD_LAZY);
@@ -48,7 +47,7 @@ static uint32_t test_capture(void *param) {
     if(ret < 0) fprintf(stderr,"Unable to perform VIDIOC_STREAMON: %d\n", ret);
   }
 
-  if(stream_enable && (v4l2Fd >= 0)) {
+  if(v4l2Fd >= 0) {
     uint32_t *ptr = (uint32_t *)param;
     uint32_t length = ptr[1];
     ret = write(v4l2Fd, (void *)(*(uint32_t*)param), length);
@@ -67,20 +66,6 @@ static void *jpg_stream_thread(void *m) {
       local_sdk_video_get_jpeg(0, "/tmp/snapshot.jpg");
       remove("/tmp/get_jpeg");
       fclose(fp);
-    }
-
-    fp = fopen("/tmp/rtsp_stream.conf", "r");
-    if(fp) {
-      char buf[256];
-      fscanf(fp, "%s", buf);
-      fclose(fp);
-      if(!strncmp(buf, "on", 2)) {
-        stream_enable = 1;
-      } else {
-        stream_enable = 0;
-      }
-      fprintf(stderr, "rtsp_stream.conf [%s] %d\n", buf, stream_enable);
-      remove("/tmp/rtsp_stream.conf");
     }
     usleep(300 * 1000);
   }
