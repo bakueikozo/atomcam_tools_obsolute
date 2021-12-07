@@ -9,6 +9,8 @@ STORAGE_SDCARD_PUBLISH=$(awk -F "=" '/STORAGE_SDCARD_PUBLISH *=/ {print $2}' $HA
 
 start() {
   if [ "$STORAGE_SDCARD_PUBLISH" = "on" ]; then
+    (
+    speep 20
     printf "Starting SMB services: "
     smbd -D
     [ $? = 0 ] && echo "OK" || echo "FAIL"
@@ -16,6 +18,7 @@ start() {
     printf "Starting NMB services: "
     nmbd -D
     [ $? = 0 ] && echo "OK" || echo "FAIL"
+    ) &
   fi
 }
 
