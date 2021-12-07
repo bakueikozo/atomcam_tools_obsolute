@@ -5,47 +5,51 @@
 
 case "$1" in
   start)
-	echo "setup atomcam environment"
-	mkdir -p /atom
-	mount -t squashfs /dev/mtdblock2 /atom
-	mount -t squashfs /dev/mtdblock3 /atom/system
-	mount -t jffs2 /dev/mtdblock6 /atom/configs
-	mount -t proc proc /atom/proc
-	mount -o rbind /dev /atom/dev
-	mount -t sysfs sysfs /atom/sys
-	mount -o bind /run /atom/run
-	mount -o bind /tmp /atom/tmp
-	mount -o rbind /media /atom/media
-	mkdir -p /tmp/system/bin
-	cp /scripts/atom_init.sh /tmp/system/bin
-	cp /scripts/rm.sh /tmp/system/bin/rm
-	cp /scripts/mv.sh /tmp/system/bin/mv
-	cp /usr/bin/curl /tmp/system/bin
-	mkdir -p /tmp/system/modules
-	cp /lib/modules/libcallback.so /tmp/system/modules
-	mkdir -p /tmp/system/lib
-	mount -o bind /lib /atom/tmp/system/lib
-	cp -pr /atom/usr /tmp/system
-	mkdir -p /tmp/system/usr/lib
-	mount -o bind /tmp/system/usr /atom/usr
-	mount -o bind /usr/lib /atom/usr/lib
-	cp -pr /atom/etc /tmp/system
-	cp /etc/nsswitch.conf /tmp/system/etc
-	mount -o bind /tmp/system/etc /atom/etc
-	cp /bin/busybox /tmp/system/bin
+  echo "setup atomcam environment"
+  mkdir -p /atom
+  mount -t squashfs /dev/mtdblock2 /atom
+  mount -t squashfs /dev/mtdblock3 /atom/system
+  mount -t jffs2 /dev/mtdblock6 /atom/configs
+  mount -t proc proc /atom/proc
+  mount -o rbind /dev /atom/dev
+  mount -t sysfs sysfs /atom/sys
+  mount -o bind /run /atom/run
+  mount -o bind /tmp /atom/tmp
+  mount -o rbind /media /atom/media
+  mkdir -p /tmp/system/bin
+  cp /scripts/atom_init.sh /tmp/system/bin
+  cp /scripts/rm.sh /tmp/system/bin/rm
+  cp /scripts/mv.sh /tmp/system/bin/mv
+  cp /usr/bin/curl /tmp/system/bin
+  mkdir -p /tmp/system/modules
+  cp /lib/modules/libcallback.so /tmp/system/modules
+  mkdir -p /tmp/system/lib
+  mount -o bind /lib /atom/tmp/system/lib
+  cp -pr /atom/usr /tmp/system
+  mkdir -p /tmp/system/usr/lib
+  mount -o bind /tmp/system/usr /atom/usr
+  mount -o bind /usr/lib /atom/usr/lib
+  cp -pr /atom/etc /tmp/system
+  cp /etc/nsswitch.conf /tmp/system/etc
+  mount -o bind /tmp/system/etc /atom/etc
+  cp /bin/busybox /tmp/system/bin
 
-	insmod /lib/modules/3.10.14__isvp_swan_1.0__/extra/v4l2loopback.ko video_nr=1
-	chroot /atom /tmp/system/bin/atom_init.sh
+  insmod /lib/modules/3.10.14__isvp_swan_1.0__/extra/v4l2loopback.ko video_nr=1
+  chroot /atom /tmp/system/bin/atom_init.sh
+  while ! ifconfig wlan0 | grep 'inet addr'
+  do
+    sleep 1
+  done
   ;;
   stop)
-	;;
+  ;;
   restart|reload)
-	"$0" stop
-	"$0" start
-	;;
+  "$0" stop
+  "$0" start
+  ;;
   *)
-	echo "Usage: $0 {start|stop|restart}"
-	exit 1
+  echo "Usage: $0 {start|stop|restart}"
+  exit 1
 esac
 
 exit $?
