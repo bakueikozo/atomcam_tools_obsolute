@@ -3,6 +3,7 @@
 export PATH=/tmp/system/bin:/system/bin:/bin:/sbin:/usr/bin:/usr/sbin
 export LD_LIBRARY_PATH=/thirdlib:/system/lib:/tmp
 
+sleep 1
 insmod /system/driver/tx-isp-t31.ko isp_clk=100000000
 insmod /system/driver/exfat.ko
 insmod /system/driver/audio.ko spk_gpio=-1
