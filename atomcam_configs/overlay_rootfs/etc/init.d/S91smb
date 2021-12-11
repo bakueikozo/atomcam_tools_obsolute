@@ -2,6 +2,10 @@
 
 [ -f /etc/samba/smb.conf ] || exit 0
 mkdir -p /var/log/samba
+mkdir -p /tmp/sdcard
+ln -s /media/mmc/record /tmp/sdcard
+ln -s /media/mmc/alarm_record /tmp/sdcard
+ln -s /media/mmc/time_lapse /tmp/sdcard
 
 HACK_INI=/media/mmc/hack.ini
 touch $HACK_INI
@@ -10,7 +14,6 @@ STORAGE_SDCARD_PUBLISH=$(awk -F "=" '/STORAGE_SDCARD_PUBLISH *=/ {print $2}' $HA
 start() {
   if [ "$STORAGE_SDCARD_PUBLISH" = "on" ]; then
     (
-    speep 20
     printf "Starting SMB services: "
     smbd -D
     [ $? = 0 ] && echo "OK" || echo "FAIL"
@@ -24,11 +27,11 @@ start() {
 
 stop() {
   printf "Shutting down SMB services: "
-  [ pidof smbd ] && kill -9 `pidof smbd`
+  pidof smbd > /dev/null && kill -9 `pidof smbd`
   [ $? = 0 ] && echo "OK" || echo "FAIL"
 
   printf "Shutting down NMB services: "
-  [ pidof nmbd ] && kill -9 `pidof nmbd`
+  pidof nmbd > /dev/null && kill -9 `pidof nmbd`
   [ $? = 0 ] && echo "OK" || echo "FAIL"
 }
 
