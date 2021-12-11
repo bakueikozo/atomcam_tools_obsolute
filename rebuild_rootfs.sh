@@ -2,9 +2,11 @@
 
 set -x
 
+rm -rf openmiko/atomcam_configs
 cp -pr atomcam_configs openmiko
 cd openmiko
 cp -pr atomcam_configs/overlay_initramfs/* initramfs_skeleton
+cp -pr atomcam_configs/docker-compose.yml .
 
 if ! docker ps | grep openmiko_builder_1 ; then
   docker-compose up -d

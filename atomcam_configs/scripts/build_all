@@ -12,7 +12,7 @@ mkdir -p /src/atomcam_configs/overlay_rootfs/lib/modules/
 cp libcallback.so /src/atomcam_configs/overlay_rootfs/lib/modules/
 
 # build webpage
-PATH=$PATH:/root/.nvm/versions/node/v16.10.0/bin
+PATH=$PATH:/root/.nvm/versions/node/v16.11.1/bin
 cd /src/atomcam_configs/web
 npm install -g npm
 npm install
