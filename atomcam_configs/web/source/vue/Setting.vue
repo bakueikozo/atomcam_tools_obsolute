@@ -124,12 +124,12 @@
       </ElRow>
       <ElRow v-if="config.STORAGE_SDCARD === 'on'">
         <ElCol :offset="2" :span="7">
-          <ElTooltip :tabindex="-1" placement="top" content="ATOMCamのSD-CardをCIFS(smb) serverとしてLAN内に公開します" effect="light" :open-delay="500">
+          <ElTooltip :tabindex="-1" placement="top" :content="config.RTSPSERVER === 'on' ? '負荷が重いためonするにはストリーミングをoffにしてください' : 'ATOMCamのSD-CardをCIFS(smb) serverとしてLAN内に公開します'" effect="light" :open-delay="500">
             <h4>ネットワークアクセス</h4>
           </ElTooltip>
         </ElCol>
         <ElCol :span="4">
-          <ElSwitch v-model="config.STORAGE_SDCARD_PUBLISH" active-value="on" inactive-value="off" />
+          <ElSwitch v-model="config.STORAGE_SDCARD_PUBLISH" :disabled="config.RTSPSERVER === 'on'" active-value="on" inactive-value="off" />
         </ElCol>
       </ElRow>
 
@@ -178,12 +178,12 @@
       <h3>ストリーミング</h3>
       <ElRow>
         <ElCol :offset="1" :span="8">
-          <ElTooltip :tabindex="-1" placement="top" content="RTSPサーバーを起動します" effect="light" :open-delay="500">
+          <ElTooltip :tabindex="-1" placement="top" :content="config.STORAGE_SDCARD_PUBLISH === 'on' ? '負荷が重いためonするにはSD-Cardのネットワークアクセスをoffにしてください' : 'RTSPサーバーを起動します'" effect="light" :open-delay="500">
             <h4>RTSP</h4>
           </ElTooltip>
         </ElCol>
         <ElCol :span="4">
-          <ElSwitch v-model="config.RTSPSERVER" active-value="on" inactive-value="off" />
+          <ElSwitch v-model="config.RTSPSERVER" :disabled="config.STORAGE_SDCARD_PUBLISH === 'on'" active-value="on" inactive-value="off" />
         </ElCol>
       </ElRow>
       <ElRow v-if="config.RTSPSERVER === 'on'">
@@ -622,6 +622,8 @@
         }, '');
         this.config.REBOOT_SCHEDULE = str;
 
+        if((this.config.STORAGE_SDCARD_PUBLISH === "on") && ((this.config.RTSPSERVER === "on"))) this.config.RTSPSERVER = "off";
+
         await axios.post('./cgi-bin/hack_ini.cgi', this.config).catch(err => {
           // eslint-disable-next-line no-console
           console.log(err);
@@ -629,10 +631,13 @@
 
         const execCmds = [];
         let href = null;
+        if((this.config.RTSPSERVER !== this.oldConfig.RTSPSERVER) && (this.config.RTSPSERVER === "off")) {
+          execCmds.push(`rtspserver ${this.config.RTSPSERVER}`);
+        }
         if(this.config.STORAGE_SDCARD_PUBLISH !== this.oldConfig.STORAGE_SDCARD_PUBLISH) {
           execCmds.push(`samba ${this.config.STORAGE_SDCARD_PUBLISH}`);
         }
-        if(this.config.RTSPSERVER !== this.oldConfig.RTSPSERVER) {
+        if((this.config.RTSPSERVER !== this.oldConfig.RTSPSERVER) && (this.config.RTSPSERVER === "on")) {
           execCmds.push(`rtspserver ${this.config.RTSPSERVER}`);
         }
         if(Object.keys(this.config).some(prop => (prop.search(/WEBHOOK/) === 0) && (this.config[prop] !== this.oldConfig[prop]))) {
