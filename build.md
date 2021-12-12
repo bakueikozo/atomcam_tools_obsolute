@@ -51,10 +51,9 @@ remote loginするなら、sshのpublic.keyをauthorized_keysに追加してく�
 
 初回起動時はswap fileの作成とsshのhost-keyを作成するのに少し時間がかかるので40秒程度かかります。
 
-build環境は一度buildするとopenmiko/のdirectoryができて、docker上にコンテナが起動した状態になっています。
+build環境は一度buildするとdocker上にコンテナが起動した状態になっています。
 
 ```shell
-# cd openmiko
 # docker-compose exec builder bash
 ```
 
@@ -62,7 +61,6 @@ build環境は一度buildするとopenmiko/のdirectoryができて、docker上�
 dockerコンテナが落ちてるときは
 
 ```shell
-# cd openmiko
 # docker-compose up -d
 ```
 
@@ -93,24 +91,24 @@ WiFiはatom側のシステムが起動しているので、rootfs側は起動し
 
 ##### u-boot -> kernel内蔵のinitramfs上の/init_atomcam
 
-​	*initramfsはopenmiko/initramfs_skeletonにatomcam_configs/overlay_initramfsを重ねています。*
+​	*initramfsの中身はconfigs/overlay_initramfs/です。。*
 
-　initramfsはkernel 起動時のcmdlineで/init_atomcamを実行するようにしています。
+　initramfsはkernel 起動時のcmdlineで/initを実行するようにしています。
 
 ​	この中でSD-Card上のrootfs_hack.ext2をrootにswitch_rootして、/sbin/init(busybox)を起動します。
 
 ##### rootfs_hack.ext2
 
-　*rootfs_hack.ext2はopenmikoのrootfs_minimalにatomcam_configs/openmiko.configで追加されたイメージにatomcam_configs/overlay_rootfsを重ねたものになります。*
+　*rootfs_hack.ext2はconfigs/rootfs.configの設定でbuildされたイメージにconfigs/overlay_rootfsを重ねたものになります。*
 
 ​	/sbin/initがinittabに従って/etc/init.d/rcSを起動して、rcSで/etc/init.d/S*を順番に実行します。
 
-　S35wifi,S45ntpdはAtomCamのシステム側で処理しているので実行しないほうが良いのですが、openmikoのskeletonに起動スクリプトがあるため、atomcam_config/overlay_rootfsで中身の無いものを上書きして無効にしています。
+　S35wifiはAtomCamのシステム側で処理しているので実行しないほうが良いのですが、wifiパッケージを入れると起動スクリプトが入るため、config/overlay_rootfsで中身の無いものを上書きして無効にしています。
 	/etc/init.dを最後まで実行すると、serialを繋いでいればgettyでlogin promptが出ます。AtomCamの後ろ側のLEDが青点滅ー＞青点灯になるとsshでloginできる状態になります。
 
-​	途中でATOMCamのシステムを起動する環境を整える/etc/init.d/S48atomcamを呼び出しています。
+​	途中でATOMCamのシステムを起動する環境を整える/etc/init.d/S38atomcamを呼び出しています。
 
-##### S48atomcam
+##### S38atomcam
 
 ​	/atom/以下に本来のATOMCamのシステムと幾つかのmount-pointを共通でアクセスできるようにmountします。また、hackのために/tmp/system/bin/にscriptをコピーしています。
 
@@ -187,7 +185,7 @@ WiFiはatom側のシステムが起動しているので、rootfs側は起動し
 
 ## WebUI
 
-artomcam_configs/web/以下にWebUIのソースコードがあります。
+web/以下にWebUIのソースコードがあります。
 
 WebUIはVue.jsとElementUIで記述しています。
 
@@ -195,12 +193,12 @@ Target環境はmipselなのでnode.jsの最近のバージョンは未対応に�
 
 そのため、frontend側のみbuildして、backend側はlighttpdとcgiで対応し、frontendからaxios経由でアクセスする構造にしています。
 
-WebUIの画面はatomcam_configs/web/source/vue/Setting.vueに記述しています。
+WebUIの画面はweb/source/vue/Setting.vueに記述しています。
 
 
 
 ## Docker環境
-Docker環境では/srcがopenmiko/にmapされています。
+Docker環境では/srcがatomcam_tools/にmapされています。
 
 以下、基本的にDocker内のコマンドは下記のDirectoryから実行します。
 
@@ -208,7 +206,7 @@ Docker環境では/srcがopenmiko/にmapされています。
 root@ac0375635c01:/openmiko# cd /openmiko/build/buildroot-2016.02
 ```
 
-rootfsはglibc環境でopenmikoのDocker内のgccを使用します。
+rootfsはglibc環境でDocker内のgccを使用します。
 build時にgccも生成されます。
 gccのprefixは
 **/openmiko/build/buildroot-2016.02/output/host/usr/bin/mipsel-ingenic-linux-gnu-**
@@ -231,17 +229,17 @@ root@ac0375635c01:/openmiko# make linux-rebuild
 root@ac0375635c01:/openmiko# cp output/images/uImage.lzma /src
 ```
 
-でbuildされてopenmiko/にコピーされます。
+でbuildされてatomcam_tools/にコピーされます。
 
 
 
-rootfs内のファイルやopenmiko、busyboxのmenuconfigを修正した場合
+rootfs内のファイルやbusyboxのmenuconfigを修正した場合
 ```shell
 root@ac0375635c01:/openmiko# make
 root@ac0375635c01:/openmiko# cp output/images/rootfs.ex2 /src
 ```
 
-でbuildされてopenmiko/にコピーされます。
+でbuildされてatomcam_tools/にコピーされます。
 
 それぞれfactory_t31_ZMC6tiIDQN, rootfs_hack.ex2の名前でSDCardにコピーしてください。
 
