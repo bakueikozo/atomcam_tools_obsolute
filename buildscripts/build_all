@@ -1,0 +1,38 @@
+#!/bin/sh
+
+# mipsel-gcc for uLibc
+cd /openmiko/build
+git clone https://github.com/Dafang-Hacks/mips-gcc472-glibc216-64bit.git
+
+# overlay_rootfs
+cp -pr /src/configs/overlay_rootfs /openmiko/build/buildroot-2016.02/output
+ROOTFS=/openmiko/build/buildroot-2016.02/output/overlay_rootfs
+
+# build libcallback.so
+PATH=$PATH:/openmiko/build/mips-gcc472-glibc216-64bit/bin
+mkdir -p $ROOTFS/lib/modules/
+cd /src/libcallback
+mips-linux-uclibc-gnu-gcc -fPIC -shared -o $ROOTFS/lib/modules/libcallback.so filesnooper.c setlinebuf.c mmc_format.c -ldl
+
+# set version
+cp /src/configs/atomhack.ver $ROOTFS/etc
+
+# build webpage
+PATH=$PATH:/root/.nvm/versions/node/v16.11.1/bin
+cp -pr /src/web /openmiko/build/buildroot-2016.02/output
+cd /openmiko/build/buildroot-2016.02/output/web
+npm install -g npm
+npm install
+./node_modules/.bin/webpack --mode production --progress
+cp -pr frontend/* $ROOTFS/var/www
+
+# build kernel and rootfs
+cd /openmiko/build/buildroot-2016.02
+cp /src/configs/rootfs.config .config
+make oldconfig
+make clean
+make
+
+# sdcard image
+cp output/images/uImage.lzma /src/factory_t31_ZMC6tiIDQN
+cp output/images/rootfs.ext2 /src/rootfs_hack.ext2
