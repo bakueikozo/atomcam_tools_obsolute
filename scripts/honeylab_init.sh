@@ -78,6 +78,8 @@ cp /tmp/mmc/scripts/still_image.html /tmp/www
 echo "run /tmp/mmc/scripts/pre.sh"
 source /tmp/mmc/scripts/pre.sh
 
+insmod /system/driver/sample_motor.ko vstep_offset=0 hmaxstep=2130 vmaxstep=1580
+
 /system/bin/hl_client &
 
 RTSPSERVER=$(awk -F "=" '/RTSPSERVER/ {print $2}' $HACK_INI)
