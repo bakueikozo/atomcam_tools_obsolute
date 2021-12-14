@@ -7,4 +7,4 @@ if docker ps | grep atomcam_tools_builder_1 ; then
 fi
 docker-compose up -d
 docker-compose exec builder /src/buildscripts/build_all
-zip -ry ../atomcam_tools.zip factory_t31_ZMC6tiIDQN rootfs_hack.ext2 hostname authorized_keys
+zip -ry atomcam_tools.zip factory_t31_ZMC6tiIDQN rootfs_hack.ext2 hostname authorized_keys
