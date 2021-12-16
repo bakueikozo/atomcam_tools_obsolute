@@ -43,5 +43,5 @@ cd /openmiko/build/buildroot-2016.02
 make
 
 # sdcard image
-cp output/images/uImage.lzma /src/factory_t31_ZMC6tiIDQN
-cp output/images/rootfs.ext2 /src/rootfs_hack.ext2
+cp output/images/uImage.lzma /src/target/factory_t31_ZMC6tiIDQN
+cp output/images/rootfs.ext2 /src/target/rootfs_hack.ext2

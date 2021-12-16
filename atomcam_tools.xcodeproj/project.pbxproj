@@ -10,6 +10,7 @@
 		152EEAD6274527B10084B0E3 /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
 		1541FB8D1F1116CE006343F3 /* license */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = license; sourceTree = "<group>"; };
 		156A36DA1F5AE96F0026EC60 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		159AA925276B6D0E00C8D898 /* target */ = {isa = PBXFileReference; lastKnownFileType = folder; path = target; sourceTree = "<group>"; };
 		15A554A42741588200F47D30 /* rebuild_rootfs.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = rebuild_rootfs.sh; sourceTree = "<group>"; };
 		15AD4A35273934B30093AC3F /* build.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = build.md; sourceTree = "<group>"; };
 		15B1B2D22765CEB60034BDCF /* patches */ = {isa = PBXFileReference; lastKnownFileType = folder; path = patches; sourceTree = "<group>"; };
@@ -19,8 +20,6 @@
 		15B1B2D62765CEB60034BDCF /* libcallback */ = {isa = PBXFileReference; lastKnownFileType = folder; path = libcallback; sourceTree = "<group>"; };
 		15B1B2D72765CEB60034BDCF /* buildscripts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = buildscripts; sourceTree = "<group>"; };
 		15E64082273926900049275F /* make.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = make.sh; sourceTree = "<group>"; };
-		15E64083273926900049275F /* hostname */ = {isa = PBXFileReference; lastKnownFileType = text; path = hostname; sourceTree = "<group>"; };
-		15E64084273926900049275F /* authorized_keys */ = {isa = PBXFileReference; lastKnownFileType = text; path = authorized_keys; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -29,18 +28,17 @@
 			children = (
 				156A36DA1F5AE96F0026EC60 /* README.md */,
 				15AD4A35273934B30093AC3F /* build.md */,
+				1541FB8D1F1116CE006343F3 /* license */,
 				15E64082273926900049275F /* make.sh */,
 				15A554A42741588200F47D30 /* rebuild_rootfs.sh */,
-				15E64083273926900049275F /* hostname */,
-				15E64084273926900049275F /* authorized_keys */,
-				1541FB8D1F1116CE006343F3 /* license */,
-				15B1B2D32765CEB60034BDCF /* configs */,
 				15B1B2D42765CEB60034BDCF /* docker-compose.yml */,
+				15B1B2D32765CEB60034BDCF /* configs */,
 				15B1B2D62765CEB60034BDCF /* libcallback */,
 				15B1B2D22765CEB60034BDCF /* patches */,
 				15B1B2D72765CEB60034BDCF /* buildscripts */,
 				15B1B2D52765CEB60034BDCF /* web */,
 				152EEAD6274527B10084B0E3 /* images */,
+				159AA925276B6D0E00C8D898 /* target */,
 			);
 			sourceTree = "<group>";
 		};
