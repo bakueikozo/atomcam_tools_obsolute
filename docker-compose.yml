@@ -6,9 +6,6 @@ services:
     volumes:
       - ".:/src"
       - "./configs/local.mk:/openmiko/build/buildroot-2016.02/local.mk"
-    ports:
-      - "5003:5003"
-      - "5004:5004"
     cap_add:
       - ALL
     command: tail -f /dev/null
