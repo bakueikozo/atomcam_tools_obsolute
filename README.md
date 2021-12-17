@@ -33,6 +33,26 @@ WebUI、video、jpegに関してはLAN内からは自由に見える設定にな
 sshは物理的にSD-Cardへアクセスして公開鍵を書かないとloginできないようにしています。
 ただし、ATOMCamはSSID,passwordを平文でカメラ内のフラッシュメモリ（SD-Cardではない）に保存しているのでカメラを盗難されて中を見られるとWiFiにアクセスされる可能性がありますのでご注意ください。
 
+
+
+## ファームウェアの更新の注意
+
+ atomcam_toolsは以下のATOMCamのVersionで動作確認しています。更新した場合機能が使えなくなることもあるのでご注意ください。
+
+ATOMCam Ver.4.33.3.64
+
+ATOMCam2 Ver.4.58.0.65, 4.58.0.71
+
+ATOMSwing Ver.4.37.1.85, Ver.4.37.1.90
+
+
+
+SD-Cardを挿入した状態だとATOMアプリからファームウェアの更新を実行しても更新されません。
+
+更新する場合はSD-Cardを一旦抜いた状態で実行して、更新完了後にSD-Cardを挿して再起動してください。
+
+
+
 ## 使用法
 
 https://github.com/mnakada/atomcam_tools/releases/tag/Ver.1.0.9
