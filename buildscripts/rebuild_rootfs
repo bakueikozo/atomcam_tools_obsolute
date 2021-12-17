@@ -20,7 +20,7 @@ mips-linux-uclibc-gnu-gcc -fPIC -shared -o $ROOTFS/lib/modules/libcallback.so fi
 cp /src/configs/atomhack.ver $ROOTFS/etc
 
 # build webpage
-PATH=$PATH:/root/.nvm/versions/node/v16.11.1/bin
+. /root/.nvm/nvm.sh
 cp -pr /src/web /openmiko/build/buildroot-2016.02/output
 cd /openmiko/build/buildroot-2016.02/output/web
 npm install -g npm
