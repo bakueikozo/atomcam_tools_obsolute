@@ -62,13 +62,7 @@ chmod 777 /tmp/log
 /system/bin/ver-comp
 /system/bin/assis >> /tmp/log/assis.log 2>&1 &
 
-if [ "ATOM_CAKP1JZJP" = "$PRODUCT_MODEL" ]; then
-  if [ "4.37.1.84" = "$APPVER" ]; then
-    insmod /system/driver/sample_motor.ko vstep_offset=0 hmaxstep=2130 vmaxstep=1580
-  else
-    insmod /system/driver/sample_motor.ko
-  fi
-fi
+[ "ATOM_CAKP1JZJP" = "$PRODUCT_MODEL" ] && insmod /system/driver/sample_motor.ko vstep_offset=0 hmaxstep=2130 vmaxstep=1580
 
 /system/bin/hl_client >> /tmp/log/hl_client.log 2>&1 &
 
