@@ -23,11 +23,12 @@ static void __attribute ((constructor)) filesnooper_init(void) {
 }
 
 static uint32_t test_capture(void *param) {
-  int ret;
+  uint32_t ret;
   static int firstEntry = 0;
   static int v4l2Fd = -1;
 
   if(!firstEntry) {
+    int err;
     firstEntry++;
     fprintf(stderr,"Opening V4L2 device: %s \n", v4l2_device_path);
     v4l2Fd = open(v4l2_device_path, O_WRONLY, 0777);
@@ -41,34 +42,27 @@ static uint32_t test_capture(void *param) {
     vid_format.fmt.pix.field = V4L2_FIELD_NONE;
     vid_format.fmt.pix.bytesperline = 0;
     vid_format.fmt.pix.colorspace = V4L2_PIX_FMT_YUV420;
-    ret = ioctl(v4l2Fd, VIDIOC_S_FMT, &vid_format);
-    if(ret < 0) fprintf(stderr,"Unable to set V4L2 device video format: %d\n", ret);
-    ret = ioctl(v4l2Fd, VIDIOC_STREAMON, &vid_format);
-    if(ret < 0) fprintf(stderr,"Unable to perform VIDIOC_STREAMON: %d\n", ret);
+    err = ioctl(v4l2Fd, VIDIOC_S_FMT, &vid_format);
+    if(err < 0) fprintf(stderr,"Unable to set V4L2 device video format: %d\n", err);
+    err = ioctl(v4l2Fd, VIDIOC_STREAMON, &vid_format);
+    if(err < 0) fprintf(stderr,"Unable to perform VIDIOC_STREAMON: %d\n", err);
   }
 
   if(v4l2Fd >= 0) {
     uint32_t *ptr = (uint32_t *)param;
     uint32_t length = ptr[1];
-    ret = write(v4l2Fd, (void *)(*(uint32_t*)param), length);
-    if(ret != length) fprintf(stderr,"Stream write error: %s\n", ret);
+    int size = write(v4l2Fd, (void *)(*(uint32_t*)param), length);
+    if(size != length) fprintf(stderr,"Stream write error: %s\n", ret);
   }
-  return ((framecb)pfunccb)((uint32_t)param);
-}
+  ret = ((framecb)pfunccb)((uint32_t)param);
 
-static void *jpg_stream_thread(void *m) {
-  int n = 0;
-  char filename[255];
-  fprintf(stderr,"jpeg_stream_thread_start");
-  while(1) {
-    FILE *fp = fopen("/tmp/get_jpeg", "r");
-    if(fp) {
-      local_sdk_video_get_jpeg(0, "/tmp/snapshot.jpg");
-      remove("/tmp/get_jpeg");
-      fclose(fp);
-    }
-    usleep(300 * 1000);
+  FILE *fp = fopen("/tmp/get_jpeg", "r");
+  if(fp) {
+    local_sdk_video_get_jpeg(0, "/tmp/snapshot.jpg");
+    remove("/tmp/get_jpeg");
+    fclose(fp);
   }
+  return ret;
 }
 
 uint32_t local_sdk_video_set_encode_frame_callback(uint32_t param1, uint32_t param2) {
@@ -78,9 +72,6 @@ uint32_t local_sdk_video_set_encode_frame_callback(uint32_t param1, uint32_t par
     fprintf(stderr,"enc func injection save pcb=0x%x\n", pfunccb);
     param2 = (uint32_t)test_capture;
     fprintf(stderr,"override to 0x%x\n", param2);
-
-    pthread_t tid; /* Stream capture in another thread */
-    pthread_create(&tid, NULL, jpg_stream_thread, NULL);
   }
   return real_local_sdk_video_set_encode_frame_callback(param1, param2);
 }

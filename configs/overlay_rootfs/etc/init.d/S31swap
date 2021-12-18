@@ -7,12 +7,10 @@ SWAPFILE=/media/mmc/swap
 case "$1" in
   start)
   echo "Starting swap on sdcard using $SWAPFILE"
-  if [ ! -f $SWAPFILE ]; then
-    dd if=/dev/zero of=$SWAPFILE bs=1M count=256
-    mkswap $SWAPFILE
-  fi
+  [ ! -f $SWAPFILE ] && dd if=/dev/zero of=$SWAPFILE bs=1M count=128
+  mkswap $SWAPFILE
   swapon $SWAPFILE
-  echo 4096 > /proc/sys/vm/min_free_kbytes
+  echo 2048 > /proc/sys/vm/min_free_kbytes
   ;;
   stop)
   swapoff $SWAPFILE
