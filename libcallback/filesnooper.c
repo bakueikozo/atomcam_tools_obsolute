@@ -48,21 +48,20 @@ static uint32_t test_capture(void *param) {
     if(err < 0) fprintf(stderr,"Unable to perform VIDIOC_STREAMON: %d\n", err);
   }
 
-  if(v4l2Fd >= 0) {
-    uint32_t *ptr = (uint32_t *)param;
-    uint32_t length = ptr[1];
-    int size = write(v4l2Fd, (void *)(*(uint32_t*)param), length);
-    if(size != length) fprintf(stderr,"Stream write error: %s\n", ret);
-  }
-  ret = ((framecb)pfunccb)((uint32_t)param);
-
   FILE *fp = fopen("/tmp/get_jpeg", "r");
   if(fp) {
     local_sdk_video_get_jpeg(0, "/tmp/snapshot.jpg");
     remove("/tmp/get_jpeg");
     fclose(fp);
   }
-  return ret;
+
+  if(v4l2Fd >= 0) {
+    uint32_t *ptr = (uint32_t *)param;
+    uint32_t length = ptr[1];
+    int size = write(v4l2Fd, (void *)(*(uint32_t*)param), length);
+    if(size != length) fprintf(stderr,"Stream write error: %s\n", ret);
+  }
+  return ((framecb)pfunccb)((uint32_t)param);
 }
 
 uint32_t local_sdk_video_set_encode_frame_callback(uint32_t param1, uint32_t param2) {
