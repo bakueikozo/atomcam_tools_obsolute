@@ -90,7 +90,7 @@ fi
 if [ "$FMT" != "" ] && [ "$RECORDING_ALARM" = "on" ]; then
   if [ "$STORAGE_CIFS" = "on" ] && [ "$STORAGE_CIFSSERVER" != "" ]; then
     if ! mount | grep "$STORAGE_CIFSSERVER" > /dev/null ; then
-      LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib:/usr/lib/samba /tmp/system/lib/ld.so.1 /tmp/system/bin/busybox mount -t cifs -ousername=$STORAGE_CIFSUSER,password=$STORAGE_CIFSPASSWD $STORAGE_CIFSSERVER /mnt
+      LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib:/usr/lib/samba /tmp/system/lib/ld.so.1 /tmp/system/bin/busybox mount -t cifs -ousername=$STORAGE_CIFSUSER,password=$STORAGE_CIFSPASSWD,vers=3.0 $STORAGE_CIFSSERVER /mnt
     fi
     if [ $? = 0 ]; then
       OUTFILE=`TZ=JST-9 date +"/mnt/$HOSTNAME/alarm_record/$RECORDING_PATH.mp4"`
