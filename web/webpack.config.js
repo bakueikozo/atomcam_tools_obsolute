@@ -3,28 +3,21 @@ const { VueLoaderPlugin } = require('vue-loader');
 const ESLintPlugin = require('eslint-webpack-plugin');
 const BundleAnalyzer = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const CompressionPlugin = require("compression-webpack-plugin");
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = (env, argv) => {
   const config = {
     entry: {
       bundle: [
         './source/js/index.js',
-        './source/index.html',
       ],
     },
     output: {
       path: __dirname + '/frontend',
-      filename: '[name].js',
+      filename: '[name]_[chunkhash].js',
     },
     module: {
       rules: [
-        {
-          test: /index.html/,
-          type: 'asset/resource',
-          generator: {
-            filename: '[name][ext]',
-          },
-        },
         {
           test: /\.vue$/,
           loader: 'vue-loader',
@@ -129,6 +122,10 @@ module.exports = (env, argv) => {
         threshold: 0,
         minRatio: 0.8,
         deleteOriginalAssets: true,
+      }),
+      new HtmlWebpackPlugin({
+        template: 'source/index.html',
+        inject: 'head',
       }),
 //      new BundleAnalyzer(),
     ],
