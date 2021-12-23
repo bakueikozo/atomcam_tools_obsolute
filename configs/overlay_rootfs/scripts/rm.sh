@@ -93,7 +93,7 @@ if [ "$FMT" != "" ] && [ "$RECORDING_ALARM" = "on" ]; then
       LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib:/usr/lib/samba /tmp/system/lib/ld.so.1 /tmp/system/bin/busybox mount -t cifs -ousername=$STORAGE_CIFSUSER,password=$STORAGE_CIFSPASSWD,vers=3.0 $STORAGE_CIFSSERVER /mnt
     fi
     if [ $? = 0 ]; then
-      OUTFILE=`TZ=JST-9 date +"/mnt/$HOSTNAME/alarm_record/$RECORDING_PATH.mp4"`
+      OUTFILE=`TZ=JST-9 date +"/mnt/$HOSTNAME/alarm_record/$RECORDING_PATH.${FILE##*.}"`
       DIR_PATH=${OUTFILE%/*}
       mkdir -p $DIR_PATH
       cp $FILE $OUTFILE
@@ -101,7 +101,7 @@ if [ "$FMT" != "" ] && [ "$RECORDING_ALARM" = "on" ]; then
   fi
 
   if [ "$STORAGE_SDCARD" = "on" ]; then
-    OUTFILE=`TZ=JST-9 date +"/media/mmc/alarm_record/$RECORDING_PATH.mp4"`
+    OUTFILE=`TZ=JST-9 date +"/media/mmc/alarm_record/$RECORDING_PATH.${FILE##*.}"`
     DIR_PATH=${OUTFILE%/*}
     mkdir -p $DIR_PATH
     /bin/busybox mv $FILE $OUTFILE
