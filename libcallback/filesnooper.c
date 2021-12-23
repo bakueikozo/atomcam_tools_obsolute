@@ -6,9 +6,10 @@
 #include <stdint.h>
 #include <fcntl.h>
 #include <linux/videodev2.h>
-#include <pthread.h>
+#include <sys/ioctl.h>
 
 static uint32_t (*real_local_sdk_video_set_encode_frame_callback)(uint32_t param1, uint32_t param2);
+extern void local_sdk_video_get_jpeg(int, char *);
 typedef uint32_t (* framecb)(uint32_t);
 void *pfunccb = NULL;
 struct v4l2_format vid_format;

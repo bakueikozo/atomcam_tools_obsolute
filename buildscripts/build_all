@@ -9,10 +9,12 @@ cp -pr /src/configs/overlay_rootfs /openmiko/build/buildroot-2016.02/output
 ROOTFS=/openmiko/build/buildroot-2016.02/output/overlay_rootfs
 
 # build libcallback.so
-PATH=$PATH:/openmiko/build/mips-gcc472-glibc216-64bit/bin
+mkdir -p /openmiko/build/buildroot-2016.02/output/local
+cp -pr /src/libcallback /openmiko/build/buildroot-2016.02/output/local
+cd /openmiko/build/buildroot-2016.02/output/local/libcallback
+make
 mkdir -p $ROOTFS/lib/modules/
-cd /src/libcallback
-mips-linux-uclibc-gnu-gcc -fPIC -shared -o $ROOTFS/lib/modules/libcallback.so filesnooper.c setlinebuf.c mmc_format.c -ldl
+cp libcallback.so $ROOTFS/lib/modules/libcallback.so
 
 # set version
 cp /src/configs/atomhack.ver $ROOTFS/etc
