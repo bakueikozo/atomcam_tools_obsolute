@@ -55,7 +55,7 @@ SD-Cardを挿入した状態だとATOMアプリからファームウェアの更
 
 ## 使用法
 
-https://github.com/mnakada/atomcam_tools/releases/tag/Ver.1.1.2
+https://github.com/mnakada/atomcam_tools/releases/tag/Ver.1.1.3
 からatomcam_tools.zipをダウンロードし、適当なツールで解凍します。  
 <img src="https://github.com/mnakada/atomcam_tools/blob/main/images/extract.png">
 
