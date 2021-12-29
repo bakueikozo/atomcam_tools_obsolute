@@ -25,6 +25,7 @@ static void __attribute ((constructor)) curl_hook_init(void) {
 
 CURLcode curl_easy_perform(struct SessionHandle *data) {
 
+/*
   if(data->change.url && !strcmp(data->change.url + strlen(data->change.url) - strlen(AlarmPath), AlarmPath)) {
     static time_t lastAccess = 0;
     struct timeval now;
@@ -39,6 +40,9 @@ CURLcode curl_easy_perform(struct SessionHandle *data) {
     if(!res) lastAccess = now.tv_sec;
     return res;
   }
-  return original_curl_easy_perform(data);
+  */
+  CURLcode res = original_curl_easy_perform(data);
+  printf("[curl-debug] easy_perform %s res=%d\n", data->change.url, res);
+  return res;
 }
 

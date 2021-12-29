@@ -59,7 +59,7 @@ touch /tmp/resolv.conf
 mkdir -p /tmp/log
 chmod 777 /tmp/log
 
-sed -i.old -e 's/^alarmInterval=.*$/alarmInterval=30/' /configs/.user_config
+sed -i.old -e 's/^alarmInterval=30$/alarmInterval=300/' /configs/.user_config
 
 /system/bin/ver-comp
 /system/bin/assis >> /tmp/log/assis.log 2>&1 &
