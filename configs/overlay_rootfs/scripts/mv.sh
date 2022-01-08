@@ -16,6 +16,9 @@ STORAGE_CIFS=$(awk -F "=" '/STORAGE_CIFS *=/ {print $2}' $HACK_INI)
 STORAGE_CIFSSERVER=$(awk -F "=" '/STORAGE_CIFSSERVER *=/ {gsub(/\/$/, "", $2); print $2}' $HACK_INI)
 STORAGE_CIFSUSER=$(awk -F "=" '/STORAGE_CIFSUSER *=/ {print $2}' $HACK_INI)
 STORAGE_CIFSPASSWD=$(awk -F "=" '/STORAGE_CIFSPASSWD *=/ {print $2}' $HACK_INI)
+WEBHOOK=$(awk -F "=" '/WEBHOOK *=/ {print $2}' $HACK_INI)
+WEBHOOK_URL=$(awk -F "=" '/WEBHOOK_URL *=/ {print $2}' $HACK_INI)
+WEBHOOK_RECORD_EVENT=$(awk -F "=" '/WEBHOOK_RECORD_EVENT *=/ {print $2}' $HACK_INI)
 HOSTNAME=`hostname`
 
 USER_CONFIG=/configs/.user_config
@@ -95,6 +98,11 @@ if [ "$FMT" != "" ]; then
     /bin/busybox mv $*
   else
     /bin/busybox rm $1
+  fi
+  if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
+    if [ "$WEBHOOK_RECORD_EVENT" = "on" ]; then
+       LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -H "Content-Type: application/json" -d "{\"type\":\"recordEvent\", \"device\":\"${HOSTNAME}\"}" $WEBHOOK_URL
+    fi
   fi
 else
   /bin/busybox rm $1

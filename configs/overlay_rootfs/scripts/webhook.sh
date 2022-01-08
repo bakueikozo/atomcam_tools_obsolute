@@ -25,24 +25,16 @@ BEGIN {
   if(ENV["WEBHOOK_URL"] == "") next;
 }
 
-/alarm_uploadNotify/ {
+/\[aiAlgo\] start/ {
   if(ENV["WEBHOOK_ALARM_EVENT"] == "on") Post("alarmEvent");
 }
-/\[curl_post.*?\]snd:/ {
-  gsub(/^.*snd:\[/,"");
-  gsub(/\]$/, "");
+/\[aiAlgo\] call_TD_Human_Pet_Predict/ {
+  gsub(/^.*Predict \[off:\d*\] /, "");
+  gsub(/tm:/, '');
+  gsub(/|/, ",");
+  gsub(/res:/, ",");
+  gsub(/[\[\]]/, "");
   if(ENV["WEBHOOK_ALARM_INFO"] == "on") Post("recognitionNotify", $0);
-}
-/upload video succes!/ {
-  if(ENV["WEBHOOK_ALARM_VIDEO_FINISH"] == "on") Post("uploadVideoFinish");
-}
-/upload pic succes!/ {
-  if(ENV["WEBHOOK_ALARM_PICT_FINISH"] == "on") Post("uploadPictureFinish");
-}
-/\[exec-iCame,.* cmd:\[mv/ {
-  gsub(/^.*\/media\/mmc/, "");
-  gsub(/;sync;.*$/, "");
-  if(ENV["WEBHOOK_RECORD_EVENT"] == "on") Post("recordEvent", "\"" $0 "\"");
 }
 /time_lapse_exec_cur_task/ {
   gsub(/^.*seq: /, "");

@@ -315,6 +315,7 @@
         </ElCol>
       </ElRow>
 
+      <!--
       <ElRow v-if="config.WEBHOOK === 'on'">
         <ElCol :offset="2" :span="7">
           <ElTooltip :tabindex="-1" placement="top" content="タイムラプスイベントを通知します" effect="light" :open-delay="500">
@@ -342,6 +343,7 @@
           type: timelapseFinish
         </ElCol>
       </ElRow>
+      -->
 
       <h3>動体検知</h3>
       <ElRow>
