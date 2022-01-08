@@ -29,12 +29,13 @@ BEGIN {
   if(ENV["WEBHOOK_ALARM_EVENT"] == "on") Post("alarmEvent");
 }
 /\[aiAlgo\] call_TD_Human_Pet_Predict/ {
-  gsub(/^.*Predict \[off:\d*\] /, "");
-  gsub(/tm:/, '');
-  gsub(/|/, ",");
+  gsub(/^.*Predict \[off:[0-9]*\] /, "");
+  gsub(/tm:/, "");
+  gsub(/\|/, ",");
   gsub(/res:/, ",");
-  gsub(/[\[\]]/, "");
-  if(ENV["WEBHOOK_ALARM_INFO"] == "on") Post("recognitionNotify", $0);
+  gsub(/\[/, "");
+  gsub(/\]/, "");
+  if(ENV["WEBHOOK_ALARM_INFO"] == "on") Post("recognitionNotify", "\"" $0 "\"");
 }
 /time_lapse_exec_cur_task/ {
   gsub(/^.*seq: /, "");
