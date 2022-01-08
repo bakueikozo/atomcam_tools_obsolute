@@ -54,6 +54,7 @@ elif [ "0x424c" = "$VENDERID" ]; then
     insmod /system/driver/bl_fdrv.ko
 fi
 
+rm -rf /media/mmc/.Trashes
 mkdir -p /tmp/app
 touch /tmp/resolv.conf
 mkdir -p /tmp/log
