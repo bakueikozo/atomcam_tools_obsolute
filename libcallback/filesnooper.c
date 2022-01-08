@@ -16,11 +16,7 @@ struct v4l2_format vid_format;
 const char *v4l2_device_path = "/dev/video1";
 
 static void __attribute ((constructor)) filesnooper_init(void) {
-  void *handle = dlopen ("/system/lib/liblocalsdk.so", RTLD_LAZY);
-  if(!handle) fputs (dlerror(), stderr);
-
-  real_local_sdk_video_set_encode_frame_callback = dlsym(handle, "local_sdk_video_set_encode_frame_callback");
-  fprintf(stderr,"ptr=%d injected!!! err=%s\n",real_local_sdk_video_set_encode_frame_callback,dlerror());
+  real_local_sdk_video_set_encode_frame_callback = dlsym(dlopen("/system/lib/liblocalsdk.so", RTLD_LAZY), "local_sdk_video_set_encode_frame_callback");
 }
 
 static uint32_t test_capture(void *param) {

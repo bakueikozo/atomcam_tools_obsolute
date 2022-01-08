@@ -343,6 +343,21 @@
         </ElCol>
       </ElRow>
 
+      <h3>動体検知</h3>
+      <ElRow>
+        <ElCol :offset="2" :span="7">
+          <ElTooltip :tabindex="-1" placement="top" content="Alarmの無検知時間5分を30秒に短縮します" effect="light" :open-delay="500">
+            <h4>動体検知周期の短縮</h4>
+          </ElTooltip>
+        </ElCol>
+        <ElCol :span="4">
+          <ElSwitch v-model="config.MINIMIZE_ALARM_CYCLE" active-value="on" inactive-value="off" />
+        </ElCol>
+        <ElCol :span="6">
+          ※ 変更すると設定ボタンで再起動します
+        </ElCol>
+      </ElRow>
+
       <h3>メンテナンス</h3>
       <ElRow>
         <ElCol :offset="2" :span="7">
@@ -473,6 +488,7 @@
           WEBHOOK_RECORD_EVENT: 'off',
           WEBHOOK_TIMELAPSE_EVENT: 'off',
           WEBHOOK_TIMELAPSE_FINISH: 'off',
+          MINIMIZE_ALARM_CYCLE: 'off',
         },
         intervalValue: {
           TIMESTAMP: '',
@@ -629,18 +645,6 @@
 
         const execCmds = [];
         let href = null;
-        if((this.config.RTSPSERVER !== this.oldConfig.RTSPSERVER) && (this.config.RTSPSERVER === "off")) {
-          execCmds.push(`rtspserver ${this.config.RTSPSERVER}`);
-        }
-        if(this.config.STORAGE_SDCARD_PUBLISH !== this.oldConfig.STORAGE_SDCARD_PUBLISH) {
-          execCmds.push(`samba ${this.config.STORAGE_SDCARD_PUBLISH}`);
-        }
-        if((this.config.RTSPSERVER !== this.oldConfig.RTSPSERVER) && (this.config.RTSPSERVER === "on")) {
-          execCmds.push(`rtspserver ${this.config.RTSPSERVER}`);
-        }
-        if(Object.keys(this.config).some(prop => (prop.search(/WEBHOOK/) === 0) && (this.config[prop] !== this.oldConfig[prop]))) {
-          execCmds.push('setwebhook');
-        }
         if(this.config.REBOOT_SCHEDULE !== this.oldConfig.REBOOT_SCHEDULE) {
           execCmds.push(`scheduleReboot ${this.config.REBOOT_SCHEDULE}`);
         }
@@ -650,12 +654,35 @@
             href = `http://${this.config.HOSTNAME}.local`;
           }
         }
+        if(this.config.MINIMIZE_ALARM_CYCLE !== this.oldConfig.MINIMIZE_ALARM_CYCLE) {
+          execCmds.push(`reboot`);
+          setTimeout(() => { location.reload(); }, 80000);
+          this.rebooting = true;
+          this.rebootStart = new Date();
+        } else {
+          if((this.config.RTSPSERVER !== this.oldConfig.RTSPSERVER) && (this.config.RTSPSERVER === "off")) {
+            execCmds.push(`rtspserver ${this.config.RTSPSERVER}`);
+          }
+          if(this.config.STORAGE_SDCARD_PUBLISH !== this.oldConfig.STORAGE_SDCARD_PUBLISH) {
+            execCmds.push(`samba ${this.config.STORAGE_SDCARD_PUBLISH}`);
+          }
+          if((this.config.RTSPSERVER !== this.oldConfig.RTSPSERVER) && (this.config.RTSPSERVER === "on")) {
+            execCmds.push(`rtspserver ${this.config.RTSPSERVER}`);
+          }
+          if(Object.keys(this.config).some(prop => (prop.search(/WEBHOOK/) === 0) && (this.config[prop] !== this.oldConfig[prop]))) {
+            execCmds.push('setwebhook');
+          }
+        }
 
         this.oldConfig = Object.assign({}, this.config);
         if(execCmds.length) {
           this.executing = true;
           this.$nextTick(async () => {
             for(const cmd of execCmds) {
+              if(cmd === 'reboot') {
+                this.DoReboot();
+                break;
+              }
               await this.Exec(cmd);
             }
             this.executing = false;

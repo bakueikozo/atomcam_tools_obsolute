@@ -6,6 +6,8 @@ PRODUCT_CONFIG=/configs/.product_config
 PRODUCT_MODEL=$(awk -F "=" '/PRODUCT_MODEL *=/ {print $2}' $PRODUCT_CONFIG)
 APPVER_FILE=/configs/app.ver
 APPVER=$(awk -F "=" '/appver *=/ {print $2}' $APPVER_FILE)
+HACK_INI=/media/mmc/hack.ini
+export MINIMIZE_ALARM_CYCLE=$(awk -F "=" '/MINIMIZE_ALARM_CYCLE *=/ {print $2}' $HACK_INI)
 
 sleep 1
 
@@ -59,7 +61,12 @@ touch /tmp/resolv.conf
 mkdir -p /tmp/log
 chmod 777 /tmp/log
 
-grep '^alarmInterval=30$' /configs/.user_config || sed -i.old -e 's/^alarmInterval=.*$/alarmInterval=30/' /configs/.user_config
+if [ "on" = "$MINIMIZE_ALARM_CYCLE" ]; then
+  grep '^alarmInterval=30$' /configs/.user_config || sed -i.old -e 's/^alarmInterval=.*$/alarmInterval=30/' /configs/.user_config
+else
+  grep '^alarmInterval=300$' /configs/.user_config || sed -i.old -e 's/^alarmInterval=.*$/alarmInterval=300/' /configs/.user_config
+fi
+
 grep '^RTSP_SWITCH=[^2]$' /configs/.rtsp_config && rm /configs/.rtsp_config
 
 /system/bin/ver-comp
