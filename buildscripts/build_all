@@ -13,6 +13,7 @@ mkdir -p /openmiko/build/buildroot-2016.02/output/local
 cp -pr /src/libcallback /openmiko/build/buildroot-2016.02/output/local
 cd /openmiko/build/buildroot-2016.02/output/local/libcallback
 make
+[ $? != 0 ] && exit $?
 mkdir -p $ROOTFS/lib/modules/
 cp libcallback.so $ROOTFS/lib/modules/libcallback.so
 
@@ -23,17 +24,35 @@ cp /src/configs/atomhack.ver $ROOTFS/etc
 . /root/.nvm/nvm.sh
 cp -pr /src/web /openmiko/build/buildroot-2016.02/output
 cd /openmiko/build/buildroot-2016.02/output/web
+rm -rf frontend
 npm install -g npm
 npm install
 ./node_modules/.bin/webpack --mode production --progress
+[ $? != 0 ] && exit $?
+rm -rf $ROOTFS/var/www/bundle*
 cp -pr frontend/* $ROOTFS/var/www
 
 # build kernel and rootfs
+if [ "$1" = "new" ] ; then
+  cd /openmiko/build/buildroot-2016.02
+  cp /src/configs/rootfs.config .config
+  make oldconfig
+  make clean
+else
+  cd /openmiko/build/buildroot-2016.02/output
+  rm -rf target
+  mkdir -p target/sbin
+  mkdir -p target/lib
+  mkdir -p target/usr/lib
+  cp -a staging/sbin/* target/sbin/
+  cp -a staging/lib/* target/lib/
+  cp -a staging/usr/lib/* target/usr/lib/
+  rm -f build/.root
+  find . -name ".stamp_target_installed*" -print | xargs rm -f
+fi
 cd /openmiko/build/buildroot-2016.02
-cp /src/configs/rootfs.config .config
-make oldconfig
-make clean
 make
+[ $? != 0 ] && exit $?
 
 # sdcard image
 cp output/images/uImage.lzma /src/target/factory_t31_ZMC6tiIDQN
