@@ -7,7 +7,6 @@
 typedef void CURL;
 typedef int CURLcode;
 typedef long long curl_off_t;
-
 typedef enum {
   HTTPREQ_NONE,
   HTTPREQ_GET,
@@ -20,26 +19,16 @@ typedef enum {
   HTTPREQ_LAST
 } Curl_HttpReq;
 
-static const int CURLE_OK = 0;
-
-const char * methods[] = {
+static const int CURL_OK = 0;
+const char *methods[] = {
   "NONE", "GET", "POST", "POST_FORM", "POST_MIME", "PUT", "HEAD", "OPTIONS", "LAST", ""
 };
-
 static const char *AlarmPath = "/device/v1/alarm/add";
-
 static const char *DummyRes = "{\"ts\":1641390551000,\"code\":\"1\",\"msg\":\"\",\"data\":{\"alarm_file_list\":[{\"file_type\":1,\"file_suffix\":\"jpg\",\"file_url\":\"https://localhost/hoge.jpg\",\"encryption_algorithm\":0,\"encryption_password\":\"\"},{\"file_type\":2,\"file_suffix\":\"mp4\",\"file_url\":\"https://localhost/fuga.mp4\",\"encryption_algorithm\":0,\"encryption_password\":\"\"}]}}";
-
 static const char *DummyHost = "https://localhost/";
 
-typedef int (*curl_seek_callback)(void *instream,
-                                  int offset,
-                                  int origin); /* 'whence' */
-
-typedef int (*curl_write_callback)(char *buffer,
-                                      int size,
-                                      int nitems,
-                                      void *outstream);
+typedef int (*curl_seek_callback)(void *instream, int offset, int origin);
+typedef int (*curl_write_callback)(char *buffer, int size, int nitems, void *outstream);
 
 struct SessionHandle {
   unsigned char padding0[1392];
@@ -62,15 +51,14 @@ struct SessionHandle {
 
 static CURLcode (*original_curl_easy_perform)(CURL *curl);
 static int curl_hook_enable = 0;
-static void __attribute ((constructor)) curl_hook_init(void) {
 
+static void __attribute ((constructor)) curl_hook_init(void) {
   original_curl_easy_perform = dlsym(dlopen("/thirdlib/libcurl.so", RTLD_LAZY), "curl_easy_perform");
   char *p = getenv("MINIMIZE_ALARM_CYCLE");
   curl_hook_enable = p && !strcmp(p, "on");
 }
 
 static void Dump(const char *str, void *start, int size) {
-
   printf("[curl-debug] Dump %s\n", str);
   for(int i = 0; i < size; i+= 16) {
     char buf1[256];
@@ -116,7 +104,7 @@ CURLcode curl_easy_perform(struct SessionHandle *data) {
       printf("[curl-debug] Dismiss short cycle alarms.\n");
       memcpy(data->out, DummyRes, strlen(DummyRes));
       data->httpcode = 200;
-      return CURLE_OK;
+      return CURL_OK;
     }
     CURLcode res = original_curl_easy_perform(data);
     printf("[curl-debug] res=%d\n", res);
@@ -127,7 +115,7 @@ CURLcode curl_easy_perform(struct SessionHandle *data) {
   if(data->url && !strncmp(data->url, DummyHost, strlen(DummyHost))) {
     printf("[curl-debug] skip http-post.\n");
     data->httpcode = 200;
-    return CURLE_OK;
+    return CURL_OK;
   }
 
   CURLcode res = original_curl_easy_perform(data);
