@@ -77,7 +77,7 @@ grep '^RTSP_SWITCH=[^2]$' /configs/.rtsp_config && rm /configs/.rtsp_config
 
 /system/bin/hl_client >> /tmp/log/hl_client.log 2>&1 &
 
-(LD_PRELOAD=/tmp/system/modules/libcallback.so /system/bin/iCamera_app | awk '/^\[nas\.c/ { next; } { print; fflush(); }' ) >> /tmp/log/atom.log 2>&1 &
+LD_PRELOAD=/tmp/system/modules/libcallback.so /system/bin/iCamera_app >> /tmp/log/atom.log 2>&1 &
 
 [ "AC1" = "$PRODUCT_MODEL" ] && /system/bin/dongle_app >> /tmp/log/dongle.log &
 

@@ -40,6 +40,7 @@ case "$1" in
   do
     sleep 1
   done
+  renice -10 `pidof iCamera_app`
   ;;
   stop)
   ;;

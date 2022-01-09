@@ -511,7 +511,7 @@
     },
     computed: {
       stillInterval() {
-        return this.stillFullView ? 250 : 1000;
+        return this.stillFullView ? 500 : 1000;
       },
       imageFrameStyle() {
         return this.stillFullView ? { right: '10px', width: '98%' } : { right: '30px', width: '30%' };
