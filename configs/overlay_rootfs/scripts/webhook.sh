@@ -37,12 +37,13 @@ BEGIN {
   gsub(/\]/, "");
   if(ENV["WEBHOOK_ALARM_INFO"] == "on") Post("recognitionNotify", "\"" $0 "\"");
 }
-/time_lapse_exec_cur_task/ {
-  gsub(/^.*seq: /, "");
-  if(ENV["WEBHOOK_TIMELAPSE_EVENT"] == "on") Post("timelapseCurrent", "\"" $0 "\"");
+/\[webhook\] time_lapse_event/ {
+  gsub(/^.*time_lapse_event /, "");
+  if(ENV["WEBHOOK_TIMELAPSE_EVENT"] == "on") Post("timelapseEvent", "\"" $0 "\"");
 }
-/time_lapse_stop_job/ {
-  if(ENV["WEBHOOK_TIMELAPSE_FINISH"] == "on") Post("timelapseFinish");
+/\[webhook\] time_lapse_finish/ {
+  gsub(/^.*time_lapse_finish /, "");
+  if(ENV["WEBHOOK_TIMELAPSE_FINISH"] == "on") Post("timelapseFinish", "\"" $0 "\"");
 }
 
 function Post(event, data) {
