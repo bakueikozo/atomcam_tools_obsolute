@@ -70,7 +70,7 @@ SD-Cardを挿入した状態だとATOMアプリからファームウェアの更
 
 ## 使用法
 
-https://github.com/mnakada/atomcam_tools/releases/tag/Ver.1.1.6
+https://github.com/mnakada/atomcam_tools/releases/tag/Ver.1.1.7
 からatomcam_tools.zipをダウンロードし、適当なツールで解凍します。  
 <img src="https://github.com/mnakada/atomcam_tools/blob/main/images/extract.png">
 
@@ -220,13 +220,13 @@ WebHookを受け取るURLを指定します。今のところ実験的な実装�
 
 １分間の定常録画が終了するたびに通知URLに type: recordEventをpostします。
 
-##### ~~- タイムラプス記録~~
+##### - タイムラプス記録
 
-~~タイムラプス記録のたびに通知URLに type: timelapseCurrentをpostします。~~
+タイムラプス記録のたびに通知URLに type: timelapseEvent, data: timelapse pathをpostします。
 
-##### ~~- タイムラプス録画終了~~
+##### - タイムラプス録画終了
 
-~~タイムラプス録画終了時に通知URLに type: timelapseFinishをpostします。~~
+タイムラプス録画終了時に通知URLに type: timelapseFinish, data: timelapse pathをpostします。
 
 ### 動体検知
 
