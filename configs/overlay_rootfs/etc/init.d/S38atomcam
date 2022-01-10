@@ -28,6 +28,8 @@ case "$1" in
   cp -pr /atom/usr /tmp/system
   mkdir -p /tmp/system/usr/lib
   mount -o bind /tmp/system/usr /atom/usr
+  cp /scripts/boa.sh /tmp/system/usr/boa/boa
+  ln -s /media/mmc /var/www/SDPath
   mount -o bind /usr/lib /atom/usr/lib
   cp -pr /atom/etc /tmp/system
   cp /etc/nsswitch.conf /tmp/system/etc
