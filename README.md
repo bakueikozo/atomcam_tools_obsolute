@@ -82,7 +82,7 @@ https://github.com/mnakada/atomcam_tools/releases/tag/Ver.1.1.7
 
  http://atomcam.local を開くと設定画面にアクセスできます。
 
-<img src="https://github.com/mnakada/atomcam_tools/blob/ssh-support/images/local_web.png">
+<img src="https://github.com/mnakada/atomcam_tools/blob/main/images/local_web.png">
 
 mDNS未対応で開けない場合は、ATOMCam純正アプリや、IPアドレス確認ツールなどでATOMCamのIPアドレスを確認し、 ブラウザで http://[ATOMCamのIPアドレス] を開きます。
 
