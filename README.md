@@ -26,7 +26,7 @@
 
 - sshd (Port:22)
   - microSDカードのroot directoryにsshの公開鍵をauthorized\_keysの名前のファイルで置いてください。rootアカウントなのでパスワードではloginできない設定になっています。
-  - ssh root@[ATOMCam2のIPアドレス] or ssh root@[hsotname].local でloginできます。
+  - ssh root@[ATOMCamのIPアドレス] or ssh root@[hsotname].local でloginできます。
 
 - webHook機能(experimental)
   - 各種イベント発生時に指定したURLにpostで通知します。
@@ -74,8 +74,8 @@ https://github.com/mnakada/atomcam_tools/releases/tag/Ver.1.1.7
 からatomcam_tools.zipをダウンロードし、適当なツールで解凍します。  
 <img src="https://github.com/mnakada/atomcam_tools/blob/main/images/extract.png">
 
-解凍されて出てきたすべてのファイルを、ATOMCam2で使用可能なmicroSDカードのルートフォルダに保存します  
-保存したmicroSDカードをATOMCam2に入れて電源を入れます  
+解凍されて出てきたすべてのファイルを、ATOMCamで使用可能なmicroSDカードのルートフォルダに保存します  
+保存したmicroSDカードをATOMCamに入れて電源を入れます  
 
 
 ## Web設定画面
@@ -84,7 +84,7 @@ https://github.com/mnakada/atomcam_tools/releases/tag/Ver.1.1.7
 
 <img src="https://github.com/mnakada/atomcam_tools/blob/ssh-support/images/local_web.png">
 
-mDNS未対応で開けない場合は、ATOMCam純正アプリや、IPアドレス確認ツールなどでATOMCam2のIPアドレスを確認し、 ブラウザで http://[ATOMCam2のIPアドレス] を開きます。
+mDNS未対応で開けない場合は、ATOMCam純正アプリや、IPアドレス確認ツールなどでATOMCamのIPアドレスを確認し、 ブラウザで http://[ATOMCamのIPアドレス] を開きます。
 
 この設定画面で行った設定は microSDカード内、hack.ini　に保存され、次回再起動後からは自動的に読み込まれます。  
 
@@ -103,8 +103,9 @@ mDNS未対応で開けない場合は、ATOMCam純正アプリや、IPアドレ�
 
 ATOMCamアプリで設定した検出時にクラウドサーバーに保存される12秒の映像をSD-Card/NASにも記録します。記録されるフォルダーは alarm_record です。
 
-！！！　このファイルは自動的には削除されないため、CIFSサーバ機能などを使って随時削除する必要があります。！！！ 
-または、「SD-Card消去」を押すことによってもファイル削除が行えます。  
+！！！　「録画ファイルの自動削除」で保存日数を指定しないと一杯になっても削除されません　！！！
+
+「SD-Card消去」を押すことによってもファイル削除が行えます。  
 
 
 #### ローカル録画スケジュール
@@ -120,6 +121,8 @@ ATOMCamアプリの「録画およびストレージ管理」の「ローカル�
 録画しているファイルを自動削除する機能です。
 
 自動で削除したくない場合はoffにしてください。
+
+容量にご注意ください。
 
 ##### 保存日数
 
