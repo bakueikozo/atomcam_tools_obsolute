@@ -82,7 +82,17 @@ EOF
     echo "$cmd $params OK" >> /var/run/webres
     cmd=""
   fi
-
+  if [ "$cmd" = "update" ]; then
+    mkdir -p /mnt/media/update
+    (cd /media/mmc/update; curl -sL -o - https://github.com/mnakada/atomcam_tools/releases/latest/download/atomcam_tools.zip | unzip - -o factory_t31_ZMC6tiIDQN rootfs_hack.ext2)
+    echo "$cmd $params OK" >> /var/run/webres
+    sleep 1
+    sync
+    sync
+    sync
+    reboot
+    cmd=""
+  fi
   if [ "$cmd" != "" ]; then
     echo "$cmd $param : syntax error" >> /var/run/webres
   fi

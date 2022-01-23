@@ -9,37 +9,32 @@
 ## 実現される機能
 - WebUI (Port: 80)
   - ATOMCamのアプリから設定できない追加機能について設定します。
-
 - CIFS(Samba4.0)サーバー(Port:137,138,139,445)
   - SD-Cardの保存されている映像のフォルダーをLAN内にguestアカウントで共有します。
-
 - NASへの保存
   - CIFS(smb)プロトコルでNASへSD-Cardへ保存している映像と同じものを保存します。
-
 - RTSPServer(Port:8554)
   - RTSP streaming を送出します。
-
 - avahi(mDNS)機能(Port:5353)
   - microSDカードのhostnameファイルを編集することでデバイス名を変更できます（WebUIからも変更可能）
   - hostnameの命名規則は英数と-(hyphen)のみ（RFC952,1123で規定)です。\_(underscore)は使用できません。defaultはatomcamになっています。
   - mDNS対応しているOS（Windows10以降/MacOS/avahi入りlinux）からは[hostname].localでアクセスできるようになります。
-
 - sshd (Port:22)
   - microSDカードのroot directoryにsshの公開鍵をauthorized\_keysの名前のファイルで置いてください。rootアカウントなのでパスワードではloginできない設定になっています。
   - ssh root@[ATOMCamのIPアドレス] or ssh root@[hsotname].local でloginできます。
-
 - webHook機能(experimental)
   - 各種イベント発生時に指定したURLにpostで通知します。
-
 - 動体検知アラームの不感知期間を短縮(experimental)
 
   - Atomcamの動体検知は一度検知すると５分間検知しない仕様ですが、この検知しない期間を30秒に短縮します。
   - メーカーへの迷惑防止のためCloudへの通知、video/jpegのuploadは５分以内の再送をブロックしています。このため、アプリへの通知も５分以内の再検知時は通知されません。
   - SD-Card, NASには記録されます。(検知時の12秒間のファイル、検知時を含む１分間のファイル共）
   - webHook機能もイベントごとに発生します。必要な場合はwebHook経由で通知を組んでください。RasberryPi上でNode-REDを動かすのがお手軽です。
-  
-  
-  
+
+- atomcam_toolsのupdate機能
+  - GitHubのLatestイメージをダウンロードして更新する機能です。
+  - 回線状況にもよりますが、３分程度かかります。
+  - AtomCamのFWのupdateはできません。FWのupdateはSD-Cardを抜いた状態で起動しアプリからupdateをしてください。
 ## セキュリティに関わる重要事項
 上記項目に書いてある各ポートが利用可能となります。  
 現時点ではこのポートはセキュリティ上の懸念材料となりますので、  
@@ -70,7 +65,8 @@ SD-Cardを挿入した状態だとATOMアプリからファームウェアの更
 
 ## 使用法
 
-https://github.com/mnakada/atomcam_tools/releases/tag/Ver.1.1.7
+https://github.com/mnakada/atomcam_tools/releases/latest
+
 からatomcam_tools.zipをダウンロードし、適当なツールで解凍します。  
 <img src="https://github.com/mnakada/atomcam_tools/blob/main/images/extract.png">
 
@@ -246,6 +242,34 @@ WebHookを受け取るURLを指定します。今のところ実験的な実装�
 カメラのシステムを指定したスケジュールで再起動します。
 
 ネットワークの不調など、何らかの理由でATOMCamが連続稼働することができない場合の対応ですが、必ずしもこれによって問題が解決するとは限りません。  
+
+#### リブート
+
+AtomCamを再起動します。
+
+Lockスイッチを解除してRebootボタンを押してください。
+
+再起動に60~80秒くらいかかります。
+
+#### SD-Card消去
+
+SD-Cardのrecord, alarm_record, time_lapseフォルダの中身を消去します。
+
+SD-Cardにtoolが入っているため、アプリからのSD-Cardのフォーマットをdisableしています。
+
+その代替手段として用意しています。
+
+Lockスイッチを解除してからEraseボタンを押してください。
+
+#### Update
+
+GitHubのLatest VersionにUpdate します。GitHubからLatest Versionをダウンロードして展開して書き込み再起動します。180秒くらいかかります。
+
+**※ ATOMCamのFWのupdateはできません**
+
+ 現在のtoolのバージョン（タイトル部に表示されています）がLatest Versionより古い場合のみUpdateすることができます。
+
+台数が多い場合や回線が細い場合、PCで[GitHubのLatest Version](https://github.com/mnakada/atomcam_tools/releases/latest)のatomcam_tools.zipをダウンロードし、展開せずにそのままSamba経由でSD-Cardのupdateフォルダに入れて、リブートすることでもUpdateできます。この場合はVerのチェックは行われません。
 
 
 ### Copyright

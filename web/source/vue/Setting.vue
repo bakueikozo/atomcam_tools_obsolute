@@ -416,6 +416,23 @@
           <ElButton @click="DoErase" type="danger" :disabled="!eraseEnable" icon="el-icon-folder-delete">Erase</ElButton>
         </ElCol>
       </ElRow>
+
+      <ElRow>
+        <ElCol :offset="2" :span="7">
+          <ElTooltip :tabindex="-1" placement="top" content="このtoolのupdateをします" effect="light" :open-delay="500">
+            <h4>Update</h4>
+          </ElTooltip>
+        </ElCol>
+        <ElCol :span="4">
+          <ElSwitch v-model="updateEnable" inactive-text="Lock" :disabled="!updatable" />
+        </ElCol>
+        <ElCol :span="4">
+          <ElButton @click="DoUpdate" type="danger" :disabled="!updateEnable" icon="el-icon-folder-delete">Update</ElButton>
+        </ElCol>
+        <ElCol :span="4">
+          <span class="latest" :class="{ 'latest-updatable': updatable }">Latest Version : Ver.{{ latestVer }}</span>
+        </ElCol>
+      </ElRow>
     </div>
     <ElRow class="submit">
       <ElCol :offset="20" :span="4">
@@ -426,7 +443,7 @@
       <h4 class="comment">設定変更中。暫くお待ち下さい。</h4>
     </ElDrawer>
     <ElDrawer title="再起動中" :visible.sync="rebooting" direction="btt" :show-close="false" :wrapperClosable="false">
-      <h4 class="comment">起動するまで暫くお待ち下さい。(約80秒)</h4>
+      <h4 class="comment">起動するまで暫くお待ち下さい。(約{{ rebootTime }}秒)</h4>
     </ElDrawer>
   </div>
 </template>
@@ -499,6 +516,9 @@
           dayOfWeekSelect: ['日'],
         },
         rebootEnable: false,
+        rebootTime: 80,
+        updateEnable: false,
+        latestVer: '',
         eraseEnable: false,
         executing: false,
         rebooting: false,
@@ -513,6 +533,18 @@
       },
       imageFrameStyle() {
         return this.stillFullView ? { right: '10px', width: '98%' } : { right: '30px', width: '30%' };
+      },
+      updatable() {
+        const ver = this.config.ATOMHACKVER.split('.');
+        if(ver.length !== 3) return false;
+        const latest = this.latestVer.split('.');
+        if(latest.length !== 3) return false;
+        if(parseInt(ver[0]) < parseInt(latest[0])) return true;
+        if(parseInt(ver[0]) > parseInt(latest[0])) return false;
+        if(parseInt(ver[1]) < parseInt(latest[1])) return true;
+        if(parseInt(ver[1]) > parseInt(latest[1])) return false;
+        if(parseInt(ver[2]) < parseInt(latest[2])) return true;
+        return false;
       },
     },
     async mounted() {
@@ -557,6 +589,13 @@
         }, []);
       }
 
+      const latest = await axios.get('./cgi-bin/get_latest_ver.cgi').catch(err => {
+        // eslint-disable-next-line no-console
+        console.log(err);
+        return '';
+      });
+      this.latestVer = latest.data.replace(/^.*LATESTVER[= ]*([\d.]*)\n*$/, '$1');
+
       if(this.config.REBOOT_SCHEDULE) {
         const str = this.config.REBOOT_SCHEDULE.split(' ');
         const days = (str[4] || '').split(',');
@@ -573,7 +612,11 @@
           return '';
         });
         if(res === '') return;
-        if(new Date() - this.rebootStart > 10 * 1000) this.rebooting = false;
+        if(this.rebootStart && (new Date() > this.rebootStart)) {
+          this.rebooting = false;
+          this.rebootStart = null;
+          location.reload();
+        }
         this.intervalValue = res.data.split('\n').reduce((d, l) => {
           const name = l.split(/[ \t=]/)[0].trim();
           if(name) d[name] = l.replace(new RegExp(name + '[ \t=]*'), '').trim();
@@ -600,15 +643,25 @@
         if(!this.schedule.length) this.config.RECORDING_LOCAL_SCHEDULE = false;
       },
       DoReboot() {
-        setTimeout(() => { location.reload(); }, 80000);
+        this.rebootTime = 80;
         this.rebooting = true;
         this.rebootStart = new Date();
+        this.rebootStart.setSeconds(this.rebootStart.getSeconds() + 30);
         this.Exec('reboot');
       },
       DoErase() {
         this.executing = true;
         this.Exec('sderase');
         this.executing = false;
+      },
+      async DoUpdate() {
+        this.rebootTime = 180;
+        this.rebooting = true;
+        this.rebootStart = new Date();
+        this.rebootStart.setSeconds(this.rebootStart.getSeconds() + 180);
+        await this.Exec('update');
+        this.rebootStart = new Date();
+        this.rebootStart.setSeconds(this.rebootStart.getSeconds() + 30);
       },
       async Submit() {
         let str = '';
@@ -656,9 +709,9 @@
         }
         if(this.config.MINIMIZE_ALARM_CYCLE !== this.oldConfig.MINIMIZE_ALARM_CYCLE) {
           execCmds.push(`reboot`);
-          setTimeout(() => { location.reload(); }, 80000);
           this.rebooting = true;
           this.rebootStart = new Date();
+          this.rebootStart.setSeconds(this.rebootStart.getSeconds() + 30);
         } else {
           if((this.config.RTSPSERVER !== this.oldConfig.RTSPSERVER) && (this.config.RTSPSERVER === "off")) {
             execCmds.push(`rtspserver ${this.config.RTSPSERVER}`);
@@ -772,5 +825,14 @@
     width: 100%;
     margin: 30px;
     text-align: center;
+  }
+  .latest {
+    font-size: 1.2em;
+    font-weight: 300;
+  }
+  .latest-updatable {
+    color: 'red';
+    font-size: 1.2em;
+    font-weight: 600;
   }
 </style>

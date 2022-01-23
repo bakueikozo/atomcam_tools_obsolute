@@ -2,10 +2,7 @@
 
 [ -f /etc/samba/smb.conf ] || exit 0
 mkdir -p /var/log/samba
-mkdir -p /tmp/sdcard
-ln -s /media/mmc/record /tmp/sdcard
-ln -s /media/mmc/alarm_record /tmp/sdcard
-ln -s /media/mmc/time_lapse /tmp/sdcard
+mkdir -p /media/mmc/update
 
 HACK_INI=/media/mmc/hack.ini
 touch $HACK_INI

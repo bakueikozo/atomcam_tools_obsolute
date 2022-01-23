@@ -7,6 +7,35 @@ sleep 1
 
 mkdir -p /sdcard
 mount -t vfat /dev/mmcblk0p1 /sdcard -o rw,umask=0000,dmask=0000
+
+if [ -f /sdcard/update/atomcam_tools.zip ] ; then
+  (cd /sdcard/update; busybox unzip atomcam_tools.zip -o factory_t31_ZMC6tiIDQN rootfs_hack.ext2)
+  rm -rf /sdcard/update/atomcam_tools.zip
+fi
+
+if [ -f /sdcard/update/rootfs_hack.ext2 ] ; then
+  fsize=`ls -l /sdcard/update/rootfs_hack.ext2  | { read _ _ _ _ size _ && echo $size; }`
+  bsize=`busybox hexdump -s 0x404 -n 4 -e '1/4 "%d\n"' /sdcard/update/rootfs_hack.ext2`
+  psize=`busybox expr ${bsize} \* 1024`
+  if [ "$fsize" = "$psize" ]; then
+    mv -f /sdcard/update/rootfs_hack.ext2 /sdcard/rootfs_hack.ext2
+    rm -rf /sdcard/swap
+    sync
+  fi
+fi
+
+if [ -f /sdcard/update/factory_t31_ZMC6tiIDQN ] ; then
+  fsize=`ls -l /sdcard/update/factory_t31_ZMC6tiIDQN | { read _ _ _ _ size _ && echo $size; }`
+  hsize=`busybox hexdump -s 0x0c -n 4 -e '"0x"' -e '4/1 "%02x"' -e '"\n"' /sdcard/update/factory_t31_ZMC6tiIDQN`
+  dsize=`busybox printf "%d\n" $hsize`
+  tsize=`busybox expr ${dsize} \+ 64`
+  if [ "$fsize" = "$tsize" ] ; then
+    mv -f /sdcard/update/factory_t31_ZMC6tiIDQN /sdcard/factory_t31_ZMC6tiIDQN
+    sync
+    exit # panic & reboot
+  fi
+fi
+
 mkdir -p /newroot
 mount -t ext2 -o loop /sdcard/rootfs_hack.ext2 /newroot
 mkdir -p /newroot/dev
