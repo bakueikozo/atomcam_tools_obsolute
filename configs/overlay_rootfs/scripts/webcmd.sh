@@ -11,6 +11,7 @@ do
   params=${line#* }
   if [ "$cmd" = "reboot" ]; then
     echo "$cmd $params OK" >> /var/run/webres
+    killall -SIGUSR2 iCamera_app
     sync
     sync
     sync
@@ -87,6 +88,7 @@ EOF
     (cd /media/mmc/update; curl -sL -o - https://github.com/mnakada/atomcam_tools/releases/latest/download/atomcam_tools.zip | unzip - -o factory_t31_ZMC6tiIDQN rootfs_hack.ext2)
     echo "$cmd $params OK" >> /var/run/webres
     sleep 1
+    killall -SIGUSR2 iCamera_app
     sync
     sync
     sync
