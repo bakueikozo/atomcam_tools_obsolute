@@ -1,0 +1,72 @@
+#!/bin/sh
+#
+# build atomcam environment
+#
+
+flash_copy() {
+  size=`awk '{ if($1 == MTD ":") print ("0x" $2)/1024; }' MTD=${1##*/} /proc/mtd`
+  echo "flash_copy $1 $2 ${size}"
+  dd if=$1 of=/tmp/mtd bs=1k count=${size}
+  [ $? != 0 ] && return
+
+  flash_eraseall $2
+  [ $? != 0 ] && return
+
+  flashcp -v /tmp/mtd $2
+  [ $? != 0 ] && return
+
+  rm -f /tmp/mtd
+}
+
+flash_update() {
+  FWGRADEUP=`awk '/FWGRADEUP=/ { gsub(/^.*=/, ""); print $0; }' /dev/mtd7`
+
+  if [ "${FWGRADEUP}" = "kernel+app" ] ; then
+    flash_copy /dev/mtd4 /dev/mtd1
+    [ $? != 0 ] && return
+    flash_copy /dev/mtd5 /dev/mtd3
+    [ $? != 0 ] && return
+    flash_eraseall /dev/mtd7
+  fi
+
+  if [ "${FWGRADEUP}" = "kernel+rootfs" ] ; then
+    flash_copy /dev/mtd4 /dev/mtd1
+    [ $? != 0 ] && return
+    flash_copy /dev/mtd5 /dev/mtd2
+    [ $? != 0 ] && return
+    flash_eraseall /dev/mtd7
+  fi
+
+  if [ "${FWGRADEUP}" = "kernel" ] ; then
+    flash_copy /dev/mtd4 /dev/mtd1
+    [ $? != 0 ] && return
+    flash_eraseall /dev/mtd7
+  fi
+
+  if [ "${FWGRADEUP}" = "rootfs" ] ; then
+    flash_copy /dev/mtd5 /dev/mtd2
+    [ $? != 0 ] && return
+    flash_eraseall /dev/mtd7
+  fi
+
+  if [ "${FWGRADEUP}" = "app" ] ; then
+    flash_copy /dev/mtd5 /dev/mtd3
+    [ $? != 0 ] && return
+    flash_eraseall /dev/mtd7
+  fi
+}
+
+case "$1" in
+  start)
+  flash_update
+  ;;
+  stop)
+	;;
+  restart|reload)
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?
