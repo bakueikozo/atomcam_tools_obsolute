@@ -10,8 +10,13 @@
       <span class="atomcam">
         {{ config.PRODUCT_MODEL }}
         Ver.{{ config.appver }}
+      </span>
+      <span class="timestamp">
         {{ intervalValue.TIMESTAMP }}
       </span>
+      <a href="https://github.com/mnakada/atomcam_tools#atomcam_tools" target="_blank" rel="noopener">
+        <i class="el-icon-info help" />
+      </a>
     </div>
     <div class="well-transparent container">
       <div class="image-frame" :style="imageFrameStyle">
@@ -427,9 +432,9 @@
           <ElSwitch v-model="updateEnable" inactive-text="Lock" :disabled="!updatable" />
         </ElCol>
         <ElCol :span="4">
-          <ElButton @click="DoUpdate" type="danger" :disabled="!updateEnable" icon="el-icon-folder-delete">Update</ElButton>
+          <ElButton @click="DoUpdate" type="danger" :disabled="!updateEnable" icon="el-icon-refresh">Update</ElButton>
         </ElCol>
-        <ElCol :span="4">
+        <ElCol :span="7">
           <span class="latest" :class="{ 'latest-updatable': updatable }">Latest Version : Ver.{{ latestVer }}</span>
         </ElCol>
       </ElRow>
@@ -771,7 +776,20 @@
 
   .atomcam {
     font-size: 1.5rem;
-    width: 45%;
+    flex-grow: 1;
+    text-align: right;
+    padding-right: 16px;
+  }
+
+  .timestamp {
+    font-size: 1.5rem;
+    flex-basis: 15rem;
+  }
+
+  .help {
+    font-size: 30px;
+    float:right;
+    color: snow;
   }
 
   .container {
