@@ -14,7 +14,7 @@
 - NASへの保存
   - CIFS(smb)プロトコルでNASへSD-Cardへ保存している映像と同じものを保存します。
 - RTSPServer(Port:8554)
-  - RTSP streaming を送出します。
+  - RTSP streaming を送出します。（audioには対応していません）
 - avahi(mDNS)機能(Port:5353)
   - microSDカードのhostnameファイルを編集することでデバイス名を変更できます（WebUIからも変更可能）
   - hostnameの命名規則は英数と-(hyphen)のみ（RFC952,1123で規定)です。\_(underscore)は使用できません。defaultはatomcamになっています。
@@ -30,11 +30,10 @@
   - メーカーへの迷惑防止のためCloudへの通知、video/jpegのuploadは５分以内の再送をブロックしています。このため、アプリへの通知も５分以内の再検知時は通知されません。
   - SD-Card, NASには記録されます。(検知時の12秒間のファイル、検知時を含む１分間のファイル共）
   - webHook機能もイベントごとに発生します。必要な場合はwebHook経由で通知を組んでください。RasberryPi上でNode-REDを動かすのがお手軽です。
-
 - atomcam_toolsのupdate機能
   - GitHubのLatestイメージをダウンロードして更新する機能です。
   - 回線状況にもよりますが、３分程度かかります。
-  - AtomCamのFWのupdateはできません。FWのupdateはSD-Cardを抜いた状態で起動しアプリからupdateをしてください。
+  - AtomCamのFWのupdateはできません。アプリからupdateをしてください。
 ## セキュリティに関わる重要事項
 上記項目に書いてある各ポートが利用可能となります。  
 現時点ではこのポートはセキュリティ上の懸念材料となりますので、  
@@ -54,12 +53,6 @@ ATOMCam Ver.4.33.3.64, 4.33.3.66
 ATOMCam2 Ver.4.58.0.65, 4.58.0.71, 4.58.0.73
 
 ATOMSwing Ver.4.37.1.85, 4.37.1.90, 4.37.1.93
-
-
-
-SD-Cardを挿入した状態だとATOMアプリからファームウェアの更新を実行しても更新されません。
-
-更新する場合はSD-Cardを一旦抜いた状態で実行して、更新完了後にSD-Cardを挿して再起動してください。
 
 
 
@@ -264,8 +257,6 @@ Lockスイッチを解除してからEraseボタンを押してください。
 #### Update
 
 GitHubのLatest VersionにUpdate します。GitHubからLatest Versionをダウンロードして展開して書き込み再起動します。180秒くらいかかります。
-
-**※ ATOMCamのFWのupdateはできません**
 
  現在のtoolのバージョン（タイトル部に表示されています）がLatest Versionより古い場合のみUpdateすることができます。
 
