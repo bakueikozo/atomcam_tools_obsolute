@@ -1,8 +1,8 @@
 *.BAK
-openmiko/*
 factory_t31_ZMC6tiIDQN
 rootfs_hack.ext2
 atomcam_tools.zip
 *.xcodeproj/project.xcworkspace/
 *.xcodeproj/xcuserdata/
+bin/
 

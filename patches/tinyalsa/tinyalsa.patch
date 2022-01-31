@@ -1,0 +1,23 @@
+diff --git a/src/mixer_plugin.c b/src/mixer_plugin.c
+index a07b8f6..1f2a7d8 100644
+--- a/src/mixer_plugin.c
++++ b/src/mixer_plugin.c
+@@ -51,6 +51,18 @@
+ #include "snd_card_plugin.h"
+ #include "mixer_io.h"
+ 
++#if defined(__UCLIBC__)
++int eventfd_read(int fd, eventfd_t* value) {
++       return (read(fd, value, sizeof(*value)) == sizeof(*value)) ? 0 : -1;
++}
++
++int eventfd_write(int fd, eventfd_t value) {
++       return (write(fd, &value, sizeof(value)) == sizeof(value)) ? 0 : -1;
++}
++#endif
++
++
++
+ /** Encapulates the mixer plugin specific data */
+ struct mixer_plug_data {
+     /** Card number associated with the plugin */

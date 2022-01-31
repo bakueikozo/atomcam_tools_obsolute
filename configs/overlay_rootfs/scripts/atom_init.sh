@@ -1,7 +1,7 @@
 #!/bin/sh
 
 export PATH=/tmp/system/bin:/system/bin:/bin:/sbin:/usr/bin:/usr/sbin
-export LD_LIBRARY_PATH=/thirdlib:/system/lib:/tmp
+export LD_LIBRARY_PATH=/thirdlib:/system/lib:/tmp:/tmp/system/modules/
 PRODUCT_CONFIG=/configs/.product_config
 PRODUCT_MODEL=$(awk -F "=" '/PRODUCT_MODEL *=/ {print $2}' $PRODUCT_CONFIG)
 APPVER_FILE=/configs/app.ver
