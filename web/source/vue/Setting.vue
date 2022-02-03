@@ -193,6 +193,16 @@
       </ElRow>
       <ElRow v-if="config.RTSPSERVER === 'on'">
         <ElCol :offset="2" :span="7">
+          <ElTooltip :tabindex="-1" placement="top" content="RTSPの音声を設定します" effect="light" :open-delay="500">
+            <h4>音声</h4>
+          </ElTooltip>
+        </ElCol>
+        <ElCol :span="10">
+          <ElSwitch v-model="config.RTSP_AUDIO" active-value="on" inactive-value="off" />
+        </ElCol>
+      </ElRow>
+      <ElRow v-if="config.RTSPSERVER === 'on'">
+        <ElCol :offset="2" :span="7">
           <h4>URL</h4>
         </ElCol>
         <ElCol :span="10">
@@ -491,6 +501,7 @@
           RECORDING_LOCAL_SCHEDULE_LIST: '', // -> /media/mmc/local_schedule
           RECORDING_PATH: '%Y%m%d/%H%M%S',
           RTSPSERVER: 'off',
+          RTSP_AUDIO: 'off',
           STORAGE_CIFS: 'off',
           STORAGE_REMOVE: 'off',
           STORAGE_REMOVE_DAYS: 30,
@@ -724,7 +735,9 @@
           if(this.config.STORAGE_SDCARD_PUBLISH !== this.oldConfig.STORAGE_SDCARD_PUBLISH) {
             execCmds.push(`samba ${this.config.STORAGE_SDCARD_PUBLISH}`);
           }
-          if((this.config.RTSPSERVER !== this.oldConfig.RTSPSERVER) && (this.config.RTSPSERVER === "on")) {
+          if(((this.config.RTSPSERVER !== this.oldConfig.RTSPSERVER) ||
+              (this.config.RTSP_AUDIO !== this.oldConfig.RTSP_AUDIO)) &&
+              (this.config.RTSPSERVER === "on")) {
             execCmds.push(`rtspserver ${this.config.RTSPSERVER}`);
           }
           if(Object.keys(this.config).some(prop => (prop.search(/WEBHOOK/) === 0) && (this.config[prop] !== this.oldConfig[prop]))) {

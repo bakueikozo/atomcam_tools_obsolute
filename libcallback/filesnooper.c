@@ -27,11 +27,27 @@ static void __attribute ((constructor)) filesnooper_init(void) {
   real_local_sdk_audio_set_pcm_frame_callback = dlsym(dlopen("/system/lib/liblocalsdk.so", RTLD_LAZY), "local_sdk_audio_set_pcm_frame_callback");
 }
 
+time_t last_enable_check = 0;
+static int video_enable = 0;
+static int audio_enable = 0;
+
+static void check_video_audio_enable() {
+
+  struct timeval now;
+  gettimeofday(&now, NULL);
+  if(now.tv_sec - last_enable_check >= 3) {
+    video_enable = !access("/tmp/video_rtsp", F_OK);
+    audio_enable = !access("/tmp/audio_rtsp", F_OK);
+    last_enable_check = now.tv_sec;
+  }
+}
+
 static uint32_t video_encode_capture(struct frames_st *frames) {
   uint32_t ret;
   static int firstEntry = 0;
   static int v4l2Fd = -1;
 
+  check_video_audio_enable();
   if(!firstEntry) {
     int err;
     firstEntry++;
@@ -62,7 +78,7 @@ static uint32_t video_encode_capture(struct frames_st *frames) {
     fclose(fp);
   }
 
-  if(v4l2Fd >= 0) {
+  if(video_enable && (v4l2Fd >= 0)) {
     uint32_t *buf = frames->buf;
     int size = write(v4l2Fd, frames->buf, frames->length);
     if(size != frames->length) fprintf(stderr,"Stream write error: %s\n", ret);
@@ -101,11 +117,13 @@ static uint32_t audio_pcm_capture(struct frames_st *frames) {
     firstEntry = 1;
   }
 
-  int avail = pcm_mmap_avail(pcm);
-  int delay = pcm_get_delay(pcm);
-  int ready = pcm_is_ready(pcm);
-  int err = pcm_writei(pcm, buf, pcm_bytes_to_frames(pcm, frames->length));
-  if(err < 0) fprintf(stderr, "pcm_writei err=%d\n", err);
+  if(audio_enable) {
+    int avail = pcm_mmap_avail(pcm);
+    int delay = pcm_get_delay(pcm);
+    int ready = pcm_is_ready(pcm);
+    int err = pcm_writei(pcm, buf, pcm_bytes_to_frames(pcm, frames->length));
+    if(err < 0) fprintf(stderr, "pcm_writei err=%d\n", err);
+  }
   return ((framecb)audio_pcm_cb)(frames);
 }
 
