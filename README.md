@@ -14,7 +14,7 @@
 - NASへの保存
   - CIFS(smb)プロトコルでNASへSD-Cardへ保存している映像と同じものを保存します。
 - RTSPServer(Port:8554)
-  - RTSP streaming を送出します。（audioには対応していません）
+  - RTSP streaming を送出します。
 - avahi(mDNS)機能(Port:5353)
   - microSDカードのhostnameファイルを編集することでデバイス名を変更できます（WebUIからも変更可能）
   - hostnameの命名規則は英数と-(hyphen)のみ（RFC952,1123で規定)です。\_(underscore)は使用できません。defaultはatomcamになっています。
@@ -170,6 +170,10 @@ NASにアクセスするためのパスワードを指定します。（この�
 特に、システムの安定性に関わるため、利用には十分なテストを行ってください。  
 
 **※ 負荷が重いためSD-Cardのネットワークアクセスと同時使用は推奨しません。**
+
+##### - 音声
+
+RTSPの音声をon/offします。音声をonにすると負荷が大きくなるので、必要でなければoffにしておいてください。
 
 ##### - URL
 
