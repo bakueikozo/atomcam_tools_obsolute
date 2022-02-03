@@ -16,10 +16,10 @@ git clone https://github.com/tinyalsa/tinyalsa.git -b v2.0.0 --depth 1
   export CROSS_COMPILE="/openmiko/build/mips-gcc472-glibc216-64bit/bin/mips-linux-uclibc-gnu-"
   export DESTDIR=/openmiko/build/mips-gcc472-glibc216-64bit/mips-linux-gnu/libc/uclibc
   export PREFIX=/usr
-  export CFLAGS="-std=gnu99"
+  export CFLAGS="-std=gnu99 -msoft-float"
   make install
+  cp ${DESTDIR}/usr/lib/libtinyalsa.so.* $ROOTFS/lib/modules
 )
-cp ${DESTDIR}/usr/lib/libtinyalsa.so.* $ROOTFS/lib/modules
 
 # build libcallback.so
 mkdir -p /openmiko/build/buildroot-2016.02/output/local
@@ -44,6 +44,12 @@ npm install
 [ $? != 0 ] && exit $?
 rm -rf $ROOTFS/var/www/bundle*
 cp -pr frontend/* $ROOTFS/var/www
+
+# package patch
+for i in `ls /src/patches/package`
+do
+  cp -pr /src/patches/package/$i/*patch /openmiko/build/buildroot-2016.02/package/$i
+done
 
 # build kernel and rootfs
 if [ "$1" = "new" ] ; then

@@ -6,7 +6,7 @@ if [ "$1" = "on" ]; then
     do
       sleep 1
     done
-     [ "`pidof v4l2rtspserver`" = "" ] && /usr/bin/v4l2rtspserver /dev/video1 > /tmp/log/rtspserver.log 2>&1 &
+     [ "`pidof v4l2rtspserver`" = "" ] && /usr/bin/v4l2rtspserver -C 1 -a S16_LE -l 0 /dev/video1,hw:Loopback,0 > /tmp/log/rtspserver.log 2>&1 &
   ) &
 fi
 

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 export PATH=/tmp/system/bin:/system/bin:/bin:/sbin:/usr/bin:/usr/sbin
-export LD_LIBRARY_PATH=/thirdlib:/system/lib:/tmp:/tmp/system/modules/
+export LD_LIBRARY_PATH=/thirdlib:/system/lib:/tmp:/tmp/system/lib/modules/
 PRODUCT_CONFIG=/configs/.product_config
 PRODUCT_MODEL=$(awk -F "=" '/PRODUCT_MODEL *=/ {print $2}' $PRODUCT_CONFIG)
 APPVER_FILE=/configs/app.ver
@@ -77,7 +77,7 @@ grep '^RTSP_SWITCH=[^2]$' /configs/.rtsp_config && rm /configs/.rtsp_config
 
 /system/bin/hl_client >> /tmp/log/hl_client.log 2>&1 &
 
-LD_PRELOAD=/tmp/system/modules/libcallback.so /system/bin/iCamera_app >> /tmp/log/atom.log 2>&1 &
+LD_PRELOAD=/tmp/system/lib/modules/libcallback.so /system/bin/iCamera_app >> /tmp/log/atom.log 2>&1 &
 
 [ "AC1" = "$PRODUCT_MODEL" ] && /system/bin/dongle_app >> /tmp/log/dongle.log &
 

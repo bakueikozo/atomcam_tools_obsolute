@@ -22,7 +22,6 @@ case "$1" in
   cp /scripts/mv.sh /tmp/system/bin/mv
   cp /usr/bin/curl /tmp/system/bin
   mkdir -p /tmp/system/modules
-  cp /lib/modules/libcallback.so /tmp/system/modules
   mkdir -p /tmp/system/lib
   mount -o bind /lib /atom/tmp/system/lib
   cp -pr /atom/usr /tmp/system
@@ -44,6 +43,7 @@ case "$1" in
   renice -10 `pidof iCamera_app`
   ;;
   stop)
+  killall -SIGUSR2 iCamera_app
   ;;
   restart|reload)
   "$0" stop
