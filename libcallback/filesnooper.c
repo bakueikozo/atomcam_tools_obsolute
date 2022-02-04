@@ -35,9 +35,14 @@ static void check_video_audio_enable() {
 
   struct timeval now;
   gettimeofday(&now, NULL);
-  if(now.tv_sec - last_enable_check >= 3) {
-    video_enable = !access("/tmp/video_rtsp", F_OK);
-    audio_enable = !access("/tmp/audio_rtsp", F_OK);
+  if(now.tv_sec - last_enable_check >= 1) {
+    int video_rtsp = !access("/tmp/video_rtsp", F_OK);
+    int audio_rtsp = !access("/tmp/audio_rtsp", F_OK);
+    if((video_rtsp != video_enable) || (audio_rtsp != audio_enable)) {
+      video_enable = video_rtsp;
+      audio_enable = audio_rtsp;
+      fprintf(stderr, "[RTSP_hook] Video capture %d, Audio capture %d\n", video_enable, audio_enable);
+    }
     last_enable_check = now.tv_sec;
   }
 }
