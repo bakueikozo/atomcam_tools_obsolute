@@ -36,9 +36,12 @@ case "$1" in
 
   insmod /lib/modules/3.10.14__isvp_swan_1.0__/extra/v4l2loopback.ko video_nr=1
   chroot /atom /tmp/system/bin/atom_init.sh
+  count=0
   while ! ifconfig wlan0 | grep 'inet addr'
   do
     sleep 1
+    let count++
+    [ 30 -le $count ] && break
   done
   renice -10 `pidof iCamera_app`
   ;;
