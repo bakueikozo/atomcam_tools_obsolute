@@ -4,11 +4,11 @@ HACK_INI=/media/mmc/hack.ini
 RTSP_AUDIO=$(awk -F "=" '/RTSP_AUDIO *=/ {print $2}' $HACK_INI)
 
 if [ "$1" = "on" ]; then
-  touch /tmp/video_rtsp
+  res=`/scripts/cmd video on`
   if [ "$RTSP_AUDIO" = "on" ] ; then
-    touch /tmp/audio_rtsp
+    res=`/scripts/cmd audio on`
   else
-    rm -rf /tmp/audio_rtsp
+    res=`/scripts/cmd audio off`
   fi
   (
     while ! ifconfig wlan0 | grep 'inet addr' > /dev/null
@@ -25,8 +25,14 @@ if [ "$1" = "on" ]; then
 fi
 
 if [ "$1" = "off" ]; then
-  rm -f /tmp/video_rtsp /tmp/audio_rtsp
-  kill `pidof v4l2rtspserver` > /dev/null 2>&1
+  (
+    while ! ifconfig wlan0 | grep 'inet addr' > /dev/null
+    do
+      sleep 1
+    done
+    res=`/scripts/cmd video off`
+    kill `pidof v4l2rtspserver` > /dev/null 2>&1
+  ) &
 fi
 
 exit 0
