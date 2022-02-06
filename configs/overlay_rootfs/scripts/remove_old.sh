@@ -20,7 +20,8 @@ if [ "$STORAGE_REMOVE" = "on" ] && [ "$STORAGE_REMOVE_DAYS" != "" ]; then
       mount -t cifs -ousername=$STORAGE_CIFSUSER,password=$STORAGE_CIFSPASSWD,vers=3.0 $STORAGE_CIFSSERVER /atom/mnt
     fi
     if [ $? = 0 ]; then
-      find /atom/mnt/$HOSTNAME -depth -mtime +$STORAGE_REMOVE_DAYS -exec busybox rm -rf {} +
+      find /atom/mnt/$HOSTNAME -depth -type f -mtime +$STORAGE_REMOVE_DAYS -delete
+      find /atom/mnt/$HOSTNAME -depth -type d -empty -delete
     fi
   fi
 fi
