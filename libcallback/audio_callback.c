@@ -15,28 +15,13 @@ struct frames_st {
 };
 typedef int (* framecb)(struct frames_st *);
 
+extern int audio_enable;
+
 static uint32_t (*real_local_sdk_audio_set_pcm_frame_callback)(int ch, void *callback);
 static void *audio_pcm_cb = NULL;
 
 static void __attribute ((constructor)) audio_callback_init(void) {
   real_local_sdk_audio_set_pcm_frame_callback = dlsym(dlopen("/system/lib/liblocalsdk.so", RTLD_LAZY), "local_sdk_audio_set_pcm_frame_callback");
-}
-
-static int check_audio_enable() {
-
-  static time_t last_enable_check = 0;
-  static int audio_enable = 0;
-  struct timeval now;
-  gettimeofday(&now, NULL);
-  if(now.tv_sec - last_enable_check >= 1) {
-    int audio_rtsp = !access("/tmp/audio_rtsp", F_OK);
-    if(audio_rtsp != audio_enable) {
-      audio_enable = audio_rtsp;
-      fprintf(stderr, "[RTSP_hook] Audio capture %d\n", audio_enable);
-    }
-    last_enable_check = now.tv_sec;
-  }
-  return audio_enable;
 }
 
 static uint32_t audio_pcm_capture(struct frames_st *frames) {
@@ -69,7 +54,7 @@ static uint32_t audio_pcm_capture(struct frames_st *frames) {
     }
   }
 
-  if(pcm && check_audio_enable()) {
+  if(pcm && audio_enable) {
     int avail = pcm_mmap_avail(pcm);
     int delay = pcm_get_delay(pcm);
     int ready = pcm_is_ready(pcm);

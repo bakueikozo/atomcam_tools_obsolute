@@ -8,12 +8,18 @@
 #include <linux/videodev2.h>
 #include <sys/ioctl.h>
 #include <sys/time.h>
+#include <pthread.h>
+
+extern int video_enable;
+extern int jpeg_capture;
+extern pthread_cond_t jpeg_capture_cond;
+extern pthread_mutex_t jpeg_capture_mutex;
+extern void local_sdk_video_get_jpeg(int, char *);
 
 struct frames_st {
   void *buf;
   size_t length;
 };
-extern void local_sdk_video_get_jpeg(int, char *);
 typedef int (* framecb)(struct frames_st *);
 
 static uint32_t (*real_local_sdk_video_set_encode_frame_callback)(int ch, void *callback);
@@ -21,23 +27,6 @@ static void *video_encode_cb = NULL;
 
 static void __attribute ((constructor)) video_callback_init(void) {
   real_local_sdk_video_set_encode_frame_callback = dlsym(dlopen("/system/lib/liblocalsdk.so", RTLD_LAZY), "local_sdk_video_set_encode_frame_callback");
-}
-
-static int check_video_enable() {
-
-  static time_t last_enable_check = 0;
-  static int video_enable = 0;
-  struct timeval now;
-  gettimeofday(&now, NULL);
-  if(now.tv_sec - last_enable_check >= 1) {
-    int video_rtsp = !access("/tmp/video_rtsp", F_OK);
-    if(video_rtsp != video_enable) {
-      video_enable = video_rtsp;
-      fprintf(stderr, "[RTSP_hook] Video capture %d\n", video_enable);
-    }
-    last_enable_check = now.tv_sec;
-  }
-  return video_enable;
 }
 
 static uint32_t video_encode_capture(struct frames_st *frames) {
@@ -68,14 +57,13 @@ static uint32_t video_encode_capture(struct frames_st *frames) {
     if(err < 0) fprintf(stderr,"Unable to perform VIDIOC_STREAMON: %d\n", err);
   }
 
-  FILE *fp = fopen("/tmp/get_jpeg", "r");
-  if(fp) {
+  if(jpeg_capture) {
     local_sdk_video_get_jpeg(0, "/tmp/snapshot.jpg");
-    remove("/tmp/get_jpeg");
-    fclose(fp);
+    jpeg_capture = 0;
+    pthread_cond_signal(&jpeg_capture_cond);
   }
 
-  if( (v4l2Fd >= 0) && check_video_enable()) {
+  if( (v4l2Fd >= 0) && video_enable) {
     uint32_t *buf = frames->buf;
     int size = write(v4l2Fd, frames->buf, frames->length);
     if(size != frames->length) fprintf(stderr,"Stream write error: %s\n", ret);
