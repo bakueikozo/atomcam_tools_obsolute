@@ -7,6 +7,7 @@ git clone https://github.com/Dafang-Hacks/mips-gcc472-glibc216-64bit.git --depth
 # overlay_rootfs
 cp -pr /src/configs/overlay_rootfs /openmiko/build/buildroot-2016.02/output
 ROOTFS=/openmiko/build/buildroot-2016.02/output/overlay_rootfs
+find ${ROOTFS} -name .DS_Store -delete
 
 # tinyalsa
 git clone https://github.com/tinyalsa/tinyalsa.git -b v2.0.0 --depth 1

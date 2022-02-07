@@ -1,0 +1,25 @@
+#!/bin/sh
+
+HACK_INI=/media/mmc/hack.ini
+
+STORAGE_SDCARD_PATH=$(awk -F "=" '/STORAGE_SDCARD_PATH *=/ {print $2}' $HACK_INI)
+[ "$STORAGE_SDCARD_PATH" != "" ] && exit 0
+STORAGE_CIFS_PATH=$(awk -F "=" '/STORAGE_CIFS_PATH *=/ {print $2}' $HACK_INI)
+[ "$STORAGE_CIFS_PATH" != "" ] && exit 0
+STORAGE_SDCARD_REMOVE=$(awk -F "=" '/STORAGE_SDCARD_REMOVE *=/ {print $2}' $HACK_INI)
+[ "$STORAGE_SDCARD_REMOVE" != "" ] && exit 0
+STORAGE_SDCARD_REMOVE_DAYS=$(awk -F "=" '/STORAGE_SDCARD_REMOVE_DAYS *=/ {print $2}' $HACK_INI)
+[ "$STORAGE_SDCARD_REMOVE_DAYS" != "" ] && exit 0
+
+RECORDING_PATH=$(awk -F "=" '/RECORDING_PATH *=/ {gsub(/\\/, "/");print $2}' $HACK_INI)
+STORAGE_REMOVE=$(awk -F "=" '/STORAGE_REMOVE *=/ {print $2}' $HACK_INI)
+STORAGE_REMOVE_DAYS=$(awk -F "=" '/STORAGE_REMOVE_DAYS *=/ {print $2}' $HACK_INI)
+STORAGE_CIFSSERVER=$(awk -F "=" '/STORAGE_CIFSSERVER *=/ {gsub(/\\/, "/");print $2}' $HACK_INI)
+
+grep -v '^RECORDING_PATH *=' $HACK_INI | grep -v '^STORAGE_REMOVE *=' | grep -v '^STORAGE_REMOVE_DAYS *=' | grep -v 'STORAGE_CIFSSERVER *=' > ${HACK_INI}_new
+echo "STORAGE_SDCARD_PATH=${RECORDING_PATH}" >> ${HACK_INI}_new
+echo "STORAGE_SDCARD_REMOVE=${STORAGE_REMOVE}" >> ${HACK_INI}_new
+echo "STORAGE_SDCARD_REMOVE_DAYS=${STORAGE_REMOVE_DAYS}" >> ${HACK_INI}_new
+echo "STORAGE_CIFSSERVER=${STORAGE_CIFSSERVER}" >> ${HACK_INI}_new
+echo "STORAGE_CIFS_PATH=${RECORDING_PATH}" >> ${HACK_INI}_new
+mv -f ${HACK_INI}_new ${HACK_INI}

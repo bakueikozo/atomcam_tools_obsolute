@@ -85,36 +85,6 @@
           </ElCol>
         </ElRow>
       </div>
-      <ElRow>
-        <ElCol :offset="1" :span="8">
-          <ElTooltip :tabindex="-1" placement="top" content="SD-Card/CIFS Serverに録画したファイルを自動的に削除します" effect="light" :open-delay="500">
-            <h4>録画ファイルの自動削除</h4>
-          </ElTooltip>
-        </ElCol>
-        <ElCol :span="3">
-          <ElSwitch v-model="config.STORAGE_REMOVE" active-value="on" inactive-value="off" />
-        </ElCol>
-      </ElRow>
-      <ElRow v-if="config.STORAGE_REMOVE === 'on'">
-        <ElCol :offset="1" :span="8">
-          <ElTooltip :tabindex="-1" placement="top" content="指定日数後に削除します" effect="light" :open-delay="500">
-            <h4>保存日数</h4>
-          </ElTooltip>
-        </ElCol>
-        <ElCol :span="3">
-          <ElInputNumber v-model="config.STORAGE_REMOVE_DAYS" :min="1" :step-strictly="true" size="mini" />
-        </ElCol>
-      </ElRow>
-      <ElRow>
-        <ElCol :offset="1" :span="8">
-          <ElTooltip :tabindex="-1" placement="top" content="録画するPATHをstrftimeの書式指定で記述します。SD-Cardの録画ファイルには効きません。" effect="light" :open-delay="500">
-            <h4>録画ファイルのPATH</h4>
-          </ElTooltip>
-        </ElCol>
-        <ElCol :span="6">
-          <ElInput type="text" v-model="config.RECORDING_PATH" />
-        </ElCol>
-      </ElRow>
 
       <h3>記録メディア</h3>
       <ElRow>
@@ -137,6 +107,36 @@
           <ElSwitch v-model="config.STORAGE_SDCARD_PUBLISH" active-value="on" inactive-value="off" />
         </ElCol>
       </ElRow>
+      <ElRow>
+        <ElCol :offset="2" :span="7">
+          <ElTooltip :tabindex="-1" placement="top" content="録画するPATHをstrftimeの書式指定で記述します。最後に拡張子が付加されます。alarm_recordのみに有効。" effect="light" :open-delay="500">
+            <h4>保存するPATH</h4>
+          </ElTooltip>
+        </ElCol>
+        <ElCol :span="6">
+          <ElInput type="text" v-model="config.STORAGE_SDCARD_PATH" @input="FixPath('STORAGE_SDCARD_PATH')" />
+        </ElCol>
+      </ElRow>
+      <ElRow>
+        <ElCol :offset="2" :span="7">
+          <ElTooltip :tabindex="-1" placement="top" content="SD-Cardに録画したファイルを自動的に削除します" effect="light" :open-delay="500">
+            <h4>ファイルの自動削除</h4>
+          </ElTooltip>
+        </ElCol>
+        <ElCol :span="3">
+          <ElSwitch v-model="config.STORAGE_SDCARD_REMOVE" active-value="on" inactive-value="off" />
+        </ElCol>
+      </ElRow>
+      <ElRow v-if="config.STORAGE_SDCARD_REMOVE === 'on'">
+        <ElCol :offset="2" :span="7">
+          <ElTooltip :tabindex="-1" placement="top" content="指定日数後に削除します" effect="light" :open-delay="500">
+            <h4>保存日数</h4>
+          </ElTooltip>
+        </ElCol>
+        <ElCol :span="3">
+          <ElInputNumber v-model="config.STORAGE_SDCARD_REMOVE_DAYS" :min="1" :step-strictly="true" size="mini" />
+        </ElCol>
+      </ElRow>
 
       <ElRow>
         <ElCol :offset="1" :span="8">
@@ -156,7 +156,7 @@
           </ElTooltip>
         </ElCol>
         <ElCol :span="10">
-          <ElInput type="text" v-model="config.STORAGE_CIFSSERVER" />
+          <ElInput type="text" v-model="config.STORAGE_CIFSSERVER" @input="FixPath('STORAGE_CIFSSERVER')" />
         </ElCol>
       </ElRow>
       <ElRow v-if="config.STORAGE_CIFS === 'on'">
@@ -177,6 +177,36 @@
         </ElCol>
         <ElCol :span="6">
           <ElInput type="text" name="password" v-model="config.STORAGE_CIFSPASSWD" show-password />
+        </ElCol>
+      </ElRow>
+      <ElRow>
+        <ElCol :offset="2" :span="7">
+          <ElTooltip :tabindex="-1" placement="top" content="録画するPATHをstrftimeの書式指定で記述します。最後に拡張子が付加されます。" effect="light" :open-delay="500">
+            <h4>保存するPATH</h4>
+          </ElTooltip>
+        </ElCol>
+        <ElCol :span="6">
+          <ElInput type="text" v-model="config.STORAGE_CIFS_PATH" @input="FixPath('STORAGE_CIFS_PATH')" />
+        </ElCol>
+      </ElRow>
+      <ElRow>
+        <ElCol :offset="2" :span="7">
+          <ElTooltip :tabindex="-1" placement="top" content="CIFS Serverに録画したファイルを自動的に削除します" effect="light" :open-delay="500">
+            <h4>ファイルの自動削除</h4>
+          </ElTooltip>
+        </ElCol>
+        <ElCol :span="3">
+          <ElSwitch v-model="config.STORAGE_CIFS_REMOVE" active-value="on" inactive-value="off" />
+        </ElCol>
+      </ElRow>
+      <ElRow v-if="config.STORAGE_CIFS_REMOVE === 'on'">
+        <ElCol :offset="2" :span="7">
+          <ElTooltip :tabindex="-1" placement="top" content="指定日数後に削除します" effect="light" :open-delay="500">
+            <h4>保存日数</h4>
+          </ElTooltip>
+        </ElCol>
+        <ElCol :span="3">
+          <ElInputNumber v-model="config.STORAGE_CIFS_REMOVE_DAYS" :min="1" :step-strictly="true" size="mini" />
         </ElCol>
       </ElRow>
 
@@ -499,17 +529,20 @@
           RECORDING_ALARM: 'on',
           RECORDING_LOCAL_SCHEDULE: 'off',
           RECORDING_LOCAL_SCHEDULE_LIST: '', // -> /media/mmc/local_schedule
-          RECORDING_PATH: '%Y%m%d/%H%M%S',
           RTSPSERVER: 'off',
           RTSP_AUDIO: 'off',
+          STORAGE_SDCARD: 'on',
+          STORAGE_SDCARD_PUBLISH: 'off',
+          STORAGE_SDCARD_PATH: '%Y%m%d/%H%M%S',
+          STORAGE_SDCARD_REMOVE: 'off',
+          STORAGE_SDCARD_REMOVE_DAYS: 30,
           STORAGE_CIFS: 'off',
-          STORAGE_REMOVE: 'off',
-          STORAGE_REMOVE_DAYS: 30,
+          STORAGE_CIFS_PATH: '%Y%m%d/%H%M%S',
+          STORAGE_CIFS_REMOVE: 'off',
+          STORAGE_CIFS_REMOVE_DAYS: 30,
           STORAGE_CIFSSERVER: '',
           STORAGE_CIFSUSER: '',
           STORAGE_CIFSPASSWD: '',
-          STORAGE_SDCARD: 'on',
-          STORAGE_SDCARD_PUBLISH: 'off',
           WEBHOOK: 'off',
           WEBHOOK_URL: '',
           WEBHOOK_ALARM_EVENT: 'off',
@@ -657,6 +690,9 @@
       DeleteSchedule(i) {
         this.schedule.splice(i, 1);
         if(!this.schedule.length) this.config.RECORDING_LOCAL_SCHEDULE = false;
+      },
+      FixPath(label) {
+        this.config[label] = this.config[label].replace(/\\/g, '/');
       },
       DoReboot() {
         this.rebootTime = 80;
