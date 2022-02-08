@@ -12,9 +12,8 @@
 
 extern int video_enable;
 extern int jpeg_capture;
-extern pthread_cond_t jpeg_capture_cond;
-extern pthread_mutex_t jpeg_capture_mutex;
 extern void local_sdk_video_get_jpeg(int, char *);
+extern void commandResponse(int fd, const char *res);
 
 struct frames_st {
   void *buf;
@@ -59,8 +58,8 @@ static uint32_t video_encode_capture(struct frames_st *frames) {
 
   if(jpeg_capture) {
     local_sdk_video_get_jpeg(0, "/tmp/snapshot.jpg");
+    commandResponse(jpeg_capture, "ok");
     jpeg_capture = 0;
-    pthread_cond_signal(&jpeg_capture_cond);
   }
 
   if( (v4l2Fd >= 0) && video_enable) {
