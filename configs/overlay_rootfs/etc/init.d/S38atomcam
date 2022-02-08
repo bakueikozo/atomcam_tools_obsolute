@@ -18,6 +18,7 @@ case "$1" in
   mount -o rbind /media /atom/media
   mkdir -p /tmp/system/bin
   cp /scripts/atom_init.sh /tmp/system/bin
+  cp /scripts/mount_cifs.sh /tmp/system/bin/mount_cifs
   cp /scripts/rm.sh /tmp/system/bin/rm
   cp /scripts/mv.sh /tmp/system/bin/mv
   cp /usr/bin/curl /tmp/system/bin
