@@ -15,7 +15,7 @@ struct frames_st {
 };
 typedef int (* framecb)(struct frames_st *);
 
-extern int audio_enable;
+extern int AudioCaptureEnable;
 
 static uint32_t (*real_local_sdk_audio_set_pcm_frame_callback)(int ch, void *callback);
 static void *audio_pcm_cb = NULL;
@@ -54,7 +54,7 @@ static uint32_t audio_pcm_capture(struct frames_st *frames) {
     }
   }
 
-  if(pcm && audio_enable) {
+  if(pcm && AudioCaptureEnable) {
     int avail = pcm_mmap_avail(pcm);
     int delay = pcm_get_delay(pcm);
     int ready = pcm_is_ready(pcm);

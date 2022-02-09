@@ -10,10 +10,10 @@
 #include <sys/time.h>
 #include <pthread.h>
 
-extern int video_enable;
-extern int jpeg_capture;
+extern int VideoCaptureEnable;
+extern int JpegCaptureTriggler;
 extern void local_sdk_video_get_jpeg(int, char *);
-extern void commandResponse(int fd, const char *res);
+extern void CommandResponse(int fd, const char *res);
 
 struct frames_st {
   void *buf;
@@ -56,13 +56,13 @@ static uint32_t video_encode_capture(struct frames_st *frames) {
     if(err < 0) fprintf(stderr,"Unable to perform VIDIOC_STREAMON: %d\n", err);
   }
 
-  if(jpeg_capture) {
+  if(JpegCaptureTriggler) {
     local_sdk_video_get_jpeg(0, "/tmp/snapshot.jpg");
-    commandResponse(jpeg_capture, "ok");
-    jpeg_capture = 0;
+    CommandResponse(JpegCaptureTriggler, "ok");
+    JpegCaptureTriggler = 0;
   }
 
-  if( (v4l2Fd >= 0) && video_enable) {
+  if( (v4l2Fd >= 0) && VideoCaptureEnable) {
     uint32_t *buf = frames->buf;
     int size = write(v4l2Fd, frames->buf, frames->length);
     if(size != frames->length) fprintf(stderr,"Stream write error: %s\n", ret);
