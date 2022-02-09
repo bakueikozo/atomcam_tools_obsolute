@@ -29,6 +29,75 @@ void CommandResponse(int fd, const char *res) {
   write(SelfPipe[1], &buf, buf[0] + 2);
 }
 
+struct TestArgSt {
+  int fd;
+  int sec;
+};
+
+void *TestThread(void *ptr) {
+
+  struct TestArgSt *arg = ptr;
+  fprintf(stderr, "TestThread %d\n", arg->sec);
+  sleep(arg->sec);
+  CommandResponse(arg->fd, "ok");
+  fprintf(stderr, "TestThread %d end\n", arg->sec);
+  free(arg);
+}
+
+char *Test(int fd) {
+
+  char *p = strtok_r(NULL, " \t\r\n", &TokenPtr);
+  if(!p) return "error";
+
+  struct TestArgSt *arg = (struct TestArgSt *)malloc(sizeof(struct TestArgSt));
+  arg->fd = fd;
+  arg->sec = atoi(p);
+
+  pthread_t thread;
+  pthread_create(&thread, NULL, TestThread, arg);
+  return NULL;
+}
+
+char resBuf[256];
+extern int local_sdk_motor_get_position(float *step,float *angle);
+char *MotorGetPos(int fd) {
+
+  float step; // 0-355
+  float angle; // 0-180
+  fprintf(stderr, "MotorGetPos\n");
+  int ret = local_sdk_motor_get_position(&step, &angle);
+  sprintf(resBuf, "MotorPos : %f %f\nok\n", step, angle);
+  fprintf(stderr, "MotorPos : %f %f\n", step, angle);
+  return resBuf;
+}
+
+int local_sdk_motor_move_abs_angle_cb1(float a, float b) {
+  fprintf(stderr, "local_sdk_motor_move_abs_angle_cb1 : %f %f\n", a, b);
+  return 0;
+}
+
+int local_sdk_motor_move_abs_angle_cb2(float a, float b) {
+  fprintf(stderr, "local_sdk_motor_move_abs_angle_cb2 : %f %f\n", a, b);
+  return 0;
+}
+
+extern int local_sdk_motor_move_abs_angle(float pan, float tilt, int (*cb1)(float a, float b), int (*cb2)(float a, float b));
+
+char *MotorSetPos(int fd) {
+
+  char *p = strtok_r(NULL, " \t\r\n", &TokenPtr);
+  if(!p) return "error";
+  int pan = atoi(p);
+
+  p = strtok_r(NULL, " \t\r\n", &TokenPtr);
+  if(!p) return "error";
+  int tilt = atoi(p);
+
+  int res = local_sdk_motor_move_abs_angle((float)pan, (float)tilt, &local_sdk_motor_move_abs_angle_cb1, &local_sdk_motor_move_abs_angle_cb2);
+  fprintf(stderr, "local_sdk_motor_move_abs_angle_cb1 res = %d\n", res);
+  return "ok";
+}
+
 char *VideoCapture(int fd) {
 
   char *p = strtok_r(NULL, " \t\r\n", &TokenPtr);
@@ -82,6 +151,9 @@ struct CommandTableSt CommandTable[] = {
   { "video", &VideoCapture },
   { "audio", &AudioCapture },
   { "jpeg", &JpegCapture },
+  { "test", &Test },
+  { "getpos", &MotorGetPos },
+  { "setpos", &MotorSetPos },
 };
 
 static void *CommandThread(void *arg) {
