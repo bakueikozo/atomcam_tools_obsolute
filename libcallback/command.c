@@ -11,39 +11,35 @@
 #include <netdb.h>
 #include <errno.h>
 
-static const unsigned short commandPort = 4000;
+static const unsigned short CommandPort = 4000;
 
-int video_enable = 0;
-int audio_enable = 0;
-int jpeg_capture = 0;
+int VideoCaptureEnable = 0;
+int AudioCaptureEnable = 0;
+int JpegCaptureTriggler = 0;
+
 static int SelfPipe[2];
+static char *TokenPtr;
 
-static char *token_ptr;
-
-struct commandTableSt {
-  const char *cmd;
-  char * (*func)(int);
-};
-
-void commandResponse(int fd, const char *res) {
+void CommandResponse(int fd, const char *res) {
 
   unsigned char buf[256];
-  buf[0] = fd;
-  strcpy((char *)buf + 1, res);
-  write(SelfPipe[1], &buf, strlen(res) + 2);
+  buf[0] = strlen(res) + 1;
+  buf[1] = fd;
+  strncpy((char *)buf + 2, res, 253);
+  write(SelfPipe[1], &buf, buf[0] + 2);
 }
 
 char *VideoCapture(int fd) {
 
-  char *p = strtok_r(NULL, " \t\r\n", &token_ptr);
+  char *p = strtok_r(NULL, " \t\r\n", &TokenPtr);
   if(!p) return "error";
   if(!strcmp(p, "on")) {
-    video_enable = 1;
+    VideoCaptureEnable = 1;
     fprintf(stderr, "[command] video capute on\n", p);
     return "ok";
   }
   if(!strcmp(p, "off")) {
-    video_enable = 0;
+    VideoCaptureEnable = 0;
     fprintf(stderr, "[command] video capute off\n", p);
     return "ok";
   }
@@ -52,15 +48,15 @@ char *VideoCapture(int fd) {
 
 char *AudioCapture(int fd) {
 
-  char *p = strtok_r(NULL, " \t\r\n", &token_ptr);
+  char *p = strtok_r(NULL, " \t\r\n", &TokenPtr);
   if(!p) return "error";
   if(!strcmp(p, "on")) {
-    audio_enable = 1;
+    AudioCaptureEnable = 1;
     fprintf(stderr, "[command] audio capute on\n", p);
     return "ok";
   }
   if(!strcmp(p, "off")) {
-    audio_enable = 0;
+    AudioCaptureEnable = 0;
     fprintf(stderr, "[command] audio capute off\n", p);
     return "ok";
   }
@@ -69,23 +65,30 @@ char *AudioCapture(int fd) {
 
 char *JpegCapture(int fd) {
 
-  if(jpeg_capture) commandResponse(jpeg_capture, "error");
-  jpeg_capture = fd;
+  if(JpegCaptureTriggler) {
+    fprintf(stderr, "[command] jpeg error %d\n", JpegCaptureTriggler);
+    CommandResponse(JpegCaptureTriggler, "error");
+  }
+  JpegCaptureTriggler = fd;
   return NULL;
 }
 
-struct commandTableSt commandTable[] = {
+struct CommandTableSt {
+  const char *cmd;
+  char * (*func)(int);
+};
+
+struct CommandTableSt CommandTable[] = {
   { "video", &VideoCapture },
   { "audio", &AudioCapture },
   { "jpeg", &JpegCapture },
 };
 
-static void *command_thread(void *arg) {
+static void *CommandThread(void *arg) {
 
   static const int MaxConnect = 255;
-  int MaxFd = 0;
-  int PortTable[MaxConnect];
-  fd_set TargetFd;
+  int maxFd = 0;
+  fd_set targetFd;
 
   int listenSocket = socket(AF_INET, SOCK_STREAM, 0);
   if(listenSocket < 0) {
@@ -102,7 +105,7 @@ static void *command_thread(void *arg) {
 
   struct sockaddr_in saddr;
   saddr.sin_family = AF_INET;
-  saddr.sin_port = htons(commandPort);
+  saddr.sin_port = htons(CommandPort);
   saddr.sin_addr.s_addr = htonl(INADDR_ANY);
   if(bind(listenSocket, (struct sockaddr *)&saddr, sizeof(saddr)) < 0) {
     fprintf(stderr, "bind : %s\n", strerror(errno));
@@ -116,36 +119,36 @@ static void *command_thread(void *arg) {
     return NULL;
   }
 
-  FD_ZERO(&TargetFd);
-  for(int i = 0; i < MaxConnect; i++) {
-    PortTable[i] = 0;
-  }
-
-  PortTable[listenSocket] = 0;
-  FD_SET(listenSocket, &TargetFd);
-  MaxFd = listenSocket;
-  FD_SET(SelfPipe[0], &TargetFd);
-  MaxFd = (SelfPipe[0] > MaxFd) ? SelfPipe[0] : MaxFd;
-  if(MaxFd >= MaxConnect) MaxFd = MaxConnect - 1;
+  FD_ZERO(&targetFd);
+  FD_SET(listenSocket, &targetFd);
+  maxFd = listenSocket;
+  FD_SET(SelfPipe[0], &targetFd);
+  maxFd = (SelfPipe[0] > maxFd) ? SelfPipe[0] : maxFd;
+  if(maxFd >= MaxConnect) maxFd = MaxConnect - 1;
 
   while(1) {
     fd_set checkFDs;
-    memcpy(&checkFDs, &TargetFd, sizeof(TargetFd));
-    if(select(MaxFd + 1, &checkFDs, NULL, NULL, NULL) == -1) {
+    memcpy(&checkFDs, &targetFd, sizeof(targetFd));
+    if(select(maxFd + 1, &checkFDs, NULL, NULL, NULL) == -1) {
       fprintf(stderr, "select error : %s\n", strerror(errno));
     } else {
-      for(int fd = MaxFd; fd >= 0; fd--) {
+      for(int fd = maxFd; fd >= 0; fd--) {
         if(FD_ISSET(fd, &checkFDs)) {
           if(fd == SelfPipe[0]) {
-            unsigned char buf[256];
-            read(SelfPipe[0], buf, 256);
-            int resFd = buf[0];
-            char *res = (char *)buf + 1;
-            strcat(res, "\n");
-            send(resFd, res, strlen(res) + 1, 0);
-            close(resFd);
-            FD_CLR(resFd, &TargetFd);
-            PortTable[resFd] = 0;
+            while(1) {
+              unsigned char buf[256];
+              int length = read(SelfPipe[0], buf, 2);
+              if(length <= 1) break;
+              int resSize = buf[0];
+              int resFd = buf[1];
+              length = read(SelfPipe[0], buf, resSize);
+              if(length < resSize) break;
+              char *res = (char *)buf;
+              strcat(res, "\n");
+              send(resFd, res, strlen(res) + 1, 0);
+              close(resFd);
+              FD_CLR(resFd, &targetFd);
+            }
           } else if(fd == listenSocket) {
             struct sockaddr_in dstAddr;
             int len = sizeof(dstAddr);
@@ -161,35 +164,32 @@ static void *command_thread(void *arg) {
             }
             int flag = fcntl(newSocket, F_GETFL, 0);
             fcntl(newSocket, F_SETFL, O_NONBLOCK|flag);
-            PortTable[newSocket] = 1;
-            FD_SET(newSocket, &TargetFd);
-            MaxFd = (newSocket > MaxFd) ? newSocket : MaxFd;
-            if(MaxFd >= MaxConnect) MaxFd = MaxConnect - 1;
-          } else if(PortTable[fd] > 0) {
+            FD_SET(newSocket, &targetFd);
+            maxFd = (newSocket > maxFd) ? newSocket : maxFd;
+            if(maxFd >= MaxConnect) maxFd = MaxConnect - 1;
+          } else {
             char buf[256];
             int size = recv(fd, buf, 255, 0);
             if(!size) {
-              FD_CLR(fd, &TargetFd);
+              FD_CLR(fd, &targetFd);
               break;
             }
             if(size < 0) {
               close(fd);
-              FD_CLR(fd, &TargetFd);
-              PortTable[fd] = 0;
+              FD_CLR(fd, &targetFd);
               break;
             }
             buf[size] = 0;
-            char *p = strtok_r(buf, " \t\r\n", &token_ptr);
+            char *p = strtok_r(buf, " \t\r\n", &TokenPtr);
             if(!p) continue;
             int executed = 0;
-            for(int i = 0; i < sizeof(commandTable) / sizeof(struct commandTableSt); i++) {
-              if(!strcmp(p, commandTable[i].cmd)) {
-                char *res = (*commandTable[i].func)(fd);
+            for(int i = 0; i < sizeof(CommandTable) / sizeof(struct CommandTableSt); i++) {
+              if(!strcmp(p, CommandTable[i].cmd)) {
+                char *res = (*CommandTable[i].func)(fd);
                 if(res) {
                   send(fd, res, strlen(res) + 1, 0);
                   close(fd);
-                  FD_CLR(fd, &TargetFd);
-                  PortTable[fd] = 0;
+                  FD_CLR(fd, &targetFd);
                 }
                 executed = 1;
                 break;
@@ -199,8 +199,7 @@ static void *command_thread(void *arg) {
               char *res = "error";
               send(fd, res, strlen(res) + 1, 0);
               close(fd);
-              FD_CLR(fd, &TargetFd);
-              PortTable[fd] = 0;
+              FD_CLR(fd, &targetFd);
               fprintf(stderr, "command error : %s\n", p);
             }
           }
@@ -222,5 +221,5 @@ static void __attribute ((constructor)) command_init(void) {
   fcntl(SelfPipe[1], F_SETFL, O_NONBLOCK|flag);
 
   pthread_t thread;
-  pthread_create(&thread, NULL, command_thread, NULL);
+  pthread_create(&thread, NULL, CommandThread, NULL);
 }
