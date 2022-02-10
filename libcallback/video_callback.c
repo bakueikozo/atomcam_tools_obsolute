@@ -11,7 +11,7 @@
 #include <pthread.h>
 
 extern int VideoCaptureEnable;
-extern int JpegCaptureTriggler;
+extern int JpegCaptureTrigger;
 extern void local_sdk_video_get_jpeg(int, char *);
 extern void CommandResponse(int fd, const char *res);
 
@@ -56,10 +56,10 @@ static uint32_t video_encode_capture(struct frames_st *frames) {
     if(err < 0) fprintf(stderr,"Unable to perform VIDIOC_STREAMON: %d\n", err);
   }
 
-  if(JpegCaptureTriggler) {
+  if(JpegCaptureTrigger) {
     local_sdk_video_get_jpeg(0, "/tmp/snapshot.jpg");
-    CommandResponse(JpegCaptureTriggler, "ok");
-    JpegCaptureTriggler = 0;
+    CommandResponse(JpegCaptureTrigger, "ok");
+    JpegCaptureTrigger = 0;
   }
 
   if( (v4l2Fd >= 0) && VideoCaptureEnable) {
