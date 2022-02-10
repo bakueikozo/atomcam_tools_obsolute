@@ -38,7 +38,7 @@ static char *MotorGetPos(int fd) {
   float tilt; // 0-180
   int ret = local_sdk_motor_get_position(&pan, &tilt);
   static char motorResBuf[256];
-  sprintf(motorResBuf, "MotorPos : %f %f\nok", pan, tilt);
+  sprintf(motorResBuf, "%f %f\n", pan, tilt);
   return motorResBuf;
 }
 
@@ -66,11 +66,16 @@ static char *MotorSetPos(int fd) {
   float tilt = atof(p); // 0-180
   if((tilt < 0.0) || (tilt > 180.0)) return "error";
 
+  p = strtok_r(NULL, " \t\r\n", &TokenPtr);
+  int pri = 2; // 0: high - 3: low
+  if(p) pri = atoi(p);
+  if(pri < 0) pri = 0;
+  if(pri > 3) pri = 3;
+
   if(motorFd) return "error";
   motorFd = fd;
 
   int speed = 9;
-  int pri = 2; // 0: high - 3: low
   int res = local_sdk_motor_move_abs_angle(pan, tilt, speed, &motor_move_done, &motor_move_canceled, pri);
   return NULL;
 }
