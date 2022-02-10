@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# getpos -> <pan(deg)> <tilt(deg)>
+pos=`/scripts/cmd getpos`
+
+# setpos <pan(0-355 deg)> <tilt(0-180 deg)> <pri 0:top, 1:high, 2:normal, 3:weak>
+/scripts/cmd setpos 0 0 1
+/scripts/cmd setpos 355 180 1
+/scripts/cmd setpos $pos 1
