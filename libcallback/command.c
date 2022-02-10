@@ -11,11 +11,14 @@
 #include <netdb.h>
 #include <errno.h>
 
+extern int local_sdk_motor_get_position(float *step,float *angle);
+extern int local_sdk_motor_move_abs_angle(float pan, float tilt, int speed, void (*done)(float a, float b), void (*canceled)(void), int mode);
+
 static const unsigned short CommandPort = 4000;
 
 int VideoCaptureEnable = 0;
 int AudioCaptureEnable = 0;
-int JpegCaptureTriggler = 0;
+int JpegCaptureTrigger = 0;
 
 static int SelfPipe[2];
 static char *TokenPtr;
@@ -29,7 +32,50 @@ void CommandResponse(int fd, const char *res) {
   write(SelfPipe[1], &buf, buf[0] + 2);
 }
 
-char *VideoCapture(int fd) {
+static char *MotorGetPos(int fd) {
+
+  float pan; // 0-355
+  float tilt; // 0-180
+  int ret = local_sdk_motor_get_position(&pan, &tilt);
+  static char motorResBuf[256];
+  sprintf(motorResBuf, "MotorPos : %f %f\nok", pan, tilt);
+  return motorResBuf;
+}
+
+
+static int motorFd = 0;
+static void motor_move_done(float a, float b) {
+  if(motorFd) CommandResponse(motorFd, "ok");
+  motorFd = 0;
+}
+
+static void motor_move_canceled() {
+  if(motorFd) CommandResponse(motorFd, "error");
+  motorFd = 0;
+}
+
+static char *MotorSetPos(int fd) {
+
+  char *p = strtok_r(NULL, " \t\r\n", &TokenPtr);
+  if(!p) return "error";
+  float pan = atof(p); // 0-355
+  if((pan < 0.0) || (pan > 355.0)) return "error";
+
+  p = strtok_r(NULL, " \t\r\n", &TokenPtr);
+  if(!p) return "error";
+  float tilt = atof(p); // 0-180
+  if((tilt < 0.0) || (tilt > 180.0)) return "error";
+
+  if(motorFd) return "error";
+  motorFd = fd;
+
+  int speed = 9;
+  int pri = 2; // 0: high - 3: low
+  int res = local_sdk_motor_move_abs_angle(pan, tilt, speed, &motor_move_done, &motor_move_canceled, pri);
+  return NULL;
+}
+
+static char *VideoCapture(int fd) {
 
   char *p = strtok_r(NULL, " \t\r\n", &TokenPtr);
   if(!p) return "error";
@@ -46,7 +92,7 @@ char *VideoCapture(int fd) {
   return "error";
 }
 
-char *AudioCapture(int fd) {
+static char *AudioCapture(int fd) {
 
   char *p = strtok_r(NULL, " \t\r\n", &TokenPtr);
   if(!p) return "error";
@@ -63,13 +109,13 @@ char *AudioCapture(int fd) {
   return "error";
 }
 
-char *JpegCapture(int fd) {
+static char *JpegCapture(int fd) {
 
-  if(JpegCaptureTriggler) {
-    fprintf(stderr, "[command] jpeg error %d\n", JpegCaptureTriggler);
-    CommandResponse(JpegCaptureTriggler, "error");
+  if(JpegCaptureTrigger) {
+    fprintf(stderr, "[command] jpeg error %d\n", JpegCaptureTrigger);
+    CommandResponse(JpegCaptureTrigger, "error");
   }
-  JpegCaptureTriggler = fd;
+  JpegCaptureTrigger = fd;
   return NULL;
 }
 
@@ -79,9 +125,11 @@ struct CommandTableSt {
 };
 
 struct CommandTableSt CommandTable[] = {
-  { "video", &VideoCapture },
-  { "audio", &AudioCapture },
-  { "jpeg", &JpegCapture },
+  { "video",  &VideoCapture },
+  { "audio",  &AudioCapture },
+  { "jpeg",   &JpegCapture },
+  { "getpos", &MotorGetPos },
+  { "setpos", &MotorSetPos },
 };
 
 static void *CommandThread(void *arg) {
@@ -188,6 +236,8 @@ static void *CommandThread(void *arg) {
                 char *res = (*CommandTable[i].func)(fd);
                 if(res) {
                   send(fd, res, strlen(res) + 1, 0);
+                  char cr = '\n';
+                  send(fd, &cr, 1, 0);
                   close(fd);
                   FD_CLR(fd, &targetFd);
                 }
