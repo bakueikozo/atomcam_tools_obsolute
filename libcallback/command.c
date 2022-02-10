@@ -32,37 +32,6 @@ void CommandResponse(int fd, const char *res) {
   write(SelfPipe[1], &buf, buf[0] + 2);
 }
 
-/*
-struct TestArgSt {
-  int fd;
-  int sec;
-};
-
-static void *TestThread(void *ptr) {
-
-  struct TestArgSt *arg = ptr;
-  fprintf(stderr, "TestThread %d\n", arg->sec);
-  sleep(arg->sec);
-  CommandResponse(arg->fd, "ok");
-  fprintf(stderr, "TestThread %d end\n", arg->sec);
-  free(arg);
-}
-
-static char *Test(int fd) {
-
-  char *p = strtok_r(NULL, " \t\r\n", &TokenPtr);
-  if(!p) return "error";
-
-  struct TestArgSt *arg = (struct TestArgSt *)malloc(sizeof(struct TestArgSt));
-  arg->fd = fd;
-  arg->sec = atoi(p);
-
-  pthread_t thread;
-  pthread_create(&thread, NULL, TestThread, arg);
-  return NULL;
-}
-*/
-
 static char *MotorGetPos(int fd) {
 
   float pan; // 0-355
@@ -161,7 +130,6 @@ struct CommandTableSt CommandTable[] = {
   { "jpeg",   &JpegCapture },
   { "getpos", &MotorGetPos },
   { "setpos", &MotorSetPos },
-//  { "test",   &Test },
 };
 
 static void *CommandThread(void *arg) {
