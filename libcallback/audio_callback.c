@@ -15,16 +15,29 @@ struct frames_st {
 };
 typedef int (* framecb)(struct frames_st *);
 
-extern int AudioCaptureEnable;
-
 static uint32_t (*real_local_sdk_audio_set_pcm_frame_callback)(int ch, void *callback);
 static void *audio_pcm_cb = NULL;
+static int AudioCaptureEnable = 0;
 
-static void __attribute ((constructor)) audio_callback_init(void) {
-  real_local_sdk_audio_set_pcm_frame_callback = dlsym(dlopen("/system/lib/liblocalsdk.so", RTLD_LAZY), "local_sdk_audio_set_pcm_frame_callback");
+char *AudioCapture(int fd, char *tokenPtr) {
+
+  char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+  if(!p) return "error";
+  if(!strcmp(p, "on")) {
+    AudioCaptureEnable = 1;
+    fprintf(stderr, "[command] audio capute on\n", p);
+    return "ok";
+  }
+  if(!strcmp(p, "off")) {
+    AudioCaptureEnable = 0;
+    fprintf(stderr, "[command] audio capute off\n", p);
+    return "ok";
+  }
+  return "error";
 }
 
 static uint32_t audio_pcm_capture(struct frames_st *frames) {
+
   static struct pcm *pcm = NULL;
   static int firstEntry = 0;
   uint32_t *buf = frames->buf;
@@ -65,6 +78,7 @@ static uint32_t audio_pcm_capture(struct frames_st *frames) {
 }
 
 uint32_t local_sdk_audio_set_pcm_frame_callback(int ch, void *callback) {
+
   fprintf(stderr, "local_sdk_audio_set_pcm_frame_callback streamChId=%d, callback=0x%x\n", ch, callback);
   if(ch == 0) {
     audio_pcm_cb = callback;
@@ -72,4 +86,9 @@ uint32_t local_sdk_audio_set_pcm_frame_callback(int ch, void *callback) {
     callback = audio_pcm_capture;
   }
   return real_local_sdk_audio_set_pcm_frame_callback(ch, callback);
+}
+
+static void __attribute ((constructor)) audio_callback_init(void) {
+
+  real_local_sdk_audio_set_pcm_frame_callback = dlsym(dlopen("/system/lib/liblocalsdk.so", RTLD_LAZY), "local_sdk_audio_set_pcm_frame_callback");
 }

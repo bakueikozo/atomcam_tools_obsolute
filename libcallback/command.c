@@ -11,122 +11,18 @@
 #include <netdb.h>
 #include <errno.h>
 
-extern int local_sdk_motor_get_position(float *step,float *angle);
-extern int local_sdk_motor_move_abs_angle(float pan, float tilt, int speed, void (*done)(float a, float b), void (*canceled)(void), int mode);
-
 static const unsigned short CommandPort = 4000;
-
-int VideoCaptureEnable = 0;
-int AudioCaptureEnable = 0;
-int JpegCaptureTrigger = 0;
-
 static int SelfPipe[2];
-static char *TokenPtr;
 
-void CommandResponse(int fd, const char *res) {
-
-  unsigned char buf[256];
-  buf[0] = strlen(res) + 1;
-  buf[1] = fd;
-  strncpy((char *)buf + 2, res, 253);
-  write(SelfPipe[1], &buf, buf[0] + 2);
-}
-
-static char *MotorGetPos(int fd) {
-
-  float pan; // 0-355
-  float tilt; // 0-180
-  int ret = local_sdk_motor_get_position(&pan, &tilt);
-  static char motorResBuf[256];
-  sprintf(motorResBuf, "%f %f\n", pan, tilt);
-  return motorResBuf;
-}
-
-
-static int motorFd = 0;
-static void motor_move_done(float a, float b) {
-  if(motorFd) CommandResponse(motorFd, "ok");
-  motorFd = 0;
-}
-
-static void motor_move_canceled() {
-  if(motorFd) CommandResponse(motorFd, "error");
-  motorFd = 0;
-}
-
-static char *MotorSetPos(int fd) {
-
-  char *p = strtok_r(NULL, " \t\r\n", &TokenPtr);
-  if(!p) return "error";
-  float pan = atof(p); // 0-355
-  if((pan < 0.0) || (pan > 355.0)) return "error";
-
-  p = strtok_r(NULL, " \t\r\n", &TokenPtr);
-  if(!p) return "error";
-  float tilt = atof(p); // 0-180
-  if((tilt < 0.0) || (tilt > 180.0)) return "error";
-
-  p = strtok_r(NULL, " \t\r\n", &TokenPtr);
-  int pri = 2; // 0: high - 3: low
-  if(p) pri = atoi(p);
-  if(pri < 0) pri = 0;
-  if(pri > 3) pri = 3;
-
-  if(motorFd) return "error";
-  motorFd = fd;
-
-  int speed = 9;
-  int res = local_sdk_motor_move_abs_angle(pan, tilt, speed, &motor_move_done, &motor_move_canceled, pri);
-  return NULL;
-}
-
-static char *VideoCapture(int fd) {
-
-  char *p = strtok_r(NULL, " \t\r\n", &TokenPtr);
-  if(!p) return "error";
-  if(!strcmp(p, "on")) {
-    VideoCaptureEnable = 1;
-    fprintf(stderr, "[command] video capute on\n", p);
-    return "ok";
-  }
-  if(!strcmp(p, "off")) {
-    VideoCaptureEnable = 0;
-    fprintf(stderr, "[command] video capute off\n", p);
-    return "ok";
-  }
-  return "error";
-}
-
-static char *AudioCapture(int fd) {
-
-  char *p = strtok_r(NULL, " \t\r\n", &TokenPtr);
-  if(!p) return "error";
-  if(!strcmp(p, "on")) {
-    AudioCaptureEnable = 1;
-    fprintf(stderr, "[command] audio capute on\n", p);
-    return "ok";
-  }
-  if(!strcmp(p, "off")) {
-    AudioCaptureEnable = 0;
-    fprintf(stderr, "[command] audio capute off\n", p);
-    return "ok";
-  }
-  return "error";
-}
-
-static char *JpegCapture(int fd) {
-
-  if(JpegCaptureTrigger) {
-    fprintf(stderr, "[command] jpeg error %d\n", JpegCaptureTrigger);
-    CommandResponse(JpegCaptureTrigger, "error");
-  }
-  JpegCaptureTrigger = fd;
-  return NULL;
-}
+extern char *JpegCapture(int fd, char *tokenPtr);
+extern char *VideoCapture(int fd, char *tokenPtr);
+extern char *AudioCapture(int fd, char *tokenPtr);
+extern char *MotorGetPos(int fd, char *tokenPtr);
+extern char *MotorSetPos(int fd, char *tokenPtr);
 
 struct CommandTableSt {
   const char *cmd;
-  char * (*func)(int);
+  char * (*func)(int, char *);
 };
 
 struct CommandTableSt CommandTable[] = {
@@ -136,6 +32,15 @@ struct CommandTableSt CommandTable[] = {
   { "getpos", &MotorGetPos },
   { "setpos", &MotorSetPos },
 };
+
+void CommandResponse(int fd, const char *res) {
+
+  unsigned char buf[256];
+  buf[0] = strlen(res) + 1;
+  buf[1] = fd;
+  strncpy((char *)buf + 2, res, 253);
+  write(SelfPipe[1], &buf, buf[0] + 2);
+}
 
 static void *CommandThread(void *arg) {
 
@@ -233,12 +138,13 @@ static void *CommandThread(void *arg) {
               break;
             }
             buf[size] = 0;
-            char *p = strtok_r(buf, " \t\r\n", &TokenPtr);
+            char *tokenPtr;
+            char *p = strtok_r(buf, " \t\r\n", &tokenPtr);
             if(!p) continue;
             int executed = 0;
             for(int i = 0; i < sizeof(CommandTable) / sizeof(struct CommandTableSt); i++) {
               if(!strcmp(p, CommandTable[i].cmd)) {
-                char *res = (*CommandTable[i].func)(fd);
+                char *res = (*CommandTable[i].func)(fd, tokenPtr);
                 if(res) {
                   send(fd, res, strlen(res) + 1, 0);
                   char cr = '\n';

@@ -2,7 +2,7 @@
 
 CC = /openmiko/build/mips-gcc472-glibc216-64bit/bin/mips-linux-uclibc-gnu-gcc
 CFLAGS = -fPIC -std=gnu99 -shared -ldl -ltinyalsa
-CC_SRCS = video_callback.c audio_callback.c setlinebuf.c mmc_format.c curl.c freopen.c opendir.c remove.c command.c
+CC_SRCS = video_callback.c audio_callback.c jpeg.c setlinebuf.c mmc_format.c curl.c freopen.c opendir.c remove.c motor.c command.c
 TARGET = libcallback.so
 
 all: ${TARGET}

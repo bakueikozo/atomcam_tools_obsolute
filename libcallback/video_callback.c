@@ -1,6 +1,7 @@
 #define _GNU_SOURCE
 #include <dlfcn.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdint.h>
@@ -10,9 +11,6 @@
 #include <sys/time.h>
 #include <pthread.h>
 
-extern int VideoCaptureEnable;
-extern int JpegCaptureTrigger;
-extern void local_sdk_video_get_jpeg(int, char *);
 extern void CommandResponse(int fd, const char *res);
 
 struct frames_st {
@@ -21,17 +19,37 @@ struct frames_st {
 };
 typedef int (* framecb)(struct frames_st *);
 
-static uint32_t (*real_local_sdk_video_set_encode_frame_callback)(int ch, void *callback);
+static int (*real_local_sdk_video_set_encode_frame_callback)(int ch, void *callback);
 static void *video_encode_cb = NULL;
+static int VideoCaptureEnable = 0;
 
-static void __attribute ((constructor)) video_callback_init(void) {
-  real_local_sdk_video_set_encode_frame_callback = dlsym(dlopen("/system/lib/liblocalsdk.so", RTLD_LAZY), "local_sdk_video_set_encode_frame_callback");
+char *VideoCapture(int fd, char *tokenPtr) {
+
+  char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+  if(!p) return "error";
+  if(!strcmp(p, "on")) {
+    VideoCaptureEnable = 1;
+    fprintf(stderr, "[command] video capute on\n", p);
+    return "ok";
+  }
+  if(!strcmp(p, "off")) {
+    VideoCaptureEnable = 0;
+    fprintf(stderr, "[command] video capute off\n", p);
+    return "ok";
+  }
+  return "error";
 }
 
 static uint32_t video_encode_capture(struct frames_st *frames) {
+
   uint32_t ret;
   static int firstEntry = 0;
   static int v4l2Fd = -1;
+  static unsigned char *jpegBuffer[2] = { NULL, NULL };
+  static int jpegBufferSize[2] = { 0, 0 };
+  static int jpegBufferPtr = 0;
+  static const int jpegAllocateSize = 128 * 1024;
+  static const char *httpResHeader = "Cache-Control: no-cache\nContent-Type: image/jpeg\n\n";
 
   if(!firstEntry) {
     firstEntry++;
@@ -56,12 +74,6 @@ static uint32_t video_encode_capture(struct frames_st *frames) {
     if(err < 0) fprintf(stderr,"Unable to perform VIDIOC_STREAMON: %d\n", err);
   }
 
-  if(JpegCaptureTrigger) {
-    local_sdk_video_get_jpeg(0, "/tmp/snapshot.jpg");
-    CommandResponse(JpegCaptureTrigger, "ok");
-    JpegCaptureTrigger = 0;
-  }
-
   if( (v4l2Fd >= 0) && VideoCaptureEnable) {
     uint32_t *buf = frames->buf;
     int size = write(v4l2Fd, frames->buf, frames->length);
@@ -70,7 +82,8 @@ static uint32_t video_encode_capture(struct frames_st *frames) {
   return ((framecb)video_encode_cb)(frames);
 }
 
-uint32_t local_sdk_video_set_encode_frame_callback(int ch, void *callback) {
+int local_sdk_video_set_encode_frame_callback(int ch, void *callback) {
+
   fprintf(stderr, "local_sdk_video_set_encode_frame_callback streamChId=%d, callback=0x%x\n", ch, callback);
   if(ch == 0) {
     video_encode_cb = callback;
@@ -78,4 +91,9 @@ uint32_t local_sdk_video_set_encode_frame_callback(int ch, void *callback) {
     callback = video_encode_capture;
   }
   return real_local_sdk_video_set_encode_frame_callback(ch, callback);
+}
+
+static void __attribute ((constructor)) video_callback_init(void) {
+
+  real_local_sdk_video_set_encode_frame_callback = dlsym(dlopen("/system/lib/liblocalsdk.so", RTLD_LAZY), "local_sdk_video_set_encode_frame_callback");
 }

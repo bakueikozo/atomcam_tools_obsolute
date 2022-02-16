@@ -1,8 +1,3 @@
 #!/bin/sh
 
-res=`/scripts/cmd jpeg`
-
-echo "Cache-Control: no-cache"
-echo "Content-Type: image/jpeg"
-echo ""
-cat /tmp/snapshot.jpg
+echo jpeg | /usr/bin/nc localhost 4000
