@@ -63,7 +63,7 @@
           <ElCol :offset="9" :span="12">
             <div class="well schedule">
               <div class="schedule-week">
-                <ElCheckboxGroup v-model="timeTable.dayOfWeekSelect" size="small">
+                <ElCheckboxGroup v-model="timeTable.dayOfWeekSelect" size="small" :min="1">
                   <ElCheckboxButton v-for="day of weekDays" :label="day" :key="day">
                     {{ day }}
                   </ElCheckboxButton>
@@ -420,7 +420,7 @@
           <ElCol :offset="9" :span="12">
             <div class="well schedule">
               <div class="schedule-week schedule-time">
-                <ElCheckboxGroup v-model="reboot.dayOfWeekSelect" size="small">
+                <ElCheckboxGroup v-model="reboot.dayOfWeekSelect" size="small" :min="1">
                   <ElCheckboxButton v-for="day of weekDays" :label="day" :key="day">
                     {{ day }}
                   </ElCheckboxButton>
@@ -734,11 +734,10 @@
 
         str = parseInt(this.reboot.time.slice(-2)) + ' ';
         str += parseInt(this.reboot.time.slice(0, 2)) + ' * * ';
-        str += this.reboot.dayOfWeekSelect.reduce((s, v) => {
-          const d = this.weekDays.indexOf(v) + 1;
-          if(d <= 0) return s;
+        str += this.weekDays.reduce((s, v, d) => {
+          if(this.reboot.dayOfWeekSelect.indexOf(v) < 0) return s;
           if(s.length) s += ':';
-          s += d;
+          s += d + 1;
           return s;
         }, '');
         this.config.REBOOT_SCHEDULE = str;
@@ -901,5 +900,16 @@
     color: 'red';
     font-size: 1.2em;
     font-weight: 600;
+  }
+</style>
+<style>
+  .el-checkbox-button.is-disabled.is-checked .el-checkbox-button__inner {
+    color: #C0C4CC;
+    cursor: not-allowed;
+    background-image: none;
+    background-color: #409EFF;
+    border-color: #409EFF;
+    -webkit-box-shadow: none;
+    box-shadow: none;
   }
 </style>
