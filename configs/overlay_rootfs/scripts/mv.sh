@@ -98,3 +98,4 @@ if [ "$FMT" != "" ]; then
 else
   /bin/busybox rm $1
 fi
+exit 0

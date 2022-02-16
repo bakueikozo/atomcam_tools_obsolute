@@ -115,3 +115,4 @@ if [ "$FMT" != "" ] && [ "$RECORDING_ALARM" = "on" ]; then
 else
   /bin/busybox rm $FILE
 fi
+exit 0
