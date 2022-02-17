@@ -10,7 +10,7 @@ if [ "$FILE" != "/tmp/alarm.jpg" ] && [ "$FILE" != "/tmp/alarm_record.mp4" ] ; t
   exit
 fi
 
-HACK_INI=/media/mmc/hack.ini
+HACK_INI=/tmp/hack.ini
 RECORDING_ALARM=$(awk -F "=" '/RECORDING_ALARM *=/ {print $2}' $HACK_INI)
 STORAGE_CIFS_PATH=$(awk -F "=" '/STORAGE_CIFS_PATH *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
 STORAGE_SDCARD_PATH=$(awk -F "=" '/STORAGE_SDCARD_PATH *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
@@ -78,40 +78,45 @@ else
 fi
 
 if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
-  if [ "$WEBHOOK_ALERM_PICT" = "on" ] && [ "$FILE" = "/tmp/alarm.jpg" ]; then
-     LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -F "image=@$FILE" -F"type=image/jpeg" -F"device=${HOSTNAME}" $WEBHOOK_URL > /dev/null 2>&1
-  fi
-  if [ "$WEBHOOK_ALERM_VIDEO" = "on" ] && [ "$FILE" = "/tmp/alarm_record.mp4" ]; then
-     LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -F "video=@$FILE" -F "type=video/mp4" -F"device=${HOSTNAME}" $WEBHOOK_URL > /dev/null 2>&1
-  fi
+  (
+    if [ "$WEBHOOK_ALERM_PICT" = "on" ] && [ "$FILE" = "/tmp/alarm.jpg" ]; then
+      LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -F "image=@$FILE" -F"type=image/jpeg" -F"device=${HOSTNAME}" $WEBHOOK_URL > /dev/null 2>&1
+    fi
+    if [ "$WEBHOOK_ALERM_VIDEO" = "on" ] && [ "$FILE" = "/tmp/alarm_record.mp4" ]; then
+      LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -F "video=@$FILE" -F "type=video/mp4" -F"device=${HOSTNAME}" $WEBHOOK_URL > /dev/null 2>&1
+    fi
+  ) &
 fi
 
 if [ "$FMT" != "" ] && [ "$RECORDING_ALARM" = "on" ]; then
-  if /tmp/system/bin/mount_cifs ; then
-    OUTFILE=`TZ=JST-9 date +"/mnt/$HOSTNAME/alarm_record/$STORAGE_CIFS_PATH.${FILE##*.}"`
-    DIR_PATH=${OUTFILE%/*}
-    mkdir -p $DIR_PATH
-    cp $FILE $OUTFILE
-  fi
-
-  if [ "$STORAGE_SDCARD" = "on" ]; then
-    OUTFILE=`TZ=JST-9 date +"/media/mmc/alarm_record/$STORAGE_SDCARD_PATH.${FILE##*.}"`
-    DIR_PATH=${OUTFILE%/*}
-    mkdir -p $DIR_PATH
-    /bin/busybox mv $FILE $OUTFILE
-  else
-    /bin/busybox rm $FILE
-  fi
-
-  if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
-    if [ "$WEBHOOK_ALARM_PICT_FINISH" = "on" ] && [ "$FILE" = "/tmp/alarm.jpg" ]; then
-       LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -H "Content-Type: application/json" -d "{\"type\":\"uploadPictureFinish\", \"device\":\"${HOSTNAME}\"}" $WEBHOOK_URL > /dev/null 2>&1
+  TMPFILE="/tmp/`cat /proc/sys/kernel/random/uuid`"
+  mv $FILE $TMPFILE
+  (
+    if /tmp/system/bin/mount_cifs ; then
+      OUTFILE=`TZ=JST-9 date +"/mnt/$HOSTNAME/alarm_record/$STORAGE_CIFS_PATH.${FILE##*.}"`
+      DIR_PATH=${OUTFILE%/*}
+      mkdir -p $DIR_PATH
+      cp $TMPFILE $OUTFILE
     fi
-    if [ "$WEBHOOK_ALARM_VIDEO_FINISH" = "on" ] && [ "$FILE" = "/tmp/alarm_record.mp4" ]; then
-       LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -H "Content-Type: application/json" -d "{\"type\":\"uploadVideoFinish\", \"device\":\"${HOSTNAME}\"}" $WEBHOOK_URL > /dev/null 2>&1
-    fi
-  fi
 
+    if [ "$STORAGE_SDCARD" = "on" ]; then
+      OUTFILE=`TZ=JST-9 date +"/media/mmc/alarm_record/$STORAGE_SDCARD_PATH.${FILE##*.}"`
+      DIR_PATH=${OUTFILE%/*}
+      mkdir -p $DIR_PATH
+      /bin/busybox mv $TMPFILE $OUTFILE
+    else
+      /bin/busybox rm $TMPFILE
+    fi
+
+    if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
+      if [ "$WEBHOOK_ALARM_PICT_FINISH" = "on" ] && [ "$FILE" = "/tmp/alarm.jpg" ]; then
+        LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -H "Content-Type: application/json" -d "{\"type\":\"uploadPictureFinish\", \"device\":\"${HOSTNAME}\"}" $WEBHOOK_URL > /dev/null 2>&1
+      fi
+      if [ "$WEBHOOK_ALARM_VIDEO_FINISH" = "on" ] && [ "$FILE" = "/tmp/alarm_record.mp4" ]; then
+        LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -H "Content-Type: application/json" -d "{\"type\":\"uploadVideoFinish\", \"device\":\"${HOSTNAME}\"}" $WEBHOOK_URL > /dev/null 2>&1
+      fi
+    fi
+  ) &
 else
   /bin/busybox rm $FILE
 fi

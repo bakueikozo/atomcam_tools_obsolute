@@ -6,7 +6,7 @@ PRODUCT_CONFIG=/configs/.product_config
 PRODUCT_MODEL=$(awk -F "=" '/PRODUCT_MODEL *=/ {print $2}' $PRODUCT_CONFIG)
 APPVER_FILE=/configs/app.ver
 APPVER=$(awk -F "=" '/appver *=/ {print $2}' $APPVER_FILE)
-HACK_INI=/media/mmc/hack.ini
+HACK_INI=/tmp/hack.ini
 export MINIMIZE_ALARM_CYCLE=$(awk -F "=" '/MINIMIZE_ALARM_CYCLE *=/ {print $2}' $HACK_INI)
 
 sleep 1

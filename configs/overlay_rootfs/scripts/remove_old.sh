@@ -1,6 +1,6 @@
 #!/bin/sh
 
-HACK_INI=/media/mmc/hack.ini
+HACK_INI=/tmp/hack.ini
 STORAGE_SDCARD_REMOVE=$(awk -F "=" '/STORAGE_SDCARD_REMOVE *=/ {print $2}' $HACK_INI)
 STORAGE_SDCARD_REMOVE_DAYS=$(awk -F "=" '/STORAGE_SDCARD_REMOVE_DAYS *=/ {print $2}' $HACK_INI)
 

@@ -21,6 +21,7 @@ if [ "$REQUEST_METHOD" = "POST" ]; then
     print;
   }
   ' > /media/mmc/hack.ini
+  cat /media/mmc/hack.ini > /tmp/hack.ini
 
   awk '
   BEGIN {
@@ -32,7 +33,7 @@ if [ "$REQUEST_METHOD" = "POST" ]; then
       print $i;
     }
   }
-  ' /media/mmc/hack.ini > /media/mmc/local_schedule
+  ' /tmp/hack.ini > /media/mmc/local_schedule
 
   exit 0
 fi
@@ -42,4 +43,4 @@ awk '/PRODUCT_MODEL/ { print }' /atom/configs/.product_config
 echo "HOSTNAME=`hostname`"
 echo "KERNELVER=`uname -a`"
 echo "ATOMHACKVER=`cat /etc/atomhack.ver`"
-cat /media/mmc/hack.ini
+cat /tmp/hack.ini

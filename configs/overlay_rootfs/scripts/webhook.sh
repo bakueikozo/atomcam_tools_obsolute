@@ -1,7 +1,6 @@
 #!/bin/sh
 
-HACK_INI=/media/mmc/hack.ini
-touch $HACK_INI
+HACK_INI=/tmp/hack.ini
 mkdir -p /tmp/log
 touch /tmp/log/atom.log
 tail -F /tmp/log/atom.log | TZ=JST-9 awk '

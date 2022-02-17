@@ -1,5 +1,5 @@
 #!/bin/sh
-HACK_INI=/media/mmc/hack.ini
+HACK_INI=/tmp/hack.ini
 REBOOT=$(awk -F "=" '/REBOOT *=/ {print $2}' $HACK_INI)
 
 if [ "$REBOOT" = "on" ]; then
