@@ -26,7 +26,7 @@ static int VideoCaptureEnable = 0;
 char *VideoCapture(int fd, char *tokenPtr) {
 
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
-  if(!p) return "error";
+  if(!p) return VideoCaptureEnable ? "on" : "off";
   if(!strcmp(p, "on")) {
     VideoCaptureEnable = 1;
     fprintf(stderr, "[command] video capute on\n", p);
