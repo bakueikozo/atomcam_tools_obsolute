@@ -17,8 +17,7 @@ static int SelfPipe[2];
 extern char *JpegCapture(int fd, char *tokenPtr);
 extern char *VideoCapture(int fd, char *tokenPtr);
 extern char *AudioCapture(int fd, char *tokenPtr);
-extern char *MotorGetPos(int fd, char *tokenPtr);
-extern char *MotorSetPos(int fd, char *tokenPtr);
+extern char *MotorMove(int fd, char *tokenPtr);
 
 struct CommandTableSt {
   const char *cmd;
@@ -29,8 +28,7 @@ struct CommandTableSt CommandTable[] = {
   { "video",  &VideoCapture },
   { "audio",  &AudioCapture },
   { "jpeg",   &JpegCapture },
-  { "getpos", &MotorGetPos },
-  { "setpos", &MotorSetPos },
+  { "move",   &MotorMove },
 };
 
 void CommandResponse(int fd, const char *res) {

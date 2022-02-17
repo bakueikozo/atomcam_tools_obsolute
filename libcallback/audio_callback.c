@@ -22,7 +22,7 @@ static int AudioCaptureEnable = 0;
 char *AudioCapture(int fd, char *tokenPtr) {
 
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
-  if(!p) return "error";
+  if(!p) return AudioCaptureEnable ? "on" : "off";
   if(!strcmp(p, "on")) {
     AudioCaptureEnable = 1;
     fprintf(stderr, "[command] audio capute on\n", p);

@@ -7,16 +7,6 @@ extern int local_sdk_motor_get_position(float *step,float *angle);
 extern int local_sdk_motor_move_abs_angle(float pan, float tilt, int speed, void (*done)(float a, float b), void (*canceled)(void), int mode);
 extern void CommandResponse(int fd, const char *res);
 
-char *MotorGetPos(int fd, char *tokenPtr) {
-
-  float pan; // 0-355
-  float tilt; // 0-180
-  int ret = local_sdk_motor_get_position(&pan, &tilt);
-  static char motorResBuf[256];
-  sprintf(motorResBuf, "%f %f\n", pan, tilt);
-  return motorResBuf;
-}
-
 static int motorFd = 0;
 static void motor_move_done(float a, float b) {
 
@@ -30,10 +20,17 @@ static void motor_move_canceled() {
   motorFd = 0;
 }
 
-char *MotorSetPos(int fd, char *tokenPtr) {
+char *MotorMove(int fd, char *tokenPtr) {
 
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
-  if(!p) return "error";
+  if(!p) {
+    float pan; // 0-355
+    float tilt; // 0-180
+    int ret = local_sdk_motor_get_position(&pan, &tilt);
+    static char motorResBuf[256];
+    sprintf(motorResBuf, "%f %f\n", pan, tilt);
+    return motorResBuf;
+  }
   float pan = atof(p); // 0-355
   if((pan < 0.0) || (pan > 355.0)) return "error";
 
