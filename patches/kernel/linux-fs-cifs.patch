@@ -1,0 +1,91 @@
+diff -urp a/fs/cifs/cifsfs.c b/fs/cifs/cifsfs.c
+--- a/fs/cifs/cifsfs.c	2021-02-02 16:12:29.000000000 +0000
++++ b/fs/cifs/cifsfs.c	2022-02-17 03:52:43.928154133 +0000
+@@ -86,6 +86,7 @@ extern mempool_t *cifs_req_poolp;
+ extern mempool_t *cifs_mid_poolp;
+ 
+ struct workqueue_struct	*cifsiod_wq;
++struct workqueue_struct	*cifsoplockd_wq;
+ 
+ #ifdef CONFIG_CIFS_SMB2
+ __u8 cifs_client_guid[SMB2_CLIENT_GUID_SIZE];
+@@ -1178,9 +1179,15 @@ init_cifs(void)
+ 		goto out_clean_proc;
+ 	}
+ 
++	cifsoplockd_wq = alloc_workqueue("cifsoplockd", WQ_FREEZABLE|WQ_MEM_RECLAIM, 0);
++ 	if (!cifsoplockd_wq) {
++ 		rc = -ENOMEM;
++ 		goto out_destroy_cifsiod_wq;
++ 	}
++
+ 	rc = cifs_fscache_register();
+ 	if (rc)
+-		goto out_destroy_wq;
++		goto out_destroy_cifsoplockd_wq;
+ 
+ 	rc = cifs_init_inodecache();
+ 	if (rc)
+@@ -1228,7 +1235,9 @@ out_destroy_inodecache:
+ 	cifs_destroy_inodecache();
+ out_unreg_fscache:
+ 	cifs_fscache_unregister();
+-out_destroy_wq:
++out_destroy_cifsoplockd_wq:
++	destroy_workqueue(cifsoplockd_wq);
++out_destroy_cifsiod_wq:
+ 	destroy_workqueue(cifsiod_wq);
+ out_clean_proc:
+ 	cifs_proc_clean();
+@@ -1251,6 +1260,7 @@ exit_cifs(void)
+ 	cifs_destroy_mids();
+ 	cifs_destroy_inodecache();
+ 	cifs_fscache_unregister();
++	destroy_workqueue(cifsoplockd_wq);
+ 	destroy_workqueue(cifsiod_wq);
+ 	cifs_proc_clean();
+ }
+diff -urp a/fs/cifs/cifsglob.h b/fs/cifs/cifsglob.h
+--- a/fs/cifs/cifsglob.h	2021-02-02 16:12:29.000000000 +0000
++++ b/fs/cifs/cifsglob.h	2022-02-17 03:18:06.243858809 +0000
+@@ -1479,6 +1479,7 @@ void cifs_oplock_break(struct work_struc
+ 
+ extern const struct slow_work_ops cifs_oplock_break_ops;
+ extern struct workqueue_struct *cifsiod_wq;
++extern struct workqueue_struct *cifsoplockd_wq;
+ 
+ extern mempool_t *cifs_mid_poolp;
+ 
+diff -urp a/fs/cifs/misc.c b/fs/cifs/misc.c
+--- a/fs/cifs/misc.c	2021-02-02 16:12:29.000000000 +0000
++++ b/fs/cifs/misc.c	2022-02-17 03:19:10.278055405 +0000
+@@ -474,7 +474,7 @@ is_valid_oplock_break(char *buffer, stru
+ 
+ 				cifs_set_oplock_level(pCifsInode,
+ 					pSMB->OplockLevel ? OPLOCK_READ : 0);
+-				queue_work(cifsiod_wq,
++				queue_work(cifsoplockd_wq,
+ 					   &netfile->oplock_break);
+ 				netfile->oplock_break_cancelled = false;
+ 
+diff -urp a/fs/cifs/smb2misc.c b/fs/cifs/smb2misc.c
+--- a/fs/cifs/smb2misc.c	2021-02-02 16:12:29.000000000 +0000
++++ b/fs/cifs/smb2misc.c	2022-02-17 03:23:04.361423059 +0000
+@@ -446,7 +446,7 @@ smb2_tcon_has_lease(struct cifs_tcon *tc
+ 		else
+ 			cfile->oplock_break_cancelled = true;
+ 
+-		queue_work(cifsiod_wq, &cfile->oplock_break);
++		queue_work(cifsoplockd_wq, &cfile->oplock_break);
+ 		kfree(lw);
+ 		return true;
+ 	}
+@@ -577,7 +577,7 @@ smb2_is_valid_oplock_break(char *buffer,
+ 				smb2_set_oplock_level(cinode,
+ 				  rsp->OplockLevel ? SMB2_OPLOCK_LEVEL_II : 0);
+ 
+-				queue_work(cifsiod_wq, &cfile->oplock_break);
++				queue_work(cifsoplockd_wq, &cfile->oplock_break);
+ 
+ 				spin_unlock(&cifs_file_list_lock);
+ 				spin_unlock(&cifs_tcp_ses_lock);
