@@ -9,36 +9,53 @@
 ## 実現される機能
 - WebUI (Port: 80)
   - ATOMCamのアプリから設定できない追加機能について設定します。
+
 - CIFS(Samba4.0)サーバー(Port:137,138,139,445)
   - SD-Cardの保存されている映像のフォルダーをLAN内にguestアカウントで共有します。
+
 - NASへの保存
   - CIFS(smb)プロトコルでNASへSD-Cardへ保存している映像と同じものを保存します。
   - SMB1.0はSecurity的に非推奨のため対応しません。2.0以上に対応のNASを使用してください。
+
 - RTSPServer(Port:8554)
   - RTSP streaming を送出します。
+
 - avahi(mDNS)機能(Port:5353)
   - microSDカードのhostnameファイルを編集することでデバイス名を変更できます（WebUIからも変更可能）
   - hostnameの命名規則は英数と-(hyphen)のみ（RFC952,1123で規定)です。\_(underscore)は使用できません。defaultはatomcamになっています。
   - mDNS対応しているOS（Windows10以降/MacOS/avahi入りlinux）からは[hostname].localでアクセスできるようになります。
+
 - sshd (Port:22)
   - microSDカードのroot directoryにsshの公開鍵をauthorized\_keysの名前のファイルで置いてください。rootアカウントなのでパスワードではloginできない設定になっています。
   - ssh root@[ATOMCamのIPアドレス] or ssh root@[hsotname].local でloginできます。
+
 - webHook機能(experimental)
   - 各種イベント発生時に指定したURLにpostで通知します。
+
 - 動体検知アラームの不感知期間を短縮(experimental)
 
   - Atomcamの動体検知は一度検知すると５分間検知しない仕様ですが、この検知しない期間を30秒に短縮します。
   - メーカーへの迷惑防止のためCloudへの通知、video/jpegのuploadは５分以内の再送をブロックしています。このため、アプリへの通知も５分以内の再検知時は通知されません。
   - SD-Card, NASには記録されます。(検知時の12秒間のファイル、検知時を含む１分間のファイル共）
   - webHook機能もイベントごとに発生します。必要な場合はwebHook経由で通知を組んでください。RasberryPi上でNode-REDを動かすのがお手軽です。
+
 - atomcam_toolsのupdate機能
   - GitHubのLatestイメージをダウンロードして更新する機能です。
   - 回線状況にもよりますが、３分程度かかります。
   - AtomCamのFWのupdateはできません。アプリからupdateをしてください。
+
 - AtomCamのFW update対応
   - アプリからAtomCamのFW updateをするときにSD-Cardを抜かなくてもできるようになりました。
   - 商品とのubootと同じシーケンスでflashメモリ内の領域の消去と書き込みが行われます。
   - update途中で電源が落ちることがないよう気をつけてください。
+
+- AtomSwingのpan/tilt制御(experimental)
+
+  - WebUIからのpan/tilt操作
+
+    但し自動追跡をonにしていると映像が動くことで物体認識して取り合いになります。
+
+  - pan/tilt座標系の初期化のためのリセット動作をするボタンをメンテナンスに追加
 ## セキュリティに関わる重要事項
 上記項目に書いてある各ポートが利用可能となります。  
 現時点ではこのポートはセキュリティ上の懸念材料となりますので、  
@@ -60,6 +77,14 @@ ATOMCam2 Ver.4.58.0.65, 4.58.0.71, 4.58.0.73, 4.58.0.79
 ATOMSwing Ver.4.37.1.85, 4.37.1.90, 4.37.1.93
 
 
+
+## 関連記事
+
+Qiitaに少し解説を書いています。
+
+[Qiita.com ATOMCam2を少し改造して導入してみた](https://qiita.com/mnakada/items/7d0fbcb6e629e1ddbd0c)
+
+[Qiita.com AtomSwingを少し改造して遊んでみた](https://qiita.com/mnakada/items/5da19a302b0f7521f225)
 
 ## 使用法
 
@@ -260,6 +285,12 @@ WebHookを受け取るURLを指定します。今のところ実験的な実装�
 設定変更時には反映するために再起動されます。
 
 ### メンテナンス
+
+#### Swing座標初期化
+
+Swingのpan/tilt座標系を初期化します。
+
+両側の端点に当てることでモーターの動作範囲をリセットさせるための動作をします。
 
 #### 定期リスタート
 

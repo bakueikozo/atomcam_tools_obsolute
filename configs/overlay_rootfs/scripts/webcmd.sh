@@ -95,6 +95,30 @@ EOF
     reboot
     cmd=""
   fi
+  if [ "$cmd" = "posrec" ]; then
+    pos=`/scripts/cmd move`;
+    awk '
+    /slide_x/ {
+      pan=POS;
+      gsub(/ .*$/, "", pan);
+      printf("slide_x=%d\n", int(pan * 100 + 0.5));
+      next;
+    }
+    /slide_y/ {
+      tilt=POS;
+      gsub(/^.* /, "", tilt);
+      printf("slide_y=%d\n", int(tilt * 100 + 0.5));
+      next;
+    }
+    {
+      print;
+    }
+    ' POS="$pos" /atom/configs/.user_config > /atom/configs/.user_config_new
+    mv -f /atom/configs/.user_config_new /atom/configs/.user_config
+  fi
+  if [ "$cmd" = "moveinit" ]; then
+    /scripts/motor_init
+  fi
   if [ "$cmd" != "" ]; then
     echo "$cmd $param : syntax error" >> /var/run/webres
   fi

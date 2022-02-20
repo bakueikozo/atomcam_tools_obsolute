@@ -20,9 +20,15 @@
     </div>
     <div class="well-transparent container">
       <div class="image-frame" :style="imageFrameStyle">
-        <ElTooltip :tabindex="-1" placement="top" :content="stillFullView?'clickで縮小します':'clickで拡大します'" effect="light" :open-delay="500">
-          <img class="still-image" :src="`/cgi-bin/get_jpeg.cgi?r=${stillCount}`" @click="stillFullView=!stillFullView">
-        </ElTooltip>
+        <div class="image-frame-inner1">
+          <ElSlider v-if="isSwing" class="tilt-slider" v-model="tilt" :min="0" :max="180" vertical :show-input-controls="false" height="100%" @input="Move" />
+          <ElTooltip :tabindex="-1" placement="top" :content="stillFullView?'clickで縮小します':'clickで拡大します'" effect="light" :open-delay="500">
+            <img class="still-image" :src="`/cgi-bin/get_jpeg.cgi?r=${stillCount}`" @click="stillFullView=!stillFullView">
+          </ElTooltip>
+        </div>
+        <div v-if="isSwing" class="image-frame-inner2">
+          <ElSlider class="pan-slider" v-model="pan" :min="0" :max="355" :show-input-controls="false" @input="Move" />
+        </div>
       </div>
       <h3>基本設定</h3>
       <ElRow>
@@ -404,6 +410,17 @@
       </ElRow>
 
       <h3>メンテナンス</h3>
+      <ElRow v-if="isSwing">
+        <ElCol :offset="2" :span="7">
+          <ElTooltip :tabindex="-1" placement="top" content="Swingの座標を両側の端点当てで修正します" effect="light" :open-delay="500">
+            <h4>Swing座標初期化</h4>
+          </ElTooltip>
+        </ElCol>
+        <ElCol :span="4">
+          <ElButton @click="MoveInit" type="primary" size="mini">初期化</ElButton>
+        </ElCol>
+      </ElRow>
+
       <ElRow>
         <ElCol :offset="2" :span="7">
           <ElTooltip :tabindex="-1" placement="top" content="定期的に再起動する設定をします" effect="light" :open-delay="500">
@@ -495,7 +512,7 @@
 
 <script>
   import axios from 'axios';
-  import { Tooltip, Switch, Input, InputNumber, CheckboxGroup, CheckboxButton, TimePicker, Drawer } from 'element-ui';
+  import { Tooltip, Switch, Input, InputNumber, CheckboxGroup, CheckboxButton, TimePicker, Drawer, Slider } from 'element-ui';
   import 'element-ui/lib/theme-chalk/tooltip.css';
   import 'element-ui/lib/theme-chalk/switch.css';
   import 'element-ui/lib/theme-chalk/input.css';
@@ -503,6 +520,7 @@
   import 'element-ui/lib/theme-chalk/checkbox.css';
   import 'element-ui/lib/theme-chalk/time-picker.css';
   import 'element-ui/lib/theme-chalk/drawer.css';
+  import 'element-ui/lib/theme-chalk/slider.css';
 
   export default {
     name: 'ATOMCamSetting',
@@ -515,6 +533,7 @@
       ElCheckboxButton: CheckboxButton,
       ElTimePicker: TimePicker,
       ElDrawer: Drawer,
+      ElSlider: Slider,
     },
     data() {
       return {
@@ -574,6 +593,9 @@
         stillCount: 0,
         stillFullView: false,
         weekDays: ['月','火', '水', '木', '金', '土', '日'],
+        pan: 0,
+        tilt: 0,
+        posValid: false,
       };
     },
     computed: {
@@ -594,6 +616,9 @@
         if(parseInt(ver[1]) > parseInt(latest[1])) return false;
         if(parseInt(ver[2]) < parseInt(latest[2])) return true;
         return false;
+      },
+      isSwing() {
+        return !this.rebooting && this.posValid && (this.config.PRODUCT_MODEL === 'ATOM_CAKP1JZJP');
       },
     },
     async mounted() {
@@ -638,12 +663,20 @@
         }, []);
       }
 
-      const latest = await axios.get('./cgi-bin/get_latest_ver.cgi').catch(err => {
+      const status = (await axios.get('./cgi-bin/cmd.cgi').catch(err => {
         // eslint-disable-next-line no-console
         console.log(err);
-        return '';
-      });
-      this.latestVer = latest.data.replace(/^.*LATESTVER[= ]*([\d.]*)\n*$/, '$1');
+        return { data: '' };
+      })).data.split('\n').reduce((s, d) => {
+        s[d.replace(/=.*$/, '').trim()] = d.replace(/^.*=/, '').trim();
+        return s;
+      }, {});
+
+      this.latestVer = status.LATESTVER;
+      const pos = status.MOTORPOS.split(' ');
+      this.pan = parseFloat(pos[0]);
+      this.tilt = parseFloat(pos[1]);
+      this.posValid = true;
 
       if(this.config.REBOOT_SCHEDULE) {
         const str = this.config.REBOOT_SCHEDULE.split(' ');
@@ -655,7 +688,7 @@
       this.RTSP_URL = `rtsp://${window.location.host}:8554/unicast`;
 
       setInterval(async () => {
-        const res = await axios.get('./cgi-bin/get_time.cgi').catch(err => {
+        const res = await axios.get('./cgi-bin/cmd.cgi?name=time').catch(err => {
           // eslint-disable-next-line no-console
           console.log(err);
           return '';
@@ -673,11 +706,40 @@
         }, {});
       }, 1000);
       this.StillImageInterval();
+      if(this.isSwing) this.GetPosInterval();
     },
     methods: {
+      async Move() {
+        if(!this.posValid) return;
+        this.Exec(`move ${this.pan} ${this.tilt}`, 'socket');
+        this.StillImageInterval();
+        if(this.moveTimeout) clearTimeout(this.moveTimeout);
+        this.moveTimeout = setTimeout(() => {
+          this.moveTimeout = null;
+          this.Exec('posrec');
+        }, 3000);
+      },
+      async GetPosInterval() {
+        const status = (await axios.get('./cgi-bin/cmd.cgi?name=move').catch(err => {
+          // eslint-disable-next-line no-console
+          console.log(err);
+          return { data: '' };
+        })).data.split('\n').reduce((s, d) => {
+          s[d.replace(/=.*$/, '').trim()] = d.replace(/^.*=/, '').trim();
+          return s;
+        }, {});
+        if(status.MOTORPOS) {
+          const pos = status.MOTORPOS.split(' ');
+          this.pan = parseFloat(pos[0]);
+          this.tilt = parseFloat(pos[1]);
+        }
+        if(this.getposTimeout) clearTimeout(this.getposTimeout);
+        this.getposTimeout = setTimeout(this.GetPosInterval.bind(this), 1000);
+      },
       StillImageInterval() {
         this.stillCount++;
-        setTimeout(this.StillImageInterval.bind(this), this.stillInterval);
+        if(this.imageTimeout) clearTimeout(this.imageTimeout);
+        this.imageTimeout = setTimeout(this.StillImageInterval.bind(this), this.stillInterval);
       },
       AddSchedule() {
         this.schedule.push({
@@ -693,6 +755,9 @@
       },
       FixPath(label) {
         this.config[label] = this.config[label].replace(/\\/g, '/');
+      },
+      MoveInit() {
+        this.Exec('moveinit');
       },
       DoReboot() {
         this.rebootTime = 80;
@@ -796,8 +861,8 @@
           });
         }
       },
-      async Exec(cmd) {
-        await axios.post('./cgi-bin/exec.cgi', { exec: `${cmd}` }).catch(err => {
+      async Exec(cmd, port) {
+        return await axios.post(`./cgi-bin/cmd.cgi?port=${port}`, { exec: cmd }).catch(err => {
           // eslint-disable-next-line no-console
           console.log(err);
         });
@@ -849,12 +914,33 @@
 
   .image-frame {
     z-index: 100;
-    display: block;
+    display: flex;
     position: fixed;
+    flex-direction: column;
+  }
+
+  .image-frame-inner1 {
+    justify-content: flex-end;
+    display: flex;
+  }
+
+  .image-frame-inner2 {
+    justify-content: flex-end;
+    display: flex;
   }
 
   .still-image {
-    width: 100%;
+    width: calc(100% - 36px);
+  }
+
+  .pan-slider {
+    background-color: white;
+    width: calc(100% - 36px);
+  }
+
+  .tilt-slider {
+    background-color: white;
+    align-items: stretch;
   }
 
   .environment {

@@ -8,9 +8,13 @@ extern int local_sdk_motor_move_abs_angle(float pan, float tilt, int speed, void
 extern void CommandResponse(int fd, const char *res);
 
 static int motorFd = 0;
-static void motor_move_done(float a, float b) {
+static void motor_move_done(float pan, float tilt) {
 
-  if(motorFd) CommandResponse(motorFd, "ok");
+  if(motorFd) {
+    static char motorResBuf[256];
+    sprintf(motorResBuf, "%f %f\n", pan, tilt);
+    CommandResponse(motorFd, motorResBuf);
+  }
   motorFd = 0;
 }
 

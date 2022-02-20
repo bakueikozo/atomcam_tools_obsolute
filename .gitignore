@@ -4,5 +4,6 @@ rootfs_hack.ext2
 atomcam_tools.zip
 *.xcodeproj/project.xcworkspace/
 *.xcodeproj/xcuserdata/
+*.xcodeproj/xcshareddata/
 bin/
 
