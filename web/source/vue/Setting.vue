@@ -32,19 +32,19 @@
       </div>
       <h3>基本設定</h3>
       <ElTooltip :tabindex="-1" placement="top" content="NASの保存フォルダ名やリモートアクセスのための名前を設定します" effect="light" :open-delay="500">
-      <ElRow>
-        <ElCol :offset="1" :span="8">
+        <ElRow>
+          <ElCol :offset="1" :span="8">
             <h4>デバイス名</h4>
-        </ElCol>
-        <ElCol :span="4">
-          <ElInput type="text" v-model="config.HOSTNAME" />
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="4">
+            <ElInput type="text" v-model="config.HOSTNAME" />
+          </ElCol>
+        </ElRow>
       </ElTooltip>
 
       <ElTooltip :tabindex="-1" placement="top" content="このページへのアクセスのためのログイン認証を有効にします" effect="light" :open-delay="500">
-      <ElRow>
-        <ElCol :offset="1" :span="8">
+        <ElRow>
+          <ElCol :offset="1" :span="8">
             <h4>ログイン認証</h4>
           </ElCol>
           <ElCol :span="3">
@@ -74,26 +74,26 @@
       </ElTooltip>
 
       <h3>録画</h3>
-          <ElTooltip :tabindex="-1" placement="top" content="モーション／サウンド検出したときの12秒の映像をローカルにも録画します" effect="light" :open-delay="500">
+      <ElTooltip :tabindex="-1" placement="top" content="モーション／サウンド検出したときの12秒の映像をローカルにも録画します" effect="light" :open-delay="500">
         <ElRow>
           <ElCol :offset="1" :span="8">
             <h4>検出通知のローカル録画</h4>
-        </ElCol>
-        <ElCol :span="3">
-          <ElSwitch v-model="config.RECORDING_ALARM" active-value="on" inactive-value="off" />
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="3">
+            <ElSwitch v-model="config.RECORDING_ALARM" active-value="on" inactive-value="off" />
+          </ElCol>
+        </ElRow>
       </ElTooltip>
 
       <ElTooltip :tabindex="-1" placement="top" content="SD-Card/NASに録画される時間帯を設定します。" effect="light" :open-delay="500">
-      <ElRow>
-        <ElCol :offset="1" :span="8">
+        <ElRow>
+          <ElCol :offset="1" :span="8">
             <h4>ローカル録画スケジュール</h4>
-        </ElCol>
-        <ElCol :span="10">
+          </ElCol>
+          <ElCol :span="10">
             <ElSwitch v-model="config.RECORDING_LOCAL_SCHEDULE" active-value="on" inactive-value="off" active-color="#13ce66" inactive-color="#409eff" active-text="スケジュール " inactive-text="常時録画 " @change="(config.RECORDING_LOCAL_SCHEDULE === 'on') && !schedule.length && AddSchedule()" />
-        </ElCol>
-      </ElRow>
+          </ElCol>
+        </ElRow>
       </ElTooltip>
 
       <div v-if="config.RECORDING_LOCAL_SCHEDULE === 'on'">
@@ -126,148 +126,148 @@
 
       <h3>記録メディア</h3>
       <ElTooltip :tabindex="-1" placement="top" content="SD-Cardへの記録をします" effect="light" :open-delay="500">
-      <ElRow>
-        <ElCol :offset="1" :span="8">
+        <ElRow>
+          <ElCol :offset="1" :span="8">
             <h4>SD-Card</h4>
-        </ElCol>
-        <ElCol :span="4">
-          <ElSwitch v-model="config.STORAGE_SDCARD" active-value="on" inactive-value="off" />
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="4">
+            <ElSwitch v-model="config.STORAGE_SDCARD" active-value="on" inactive-value="off" />
+          </ElCol>
+        </ElRow>
       </ElTooltip>
       <ElTooltip :tabindex="-1" placement="top" content="ATOMCamのSD-CardをCIFS(smb) serverとしてLAN内に公開します" effect="light" :open-delay="500">
-      <ElRow v-if="config.STORAGE_SDCARD === 'on'">
-        <ElCol :offset="2" :span="7">
+        <ElRow v-if="config.STORAGE_SDCARD === 'on'">
+          <ElCol :offset="2" :span="7">
             <h4>ネットワークアクセス</h4>
-        </ElCol>
-        <ElCol :span="4">
-          <ElSwitch v-model="config.STORAGE_SDCARD_PUBLISH" active-value="on" inactive-value="off" />
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="4">
+            <ElSwitch v-model="config.STORAGE_SDCARD_PUBLISH" active-value="on" inactive-value="off" />
+          </ElCol>
+        </ElRow>
       </ElTooltip>
       <ElTooltip :tabindex="-1" placement="top" content="録画するPATHをstrftimeの書式指定で記述します。最後に拡張子が付加されます。alarm_recordのみに有効。" effect="light" :open-delay="500">
-      <ElRow v-if="config.STORAGE_SDCARD==='on'">
-        <ElCol :offset="2" :span="7">
+        <ElRow v-if="config.STORAGE_SDCARD==='on'">
+          <ElCol :offset="2" :span="7">
             <h4>保存するPATH</h4>
-        </ElCol>
-        <ElCol :span="6">
-          <ElInput type="text" v-model="config.STORAGE_SDCARD_PATH" @input="FixPath('STORAGE_SDCARD_PATH')" />
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="6">
+            <ElInput type="text" v-model="config.STORAGE_SDCARD_PATH" @input="FixPath('STORAGE_SDCARD_PATH')" />
+          </ElCol>
+        </ElRow>
       </ElTooltip>
       <ElTooltip :tabindex="-1" placement="top" content="SD-Cardに録画したファイルを自動的に削除します" effect="light" :open-delay="500">
-      <ElRow v-if="config.STORAGE_SDCARD==='on'">
-        <ElCol :offset="2" :span="7">
+        <ElRow v-if="config.STORAGE_SDCARD==='on'">
+          <ElCol :offset="2" :span="7">
             <h4>ファイルの自動削除</h4>
-        </ElCol>
-        <ElCol :span="3">
-          <ElSwitch v-model="config.STORAGE_SDCARD_REMOVE" active-value="on" inactive-value="off" />
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="3">
+            <ElSwitch v-model="config.STORAGE_SDCARD_REMOVE" active-value="on" inactive-value="off" />
+          </ElCol>
+        </ElRow>
       </ElTooltip>
       <ElTooltip v-if="config.STORAGE_SDCARD==='on' && config.STORAGE_SDCARD_REMOVE === 'on'" :tabindex="-1" placement="top" content="指定日数後に削除します" effect="light" :open-delay="500">
         <ElRow>
-        <ElCol :offset="2" :span="7">
+          <ElCol :offset="2" :span="7">
             <h4>保存日数</h4>
-        </ElCol>
-        <ElCol :span="3">
-          <ElInputNumber v-model="config.STORAGE_SDCARD_REMOVE_DAYS" :min="1" :step-strictly="true" size="mini" />
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="3">
+            <ElInputNumber v-model="config.STORAGE_SDCARD_REMOVE_DAYS" :min="1" :step-strictly="true" size="mini" />
+          </ElCol>
+        </ElRow>
       </ElTooltip>
 
       <ElTooltip :tabindex="-1" placement="top" content="NAS(CIFS Server)への記録をします" effect="light" :open-delay="500">
-      <ElRow>
-        <ElCol :offset="1" :span="8">
+        <ElRow>
+          <ElCol :offset="1" :span="8">
             <h4>NAS</h4>
-        </ElCol>
-        <ElCol :span="4">
-          <ElSwitch v-model="config.STORAGE_CIFS" active-value="on" inactive-value="off" />
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="4">
+            <ElSwitch v-model="config.STORAGE_CIFS" active-value="on" inactive-value="off" />
+          </ElCol>
+        </ElRow>
       </ElTooltip>
 
       <ElTooltip v-if="config.STORAGE_CIFS === 'on'" :tabindex="-1" placement="top" content="NASのパスを設定。(//server/folder/の形式で指定)" effect="light" :open-delay="500">
         <ElRow>
-        <ElCol :offset="2" :span="7">
+          <ElCol :offset="2" :span="7">
             <h4>ネットワークパス</h4>
-        </ElCol>
-        <ElCol :span="10">
-          <ElInput type="text" v-model="config.STORAGE_CIFSSERVER" @input="FixPath('STORAGE_CIFSSERVER')" />
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="10">
+            <ElInput type="text" v-model="config.STORAGE_CIFSSERVER" @input="FixPath('STORAGE_CIFSSERVER')" />
+          </ElCol>
+        </ElRow>
       </ElTooltip>
       <ElTooltip v-if="config.STORAGE_CIFS === 'on'" :tabindex="-1" placement="top" content="NASのユーザー名を設定します" effect="light" :open-delay="500">
         <ElRow>
-        <ElCol :offset="2" :span="7">
+          <ElCol :offset="2" :span="7">
             <h4>アカウント</h4>
-        </ElCol>
-        <ElCol :span="6">
-          <ElInput type="text" name="account" v-model="config.STORAGE_CIFSUSER" />
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="6">
+            <ElInput type="text" name="account" v-model="config.STORAGE_CIFSUSER" />
+          </ElCol>
+        </ElRow>
       </ElTooltip>
       <ElTooltip v-if="config.STORAGE_CIFS === 'on'" :tabindex="-1" placement="top" content="NASのパスワードを設定します" effect="light" :open-delay="500">
         <ElRow>
-        <ElCol :offset="2" :span="7">
+          <ElCol :offset="2" :span="7">
             <h4>パスワード</h4>
-        </ElCol>
-        <ElCol :span="6">
-          <ElInput type="text" name="password" v-model="config.STORAGE_CIFSPASSWD" show-password />
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="6">
+            <ElInput type="text" name="password" v-model="config.STORAGE_CIFSPASSWD" show-password />
+          </ElCol>
+        </ElRow>
       </ElTooltip>
       <ElTooltip v-if="config.STORAGE_CIFS === 'on'" :tabindex="-1" placement="top" content="録画するPATHをstrftimeの書式指定で記述します。最後に拡張子が付加されます。" effect="light" :open-delay="500">
         <ElRow>
-        <ElCol :offset="2" :span="7">
+          <ElCol :offset="2" :span="7">
             <h4>保存するPATH</h4>
-        </ElCol>
-        <ElCol :span="6">
-          <ElInput type="text" v-model="config.STORAGE_CIFS_PATH" @input="FixPath('STORAGE_CIFS_PATH')" />
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="6">
+            <ElInput type="text" v-model="config.STORAGE_CIFS_PATH" @input="FixPath('STORAGE_CIFS_PATH')" />
+          </ElCol>
+        </ElRow>
       </ElTooltip>
       <ElTooltip v-if="config.STORAGE_CIFS === 'on'" :tabindex="-1" placement="top" content="CIFS Serverに録画したファイルを自動的に削除します" effect="light" :open-delay="500">
         <ElRow>
-        <ElCol :offset="2" :span="7">
+          <ElCol :offset="2" :span="7">
             <h4>ファイルの自動削除</h4>
-        </ElCol>
-        <ElCol :span="3">
-          <ElSwitch v-model="config.STORAGE_CIFS_REMOVE" active-value="on" inactive-value="off" />
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="3">
+            <ElSwitch v-model="config.STORAGE_CIFS_REMOVE" active-value="on" inactive-value="off" />
+          </ElCol>
+        </ElRow>
       </ElTooltip>
       <ElTooltip v-if="config.STORAGE_CIFS === 'on' && config.STORAGE_CIFS_REMOVE === 'on'" :tabindex="-1" placement="top" content="指定日数後に削除します" effect="light" :open-delay="500">
         <ElRow>
-        <ElCol :offset="2" :span="7">
+          <ElCol :offset="2" :span="7">
             <h4>保存日数</h4>
-        </ElCol>
-        <ElCol :span="3">
-          <ElInputNumber v-model="config.STORAGE_CIFS_REMOVE_DAYS" :min="1" :step-strictly="true" size="mini" />
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="3">
+            <ElInputNumber v-model="config.STORAGE_CIFS_REMOVE_DAYS" :min="1" :step-strictly="true" size="mini" />
+          </ElCol>
+        </ElRow>
       </ElTooltip>
 
       <h3>ストリーミング</h3>
       <ElTooltip :tabindex="-1" placement="top" content="RTSPサーバーを起動します" effect="light" :open-delay="500">
-      <ElRow>
-        <ElCol :offset="1" :span="8">
+        <ElRow>
+          <ElCol :offset="1" :span="8">
             <h4>RTSP</h4>
-        </ElCol>
-        <ElCol :span="4">
-          <ElSwitch v-model="config.RTSPSERVER" active-value="on" inactive-value="off" />
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="4">
+            <ElSwitch v-model="config.RTSPSERVER" active-value="on" inactive-value="off" />
+          </ElCol>
+        </ElRow>
       </ElTooltip>
       <ElTooltip v-if="config.RTSPSERVER === 'on'" :tabindex="-1" placement="top" content="RTSPの音声を設定します" effect="light" :open-delay="500">
         <ElRow>
-        <ElCol :offset="2" :span="7">
+          <ElCol :offset="2" :span="7">
             <h4>音声</h4>
-        </ElCol>
-        <ElCol :span="10">
-          <ElSwitch v-model="config.RTSP_AUDIO" active-value="on" inactive-value="off" />
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="10">
+            <ElSwitch v-model="config.RTSP_AUDIO" active-value="on" inactive-value="off" />
+          </ElCol>
+        </ElRow>
       </ElTooltip>
       <ElRow v-if="config.RTSPSERVER === 'on'">
         <ElCol :offset="2" :span="7">
@@ -280,188 +280,188 @@
 
       <h3>イベント通知</h3>
       <ElTooltip :tabindex="-1" placement="top" content="WebHookを設定します" effect="light" :open-delay="500">
-      <ElRow>
-        <ElCol :offset="1" :span="8">
+        <ElRow>
+          <ElCol :offset="1" :span="8">
             <h4>WebHook</h4>
-        </ElCol>
-        <ElCol :span="4">
-          <ElSwitch v-model="config.WEBHOOK" active-value="on" inactive-value="off" />
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="4">
+            <ElSwitch v-model="config.WEBHOOK" active-value="on" inactive-value="off" />
+          </ElCol>
+        </ElRow>
       </ElTooltip>
       <ElTooltip v-if="config.WEBHOOK === 'on'" :tabindex="-1" placement="top" content="WebHookのイベント発生時にpostするURL" effect="light" :open-delay="500">
         <ElRow>
-        <ElCol :offset="2" :span="7">
+          <ElCol :offset="2" :span="7">
             <h4>通知URL</h4>
-        </ElCol>
-        <ElCol :span="10">
-          <ElInput type="text" v-model="config.WEBHOOK_URL" />
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="10">
+            <ElInput type="text" v-model="config.WEBHOOK_URL" />
+          </ElCol>
+        </ElRow>
       </ElTooltip>
 
       <ElTooltip v-if="config.WEBHOOK === 'on'" :tabindex="-1" placement="top" content="Alarm発生を通知します" effect="light" :open-delay="500">
         <ElRow>
-        <ElCol :offset="2" :span="7">
+          <ElCol :offset="2" :span="7">
             <h4>動体検知</h4>
-        </ElCol>
-        <ElCol :span="4">
-          <ElSwitch v-model="config.WEBHOOK_ALARM_EVENT" active-value="on" inactive-value="off" />
-        </ElCol>
-        <ElCol v-if="config.WEBHOOK_ALARM_EVENT === 'on'" :span="4">
-          type: alarmEvent
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="4">
+            <ElSwitch v-model="config.WEBHOOK_ALARM_EVENT" active-value="on" inactive-value="off" />
+          </ElCol>
+          <ElCol v-if="config.WEBHOOK_ALARM_EVENT === 'on'" :span="4">
+            type: alarmEvent
+          </ElCol>
+        </ElRow>
       </ElTooltip>
 
       <ElTooltip v-if="config.WEBHOOK === 'on'" :tabindex="-1" placement="top" content="Alarm発生時に認識情報を通知します" effect="light" :open-delay="500">
         <ElRow>
-        <ElCol :offset="2" :span="7">
+          <ElCol :offset="2" :span="7">
             <h4>動体認識情報</h4>
-        </ElCol>
-        <ElCol :span="4">
-          <ElSwitch v-model="config.WEBHOOK_ALARM_INFO" active-value="on" inactive-value="off" />
-        </ElCol>
-        <ElCol v-if="config.WEBHOOK_ALARM_INFO === 'on'" :span="4">
-          type: recognitionNotify
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="4">
+            <ElSwitch v-model="config.WEBHOOK_ALARM_INFO" active-value="on" inactive-value="off" />
+          </ElCol>
+          <ElCol v-if="config.WEBHOOK_ALARM_INFO === 'on'" :span="4">
+            type: recognitionNotify
+          </ElCol>
+        </ElRow>
       </ElTooltip>
 
       <ElTooltip v-if="config.WEBHOOK === 'on'" :tabindex="-1" placement="top" content="Alarm発生時に録画保存を通知します" effect="light" :open-delay="500">
         <ElRow>
-        <ElCol :offset="2" :span="7">
+          <ElCol :offset="2" :span="7">
             <h4>動体検知録画終了</h4>
-        </ElCol>
-        <ElCol :span="4">
-          <ElSwitch v-model="config.WEBHOOK_ALARM_VIDEO_FINISH" active-value="on" inactive-value="off" />
-        </ElCol>
-        <ElCol v-if="config.WEBHOOK_ALARM_VIDEO_FINISH === 'on'" :span="4">
-          type: uploadVideoFinish
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="4">
+            <ElSwitch v-model="config.WEBHOOK_ALARM_VIDEO_FINISH" active-value="on" inactive-value="off" />
+          </ElCol>
+          <ElCol v-if="config.WEBHOOK_ALARM_VIDEO_FINISH === 'on'" :span="4">
+            type: uploadVideoFinish
+          </ElCol>
+        </ElRow>
       </ElTooltip>
 
       <ElTooltip :tabindex="-1" placement="top" content="Alarm発生時に録画ファイルを転送します" effect="light" :open-delay="500">
-      <ElRow v-if="config.WEBHOOK === 'on'">
-        <ElCol :offset="2" :span="7">
+        <ElRow v-if="config.WEBHOOK === 'on'">
+          <ElCol :offset="2" :span="7">
             <h4>動体検知録画転送</h4>
-        </ElCol>
-        <ElCol :span="4">
-          <ElSwitch v-model="config.WEBHOOK_ALERM_VIDEO" active-value="on" inactive-value="off" />
-        </ElCol>
-        <ElCol v-if="config.WEBHOOK_ALERM_VIDEO === 'on'" :span="4">
-          mime: video/mp4
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="4">
+            <ElSwitch v-model="config.WEBHOOK_ALERM_VIDEO" active-value="on" inactive-value="off" />
+          </ElCol>
+          <ElCol v-if="config.WEBHOOK_ALERM_VIDEO === 'on'" :span="4">
+            mime: video/mp4
+          </ElCol>
+        </ElRow>
       </ElTooltip>
 
       <ElTooltip :tabindex="-1" placement="top" content="Alarm発生時に静止画保存を通知します" effect="light" :open-delay="500">
-      <ElRow v-if="config.WEBHOOK === 'on'">
-        <ElCol :offset="2" :span="7">
+        <ElRow v-if="config.WEBHOOK === 'on'">
+          <ElCol :offset="2" :span="7">
             <h4>動体検知静止画保存</h4>
-        </ElCol>
-        <ElCol :span="4">
-          <ElSwitch v-model="config.WEBHOOK_ALARM_PICT_FINISH" active-value="on" inactive-value="off" />
-        </ElCol>
-        <ElCol v-if="config.WEBHOOK_ALARM_PICT_FINISH === 'on'" :span="4">
-          type: uploadPictureFinish
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="4">
+            <ElSwitch v-model="config.WEBHOOK_ALARM_PICT_FINISH" active-value="on" inactive-value="off" />
+          </ElCol>
+          <ElCol v-if="config.WEBHOOK_ALARM_PICT_FINISH === 'on'" :span="4">
+            type: uploadPictureFinish
+          </ElCol>
+        </ElRow>
       </ElTooltip>
 
       <ElTooltip :tabindex="-1" placement="top" content="Alarm発生時に静止画ファイルを転送します" effect="light" :open-delay="500">
-      <ElRow v-if="config.WEBHOOK === 'on'">
-        <ElCol :offset="2" :span="7">
+        <ElRow v-if="config.WEBHOOK === 'on'">
+          <ElCol :offset="2" :span="7">
             <h4>動体検知静止画転送</h4>
-        </ElCol>
-        <ElCol :span="4">
-          <ElSwitch v-model="config.WEBHOOK_ALERM_PICT" active-value="on" inactive-value="off" />
-        </ElCol>
-        <ElCol v-if="config.WEBHOOK_ALERM_PICT === 'on'" :span="4">
-          mime: image/jpeg
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="4">
+            <ElSwitch v-model="config.WEBHOOK_ALERM_PICT" active-value="on" inactive-value="off" />
+          </ElCol>
+          <ElCol v-if="config.WEBHOOK_ALERM_PICT === 'on'" :span="4">
+            mime: image/jpeg
+          </ElCol>
+        </ElRow>
       </ElTooltip>
 
       <ElTooltip :tabindex="-1" placement="top" content="録画保存を通知します" effect="light" :open-delay="500">
-      <ElRow v-if="config.WEBHOOK === 'on'">
-        <ElCol :offset="2" :span="7">
+        <ElRow v-if="config.WEBHOOK === 'on'">
+          <ElCol :offset="2" :span="7">
             <h4>定常録画保存</h4>
-        </ElCol>
-        <ElCol :span="4">
-          <ElSwitch v-model="config.WEBHOOK_RECORD_EVENT" active-value="on" inactive-value="off" />
-        </ElCol>
-        <ElCol v-if="config.WEBHOOK_RECORD_EVENT === 'on'" :span="4">
-          type: recordEvent
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="4">
+            <ElSwitch v-model="config.WEBHOOK_RECORD_EVENT" active-value="on" inactive-value="off" />
+          </ElCol>
+          <ElCol v-if="config.WEBHOOK_RECORD_EVENT === 'on'" :span="4">
+            type: recordEvent
+          </ElCol>
+        </ElRow>
       </ElTooltip>
 
       <ElTooltip :tabindex="-1" placement="top" content="タイムラプスイベントを通知します" effect="light" :open-delay="500">
-      <ElRow v-if="config.WEBHOOK === 'on'">
-        <ElCol :offset="2" :span="7">
+        <ElRow v-if="config.WEBHOOK === 'on'">
+          <ElCol :offset="2" :span="7">
             <h4>タイムラプス記録</h4>
-        </ElCol>
-        <ElCol :span="4">
-          <ElSwitch v-model="config.WEBHOOK_TIMELAPSE_EVENT" active-value="on" inactive-value="off" />
-        </ElCol>
-        <ElCol v-if="config.WEBHOOK_TIMELAPSE_EVENT === 'on'" :span="4">
-          type: timelapseEvent
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="4">
+            <ElSwitch v-model="config.WEBHOOK_TIMELAPSE_EVENT" active-value="on" inactive-value="off" />
+          </ElCol>
+          <ElCol v-if="config.WEBHOOK_TIMELAPSE_EVENT === 'on'" :span="4">
+            type: timelapseEvent
+          </ElCol>
+        </ElRow>
       </ElTooltip>
 
       <ElTooltip :tabindex="-1" placement="top" content="タイムラプス録画完了を通知します" effect="light" :open-delay="500">
-      <ElRow v-if="config.WEBHOOK === 'on'">
-        <ElCol :offset="2" :span="7">
+        <ElRow v-if="config.WEBHOOK === 'on'">
+          <ElCol :offset="2" :span="7">
             <h4>タイムラプス録画完了</h4>
-        </ElCol>
-        <ElCol :span="4">
-          <ElSwitch v-model="config.WEBHOOK_TIMELAPSE_FINISH" active-value="on" inactive-value="off" />
-        </ElCol>
-        <ElCol v-if="config.WEBHOOK_TIMELAPSE_FINISH === 'on'" :span="4">
-          type: timelapseFinish
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="4">
+            <ElSwitch v-model="config.WEBHOOK_TIMELAPSE_FINISH" active-value="on" inactive-value="off" />
+          </ElCol>
+          <ElCol v-if="config.WEBHOOK_TIMELAPSE_FINISH === 'on'" :span="4">
+            type: timelapseFinish
+          </ElCol>
+        </ElRow>
       </ElTooltip>
 
       <h3>動体検知</h3>
       <ElTooltip :tabindex="-1" placement="top" content="Alarmの無検知時間5分を30秒に短縮します" effect="light" :open-delay="500">
-      <ElRow>
-        <ElCol :offset="2" :span="7">
+        <ElRow>
+          <ElCol :offset="2" :span="7">
             <h4>動体検知周期の短縮</h4>
-        </ElCol>
-        <ElCol :span="4">
-          <ElSwitch v-model="config.MINIMIZE_ALARM_CYCLE" active-value="on" inactive-value="off" />
-        </ElCol>
-        <ElCol :span="6">
-          ※ 変更すると設定ボタンで再起動します
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="4">
+            <ElSwitch v-model="config.MINIMIZE_ALARM_CYCLE" active-value="on" inactive-value="off" />
+          </ElCol>
+          <ElCol :span="6">
+            ※ 変更すると設定ボタンで再起動します
+          </ElCol>
+        </ElRow>
       </ElTooltip>
 
       <h3>メンテナンス</h3>
       <ElTooltip v-if="isSwing" :tabindex="-1" placement="top" content="Swingの座標を両側の端点当てで修正します" effect="light" :open-delay="500">
         <ElRow>
-        <ElCol :offset="2" :span="7">
+          <ElCol :offset="2" :span="7">
             <h4>Swing座標初期化</h4>
-        </ElCol>
-        <ElCol :span="4">
-          <ElButton @click="MoveInit" type="primary" size="mini">初期化</ElButton>
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="4">
+            <ElButton @click="MoveInit" type="primary" size="mini">初期化</ElButton>
+          </ElCol>
+        </ElRow>
       </ElTooltip>
 
       <ElTooltip :tabindex="-1" placement="top" content="定期的に再起動する設定をします" effect="light" :open-delay="500">
-      <ElRow>
-        <ElCol :offset="2" :span="7">
+        <ElRow>
+          <ElCol :offset="2" :span="7">
             <h4>定期リスタート</h4>
-        </ElCol>
-        <ElCol :span="4">
-          <ElSwitch v-model="config.REBOOT" active-value="on" inactive-value="off" />
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="4">
+            <ElSwitch v-model="config.REBOOT" active-value="on" inactive-value="off" />
+          </ElCol>
+        </ElRow>
       </ElTooltip>
 
       <div v-if="config.REBOOT === 'on'">
@@ -484,48 +484,48 @@
       </div>
 
       <ElTooltip :tabindex="-1" placement="top" content="再起動します" effect="light" :open-delay="500">
-      <ElRow>
-        <ElCol :offset="2" :span="7">
+        <ElRow>
+          <ElCol :offset="2" :span="7">
             <h4>リブート</h4>
-        </ElCol>
-        <ElCol :span="4">
-          <ElSwitch v-model="rebootEnable" inactive-text="Lock" />
-        </ElCol>
-        <ElCol :span="4">
-          <ElButton @click="DoReboot" type="danger" :disabled="!rebootEnable" icon="el-icon-refresh-left">Reboot</ElButton>
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="4">
+            <ElSwitch v-model="rebootEnable" inactive-text="Lock" />
+          </ElCol>
+          <ElCol :span="4">
+            <ElButton @click="DoReboot" type="danger" :disabled="!rebootEnable" icon="el-icon-refresh-left">Reboot</ElButton>
+          </ElCol>
+        </ElRow>
       </ElTooltip>
 
       <ElTooltip :tabindex="-1" placement="top" content="SD-Cardの録画フォルダを消去します" effect="light" :open-delay="500">
-      <ElRow>
-        <ElCol :offset="2" :span="7">
+        <ElRow>
+          <ElCol :offset="2" :span="7">
             <h4>SD-Card消去</h4>
-        </ElCol>
-        <ElCol :span="4">
-          <ElSwitch v-model="eraseEnable" inactive-text="Lock" />
-        </ElCol>
-        <ElCol :span="4">
-          <ElButton @click="DoErase" type="danger" :disabled="!eraseEnable" icon="el-icon-folder-delete">Erase</ElButton>
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="4">
+            <ElSwitch v-model="eraseEnable" inactive-text="Lock" />
+          </ElCol>
+          <ElCol :span="4">
+            <ElButton @click="DoErase" type="danger" :disabled="!eraseEnable" icon="el-icon-folder-delete">Erase</ElButton>
+          </ElCol>
+        </ElRow>
       </ElTooltip>
 
       <ElTooltip :tabindex="-1" placement="top" content="このtoolのupdateをします" effect="light" :open-delay="500">
-      <ElRow>
-        <ElCol :offset="2" :span="7">
+        <ElRow>
+          <ElCol :offset="2" :span="7">
             <h4>Update</h4>
-        </ElCol>
-        <ElCol :span="4">
-          <ElSwitch v-model="updateEnable" inactive-text="Lock" :disabled="!updatable" />
-        </ElCol>
-        <ElCol :span="4">
-          <ElButton @click="DoUpdate" type="danger" :disabled="!updateEnable" icon="el-icon-refresh">Update</ElButton>
-        </ElCol>
-        <ElCol :span="7">
-          <span class="latest" :class="{ 'latest-updatable': updatable }">Latest Version : Ver.{{ latestVer }}</span>
-        </ElCol>
-      </ElRow>
+          </ElCol>
+          <ElCol :span="4">
+            <ElSwitch v-model="updateEnable" inactive-text="Lock" :disabled="!updatable" />
+          </ElCol>
+          <ElCol :span="4">
+            <ElButton @click="DoUpdate" type="danger" :disabled="!updateEnable" icon="el-icon-refresh">Update</ElButton>
+          </ElCol>
+          <ElCol :span="7">
+            <span class="latest" :class="{ 'latest-updatable': updatable }">Latest Version : Ver.{{ latestVer }}</span>
+          </ElCol>
+        </ElRow>
       </ElTooltip>
     </div>
     <ElRow class="submit">
@@ -725,7 +725,7 @@
         const str = this.config.REBOOT_SCHEDULE.split(' ');
         const days = (str[4] || '').split(':');
         this.reboot.time = `${str[1].padStart(2, '0')}:${str[0].padStart(2, '0')}`;
-        this.reboot.dayOfWeekSelect = days.map(d => this.weekDays[d - 1]);
+        this.reboot.dayOfWeekSelect = days.map(d => this.weekDays[(d + 6) % 7]);
       }
 
       this.RTSP_URL = `rtsp://${window.location.host}:8554/unicast`;
@@ -850,12 +850,7 @@
 
         str = parseInt(this.reboot.time.slice(-2)) + ' ';
         str += parseInt(this.reboot.time.slice(0, 2)) + ' * * ';
-        str += this.weekDays.reduce((s, v, d) => {
-          if(this.reboot.dayOfWeekSelect.indexOf(v) < 0) return s;
-          if(s.length) s += ':';
-          s += d + 1;
-          return s;
-        }, '');
+        str += this.weekDays.flatMap((v, i) => this.reboot.dayOfWeekSelect.indexOf(v) < 0 ? [] : [(i + 1) % 7]).sort((a, b) => a - b).reduce((s, d) => s += (s.length ? ':' : '') + d.toString() , '');
         this.config.REBOOT_SCHEDULE = str;
 
         await axios.post('./cgi-bin/hack_ini.cgi', this.config).catch(err => {
@@ -911,7 +906,7 @@
             if(execCmds.indexOf('lighttpd') >= 0) {
               setTimeout(() => this.executing = false, 3000);
             } else {
-            this.executing = false;
+              this.executing = false;
             }
             if(href) window.location.href = href;
           });
