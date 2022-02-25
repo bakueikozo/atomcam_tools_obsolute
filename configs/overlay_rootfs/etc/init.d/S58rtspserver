@@ -1,11 +1,11 @@
 #!/bin/sh
 #
-# rtsp server
+# rtspserver
 #
 
 case "$1" in
   start)
-    echo "setup atomcam environment"
+    echo "rtspserver start"
     (
       while ! ifconfig wlan0 | grep 'inet addr' > /dev/null
       do
@@ -15,7 +15,8 @@ case "$1" in
     ) &
     ;;
   stop)
-      /scripts/rtspserver.sh off
+    echo "rtspserver stop"
+    /scripts/rtspserver.sh off
 	  ;;
   restart|reload)
       /scripts/rtspserver.sh off

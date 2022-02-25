@@ -22,6 +22,9 @@ if [ "$1" = "on" -o "$RTSPSERVER" = "on" ]; then
   if [ "$RTSP_AUDIO" != "on" ] ; then
     /scripts/cmd audio off > /dev/null
   fi
+  while [ "`pidof v4l2rtspserver`" = "" ]; do
+    sleep 0.5
+  done
 fi
 
 exit 0

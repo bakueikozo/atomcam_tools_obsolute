@@ -47,32 +47,11 @@ EOF
   fi
   if [ "$cmd" = "rtspserver" ] && [ "$params" != "" ]; then
     /scripts/rtspserver.sh $params
-    if [ "$params" = "on" ]; then
-      while [ "`pidof v4l2rtspserver`" = "" ]
-      do
-        sleep 1
-      done
-    fi
     echo "$cmd $params OK" >> /var/run/webres
     cmd=""
   fi
   if [ "$cmd" = "samba" ] && [ "$params" != "" ]; then
-    if [ "$params" = "on" ]; then
-      pidof smbd || smbd -D;
-      pidof nmbd || nmbd -D;
-      while [ "`pidof smbd`" = "" ]
-      do
-        sleep 1
-      done
-      while [ "`pidof nmbd`" = "" ]
-      do
-        sleep 1
-      done
-    fi
-    if [ "$params" = "off" ]; then
-      kill -9 `pidof smbd`
-      kill -9 `pidof nmbd`
-    fi
+    /scripts/samba.sh $params
     echo "$cmd $params OK" >> /var/run/webres
     cmd=""
   fi
