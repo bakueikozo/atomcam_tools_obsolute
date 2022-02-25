@@ -100,8 +100,10 @@ static void *CommandThread(void *arg) {
               length = read(SelfPipe[0], buf, resSize);
               if(length < resSize) break;
               char *res = (char *)buf;
-              strcat(res, "\n");
-              send(resFd, res, strlen(res) + 1, 0);
+              if(strlen(res)) {
+                strcat(res, "\n");
+                send(resFd, res, strlen(res) + 1, 0);
+              }
               close(resFd);
               FD_CLR(resFd, &targetFd);
             }
