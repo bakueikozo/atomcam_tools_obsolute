@@ -28,7 +28,7 @@ if [ "$REQUEST_METHOD" = "POST" ]; then
     FS=";";
   }
   /RECORDING_LOCAL_SCHEDULE_LIST *=/ {
-    gsub(/^RECORDING_LOCAL_SCHEDULE_LIST *=/, '');
+    gsub(/^RECORDING_LOCAL_SCHEDULE_LIST *=/, "");
     for(i = 1; i <= NF; i++) {
       print $i;
     }
