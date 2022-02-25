@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# lighttpd
+#
+
+case "$1" in
+  start)
+    echo "lighttpd start"
+    /scripts/lighttpd.sh on
+    ;;
+  stop)
+    echo "lighttpd stop"
+    /scripts/lighttpd.sh off
+	  ;;
+  restart|reload)
+      /scripts/lighttpd.sh restart
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?
+

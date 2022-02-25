@@ -56,6 +56,12 @@ EOF
     echo "$cmd $params OK" >> /var/run/webres
     cmd=""
   fi
+  if [ "$cmd" = "lighttpd" ]; then
+    echo "$cmd OK" >> /var/run/webres
+    sleep 3
+    /scripts/lighttpd.sh restart
+    cmd=""
+  fi
   if [ "$cmd" = "samba" ] && [ "$params" != "" ]; then
     if [ "$params" = "on" ]; then
       pidof smbd || smbd -D;
