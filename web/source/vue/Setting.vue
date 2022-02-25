@@ -42,9 +42,38 @@
       </ElRow>
       </ElTooltip>
 
-      <h3>録画</h3>
+      <ElTooltip :tabindex="-1" placement="top" content="このページへのアクセスのためのログイン認証を有効にします" effect="light" :open-delay="500">
       <ElRow>
         <ElCol :offset="1" :span="8">
+            <h4>ログイン認証</h4>
+          </ElCol>
+          <ElCol :span="3">
+            <ElSwitch v-model="loginAuth" active-value="on" inactive-value="off" />
+          </ElCol>
+        </ElRow>
+      </ElTooltip>
+      <ElTooltip v-if="loginAuth==='on'" :tabindex="-1" placement="top" content="ログインのためのユーザーアカウントを設定します" effect="light" :open-delay="500">
+        <ElRow>
+          <ElCol :offset="1" :span="8">
+            <h4>アカウント</h4>
+          </ElCol>
+          <ElCol :span="4">
+            <ElInput type="text" v-model="account" />
+          </ElCol>
+        </ElRow>
+      </ElTooltip>
+      <ElTooltip v-if="loginAuth==='on'" :tabindex="-1" placement="top" content="ログインのためのパスワードを設定します" effect="light" :open-delay="500">
+        <ElRow>
+          <ElCol :offset="1" :span="8">
+            <h4>パスワード</h4>
+          </ElCol>
+          <ElCol :span="4">
+            <ElInput type="password" v-model="password" />
+          </ElCol>
+        </ElRow>
+      </ElTooltip>
+
+      <h3>録画</h3>
           <ElTooltip :tabindex="-1" placement="top" content="モーション／サウンド検出したときの12秒の映像をローカルにも録画します" effect="light" :open-delay="500">
         <ElRow>
           <ElCol :offset="1" :span="8">
@@ -515,6 +544,7 @@
 
 <script>
   import axios from 'axios';
+  import md5 from 'js-md5';
   import { Tooltip, Switch, Input, InputNumber, CheckboxGroup, CheckboxButton, TimePicker, Drawer, Slider } from 'element-ui';
   import 'element-ui/lib/theme-chalk/tooltip.css';
   import 'element-ui/lib/theme-chalk/switch.css';
@@ -546,6 +576,7 @@
           ATOMHACKVER: '', // AtomHack Ver (/etc/atomhack.ver)
           PRODUCT_MODEL: '', // ATOMCam Model (/atom/configs/.product_config)
           HOSTNAME: 'atomcam', // ATOMHack hostname (/media/mmc/hostname)
+          DIGEST: '',
           REBOOT: 'off',
           REBOOT_SCHEDULE: '0 2 * * 7', // -> /var/spool/crontabs/root
           RECORDING_ALARM: 'on',
@@ -578,6 +609,10 @@
           WEBHOOK_TIMELAPSE_FINISH: 'off',
           MINIMIZE_ALARM_CYCLE: 'off',
         },
+        loginAuth: 'off',
+        relm: 'atomcam',
+        account: '',
+        password: '',
         intervalValue: {
           TIMESTAMP: '',
         },
@@ -639,6 +674,11 @@
       this.config = Object.assign({}, this.oldConfig);
       // eslint-disable-next-line no-console
       console.log(this.config);
+
+      if(this.config.DIGEST.length) {
+        this.loginAuth = 'on';
+        this.account = this.config.DIGEST.replace(/:.*$/, '');
+      }
 
       if(this.config.RECORDING_LOCAL_SCHEDULE_LIST) {
         let index = -1;
@@ -784,6 +824,14 @@
         this.rebootStart.setSeconds(this.rebootStart.getSeconds() + 30);
       },
       async Submit() {
+        if((this.loginAuth === 'on') && this.account.length) {
+          if(this.password.length) {
+            this.config.DIGEST = `${this.account}:${this.relm}:` + md5(`${this.account}:${this.relm}:${this.password}`);
+          }
+        } else {
+          this.config.DIGEST='';
+        }
+
         let str = '';
         for(const i in this.schedule) {
           const timeTable = this.schedule[i];
@@ -847,6 +895,7 @@
             execCmds.push('setwebhook');
           }
         }
+        if(this.config.DIGEST !== this.oldConfig.DIGEST) execCmds.push('lighttpd');
 
         this.oldConfig = Object.assign({}, this.config);
         if(execCmds.length) {
@@ -859,7 +908,11 @@
               }
               await this.Exec(cmd);
             }
+            if(execCmds.indexOf('lighttpd') >= 0) {
+              setTimeout(() => this.executing = false, 3000);
+            } else {
             this.executing = false;
+            }
             if(href) window.location.href = href;
           });
         }
