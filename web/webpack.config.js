@@ -10,6 +10,7 @@ module.exports = (env, argv) => {
     entry: {
       bundle: [
         './source/js/index.js',
+        './source/css/dirindex.css',
       ],
     },
     output: {
@@ -24,7 +25,15 @@ module.exports = (env, argv) => {
         },
         {
           test: /\.css$/,
+          exclude: /css\/dirindex\.css/,
           use: [ 'style-loader', 'css-loader' ],
+        },
+        {
+          test: /css\/dirindex\.css/,
+          type: 'asset/resource',
+          generator: {
+            filename: '[name][ext]',
+          },
         },
         {
           test: /\.(ttf|otf|woff|woff2)(\?.+)?$/,

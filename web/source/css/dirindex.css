@@ -1,0 +1,102 @@
+html {
+  height: 100%;
+  font-size: 14px;
+  overflow: hidden;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif;
+  font-weight: 300;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+* {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+input, textarea, code, .modal-window * {
+  -moz-user-select: auto;
+  -khtml-user-select: auto;
+  -webkit-user-select: auto;
+  -webkit-touch-callout: auto;
+  user-select: auto;
+}
+
+h1, h2, h3, h4, h5, h6, h7 {
+  white-space:nowrap;
+}
+
+h1,
+.h1 {
+  font-size: 2.6rem;
+  font-weight: 700;
+}
+
+h2,
+.h2 {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+h3,
+.h3 {
+  font-size: 1.7rem;
+  font-weight: 500;
+}
+
+h4,
+.h4 {
+  font-size: 1.3rem;
+  font-weight: 500;
+}
+
+h5,
+.h5 {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+h6,
+.h6 {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+p {
+  margin: 0 0 10px;
+}
+
+hr {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border: 0;
+  border-top: 1px solid #eee;
+}
+
+.list table {
+  width: 100%;
+  font-size: 1.4rem;
+  border-bottom: solid 2px gray;
+  margin: 10px;
+  padding-bottom: 10px;
+}
+
+.list table thead {
+  background-color: lightgrey;
+  text-align: left;
+}
+
+.foot {
+  padding: 10px;
+}

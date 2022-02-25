@@ -175,6 +175,16 @@
           </ElCol>
         </ElRow>
       </ElTooltip>
+      <ElTooltip v-if="config.STORAGE_SDCARD==='on'" :tabindex="-1" placement="top" content="SD-Card内のファイルを表示します" effect="light" :open-delay="500">
+        <ElRow>
+          <ElCol :offset="2" :span="7">
+            <h4>ファイル一覧</h4>
+          </ElCol>
+          <ElCol :span="3">
+            <a href="/sdcard" target="_blank" class="el-button el-button--primary el-button--mini link-button">SD Card</a>
+          </ElCol>
+        </ElRow>
+      </ElTooltip>
 
       <ElTooltip :tabindex="-1" placement="top" content="NAS(CIFS Server)への記録をします" effect="light" :open-delay="500">
         <ElRow>
@@ -1020,6 +1030,9 @@
   }
   .time-picker {
     width: 110px;
+  }
+  .link-button {
+    text-decoration: none;
   }
   .submit {
     margin: 20px 0 20px 0;
