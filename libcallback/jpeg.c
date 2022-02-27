@@ -4,46 +4,34 @@
 #include <unistd.h>
 #include <string.h>
 
+struct channelConfigSt {
+  uint dummy[4];
+  int state;
+  int encoder;
+};
+extern struct channelConfigSt *get_enc_chn_config(int ch);
+extern int get_video_run_state(int ch);
+extern void video_param_set_mutex_lock();
+extern int IMP_Encoder_StartRecvPic(int ch);
+extern int IMP_Encoder_PollingStream(int ch, int timeoutMSec);
+extern int IMP_Encoder_GetStream(int ch, uint *stream, int);
+extern int IMP_Encoder_ReleaseStream(int ch, int *stream);
+extern int IMP_Encoder_StopRecvPic(int ch);
+extern int save_jpeg(int fd, int *stream);
+extern void video_param_set_mutex_unlock();
 extern void CommandResponse(int fd, const char *res);
-extern int local_sdk_video_get_jpeg_data(uint ch, unsigned char *buf, int size);
 
-static const int JpegAllocateSize = 128 * 1024;
 static const char *HttpResHeader = "Cache-Control: no-cache\nContent-Type: image/jpeg\n\n";
-
+static const char *HttpErrorHeader = "Cache-Control: no-cache\nStatus: 503\n\n";
 static pthread_mutex_t JpegDataMutex = PTHREAD_MUTEX_INITIALIZER;
-static int JpegCaptureFd = 0;
-static unsigned char *JpegBuffer[2] = { NULL, NULL };
-static int JpegBufferSize[2] = { 0, 0 };
-static int JpegBufferPtr = 0;
-
-void JpegCaptureResponse(int fd) {
-
-  int ptr = (JpegBufferSize[JpegBufferPtr] <= 0) ? JpegBufferPtr ^ 1 : JpegBufferPtr;
-  if(JpegBufferSize[ptr] >= 0) {
-    write(fd, HttpResHeader, strlen(HttpResHeader));
-    write(fd, JpegBuffer[ptr], JpegBufferSize[ptr]);
-    CommandResponse(fd, "");
-  } else {
-    CommandResponse(fd, "error : buffer size error");
-  }
-}
-
-static void *JpegCaptureThread() {
-
-  while(1) {
-    pthread_mutex_lock(&JpegDataMutex);
-    JpegBufferSize[JpegBufferPtr] = local_sdk_video_get_jpeg_data(0, JpegBuffer[JpegBufferPtr], JpegAllocateSize);
-    if(JpegBufferSize[JpegBufferPtr] >= 0) JpegBufferPtr ^= 1;
-    JpegCaptureResponse(JpegCaptureFd);
-    JpegCaptureFd = 0;
-  }
-}
+static int JpegCaptureFd = -1;
 
 char *JpegCapture(int fd, char *tokenPtr) {
 
-  if(JpegCaptureFd) {
+  if(JpegCaptureFd >= 0) {
     fprintf(stderr, "[command] jpeg capture error %d %d\n", JpegCaptureFd, fd);
-    JpegCaptureResponse(fd);
+    write(fd, HttpErrorHeader, strlen(HttpErrorHeader));
+    CommandResponse(JpegCaptureFd, "error : buffer size error");
     return NULL;
   }
   JpegCaptureFd = fd;
@@ -51,17 +39,77 @@ char *JpegCapture(int fd, char *tokenPtr) {
   return NULL;
 }
 
+static int GetJpegData(int fd) {
+
+  struct channelConfigSt *chConfig = get_enc_chn_config(0);
+  if (!chConfig->state) {
+    fprintf(stderr, "[command] jpeg err: ch0 is not enable jpeg!\n");
+    return -1;
+  }
+  int state = get_video_run_state(0);
+  if (state < 5) {
+    fprintf(stderr, "[command] jpeg err: U should call 'video_run' before this func\n");
+    return -1;
+  }
+
+  video_param_set_mutex_lock();
+  int encoder = chConfig->encoder;
+  int ret = 0;
+
+  if(IMP_Encoder_StartRecvPic(encoder) < 0) {
+    fprintf(stderr, "[command] jpeg err: IMP_Encoder_StartRecvPic(%d) failed\n", encoder);
+    ret = -1;
+    goto error1;
+  }
+
+  if(IMP_Encoder_PollingStream(encoder, 2000) < 0) {
+    fprintf(stderr, "[command] jpeg err: Polling stream(chn%d) timeout\n", encoder);
+    ret = -1;
+    goto error2;
+  }
+
+  uint stream[6];
+  if(IMP_Encoder_GetStream(encoder, stream, 1) < 0) {
+    fprintf(stderr, "[command] jpeg err: IMP_Encoder_GetStream(chn%d) failed\n", encoder);
+    ret = -1;
+    goto error2;
+  }
+
+  write(JpegCaptureFd, HttpResHeader, strlen(HttpResHeader));
+  if(save_jpeg(fd, stream) < 0) {
+    fprintf(stderr, "[command] jpeg err: save_jpeg(%d) failed\n", fd);
+    ret = -2;
+  }
+  IMP_Encoder_ReleaseStream(encoder, stream);
+
+error2:
+  if(IMP_Encoder_StopRecvPic(encoder) < 0) {
+    fprintf(stderr, "[jpeg]err: IMP_Encoder_StopRecvPic(chn%d) failed\n", encoder);
+  }
+
+error1:
+  video_param_set_mutex_unlock();
+  if(ret == -1) write(JpegCaptureFd, HttpErrorHeader, strlen(HttpErrorHeader));
+  return ret;
+}
+
+static void *JpegCaptureThread() {
+
+  while(1) {
+    pthread_mutex_lock(&JpegDataMutex);
+    if(JpegCaptureFd >= 0) {
+      int res = GetJpegData(JpegCaptureFd);
+      CommandResponse(JpegCaptureFd, res >= 0 ? "" : "error : buffer size error");
+    }
+    JpegCaptureFd = -1;
+  }
+}
+
 static void __attribute ((constructor)) JpegInit(void) {
 
-  if(!JpegBuffer[0]) JpegBuffer[0] = (unsigned char *)malloc(JpegAllocateSize);
-  if(!JpegBuffer[1]) JpegBuffer[1] = (unsigned char *)malloc(JpegAllocateSize);
-  if(!JpegBuffer[0] || !JpegBuffer[1]) {
-    fprintf(stderr, "JpegInit malloc error\n");
-    return;
-  }
   pthread_mutex_lock(&JpegDataMutex);
   pthread_t thread;
-  if(pthread_create(&thread, NULL, JpegCaptureThread, &JpegCaptureFd)) {
+  if(pthread_create(&thread, NULL, JpegCaptureThread, NULL)) {
     fprintf(stderr, "pthread_create error\n");
     pthread_mutex_unlock(&JpegDataMutex);
     return;

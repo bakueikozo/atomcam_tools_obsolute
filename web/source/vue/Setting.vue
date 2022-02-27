@@ -23,7 +23,7 @@
         <div class="image-frame-inner1">
           <ElSlider v-if="isSwing" class="tilt-slider" v-model="tilt" :min="0" :max="180" vertical :show-input-controls="false" height="100%" @input="Move" />
           <ElTooltip :tabindex="-1" placement="top" :content="stillFullView?'clickで縮小します':'clickで拡大します'" effect="light" :open-delay="500">
-            <img class="still-image" :src="`/cgi-bin/get_jpeg.cgi?r=${stillCount}`" @click="stillFullView=!stillFullView">
+            <img class="still-image" :src="stillImage" @click="stillFullView=!stillFullView">
           </ElTooltip>
         </div>
         <div v-if="isSwing" class="image-frame-inner2">
@@ -639,6 +639,7 @@
         executing: false,
         rebooting: false,
         stillCount: 0,
+        stillImage: null,
         stillFullView: false,
         weekDays: ['月','火', '水', '木', '金', '土', '日'],
         pan: 0,
@@ -764,7 +765,9 @@
     methods: {
       async Move() {
         if(!this.posValid) return;
-        this.Exec(`move ${this.pan} ${this.tilt}`, 'socket');
+        this.moving = true;
+        await this.Exec(`move ${this.pan} ${this.tilt}`, 'socket');
+        this.moving = false;
         this.StillImageInterval();
         if(this.moveTimeout) clearTimeout(this.moveTimeout);
         this.moveTimeout = setTimeout(() => {
@@ -773,24 +776,30 @@
         }, 3000);
       },
       async GetPosInterval() {
-        const status = (await axios.get('./cgi-bin/cmd.cgi?name=move').catch(err => {
-          // eslint-disable-next-line no-console
-          console.log(err);
-          return { data: '' };
-        })).data.split('\n').reduce((s, d) => {
-          s[d.replace(/=.*$/, '').trim()] = d.replace(/^.*=/, '').trim();
-          return s;
-        }, {});
-        if(status.MOTORPOS) {
-          const pos = status.MOTORPOS.split(' ');
-          this.pan = parseFloat(pos[0]);
-          this.tilt = parseFloat(pos[1]);
+        if(!this.moving) {
+          const status = (await axios.get('./cgi-bin/cmd.cgi?name=move').catch(err => {
+            // eslint-disable-next-line no-console
+            console.log(err);
+            return { data: '' };
+          })).data.split('\n').reduce((s, d) => {
+            s[d.replace(/=.*$/, '').trim()] = d.replace(/^.*=/, '').trim();
+            return s;
+          }, {});
+          if(status.MOTORPOS) {
+            const pos = status.MOTORPOS.split(' ');
+            this.pan = parseFloat(pos[0]);
+            this.tilt = parseFloat(pos[1]);
+          }
         }
         if(this.getposTimeout) clearTimeout(this.getposTimeout);
         this.getposTimeout = setTimeout(this.GetPosInterval.bind(this), 1000);
       },
-      StillImageInterval() {
-        this.stillCount++;
+      async StillImageInterval() {
+        const image = await axios.get('./cgi-bin/get_jpeg.cgi', { responseType: 'arraybuffer' }).catch(err => {
+          // eslint-disable-next-line no-console
+          console.log(err);
+        });
+        if(image && image.data) this.stillImage = window.URL.createObjectURL(new Blob([image.data]));
         if(this.imageTimeout) clearTimeout(this.imageTimeout);
         this.imageTimeout = setTimeout(this.StillImageInterval.bind(this), this.stillInterval);
       },

@@ -5,7 +5,7 @@
 
 start() {
 	printf "Starting crond: "
-	TZ=JST-9 start-stop-daemon -b -S -q -m -p /var/run/crond.pid --exec /usr/sbin/crond -- -l 4
+	TZ=JST-9 start-stop-daemon -b -S -q -m -p /var/run/crond.pid --exec /usr/sbin/crond -- -l 8
 	echo "OK"
 }
 
