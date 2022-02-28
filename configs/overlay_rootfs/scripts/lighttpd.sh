@@ -21,7 +21,7 @@ fi
 
 if [ "$1" = "restart" ]; then
   kill `pidof lighttpd` > /dev/null 2>&1
-  while netstat -ltn 2> /dev/null | grep :80 > /dev/null; do
+  while netstat -ltn 2> /dev/null | grep ':80 ' > /dev/null; do
     sleep 0.5
   done
   /usr/sbin/lighttpd -f /etc/lighttpd/lighttpd.conf
