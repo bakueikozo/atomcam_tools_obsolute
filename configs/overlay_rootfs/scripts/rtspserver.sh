@@ -14,10 +14,10 @@ if [ "$1" = "on" -o "$RTSPSERVER" = "on" ]; then
   /scripts/cmd video on > /dev/null
   /scripts/cmd audio on > /dev/null
   if ! pidof v4l2rtspserver > /dev/null ; then
-    while netstat -ltn 2> /dev/null | grep :8554; do
+    while netstat -ltn 2> /dev/null | egrep ":(8554|8080)"; do
       sleep 0.5
     done
-    /usr/bin/v4l2rtspserver -C 1 -a S16_LE -l 0 /dev/video1,hw:Loopback,0 >> /tmp/log/rtspserver.log 2>&1 &
+    /usr/bin/v4l2rtspserver -p 8080 -C 1 -a S16_LE -l 0 /dev/video1,hw:Loopback,0 >> /tmp/log/rtspserver.log 2>&1 &
   fi
   if [ "$RTSP_AUDIO" != "on" ] ; then
     /scripts/cmd audio off > /dev/null

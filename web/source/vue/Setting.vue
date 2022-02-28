@@ -281,10 +281,18 @@
       </ElTooltip>
       <ElRow v-if="config.RTSPSERVER === 'on'">
         <ElCol :offset="2" :span="7">
-          <h4>URL</h4>
+          <h4>RTSP(UDP)</h4>
         </ElCol>
         <ElCol :span="10">
-          <ElInput type="text" readonly v-model="RTSP_URL" />
+          <ElInput type="text" readonly v-model="RTSP_UDP" />
+        </ElCol>
+      </ElRow>
+      <ElRow v-if="config.RTSPSERVER === 'on'">
+        <ElCol :offset="2" :span="7">
+          <h4>RTSP(over HTTP)</h4>
+        </ElCol>
+        <ElCol :span="10">
+          <ElInput type="text" readonly v-model="RTSP_OVER_HTTP" />
         </ElCol>
       </ElRow>
 
@@ -580,7 +588,8 @@
     },
     data() {
       return {
-        RTSP_URL: '',
+        RTSP_UDP: '',
+        RTSP_OVER_HTTP: '',
         config: {
           appver: '', // ATOMCam app_ver (/atom/config/app.ver)
           ATOMHACKVER: '', // AtomHack Ver (/etc/atomhack.ver)
@@ -739,7 +748,8 @@
         this.reboot.dayOfWeekSelect = days.map(d => this.weekDays[(d + 6) % 7]);
       }
 
-      this.RTSP_URL = `rtsp://${window.location.host}:8554/unicast`;
+      this.RTSP_UDP = `rtsp://${window.location.host}:8554/unicast`;
+      this.RTSP_OVER_HTTP = `rtsp://${window.location.host}:8080/unicast`;
 
       setInterval(async () => {
         const res = await axios.get('./cgi-bin/cmd.cgi?name=time').catch(err => {
