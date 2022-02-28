@@ -41,12 +41,14 @@ h1,
 .h1 {
   font-size: 2.6rem;
   font-weight: 700;
+  margin: 10px;
 }
 
 h2,
 .h2 {
   font-size: 2rem;
   font-weight: 700;
+  margin: 10px;
 }
 
 h3,
@@ -84,19 +86,26 @@ hr {
   border-top: 1px solid #eee;
 }
 
+.list {
+  height: calc(100vh - 2rem - 50px);
+  overflow-y: scroll;
+}
+
 .list table {
-  width: 100%;
+  width: calc(100% - 20px);
   font-size: 1.4rem;
   border-bottom: solid 2px gray;
-  margin: 10px;
+  margin: 0px 10px;
   padding-bottom: 10px;
 }
 
 .list table thead {
   background-color: lightgrey;
   text-align: left;
+  position: sticky;
+  top: 0;
 }
 
 .foot {
-  padding: 10px;
+  display: none;
 }

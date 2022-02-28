@@ -22,6 +22,7 @@ case "$1" in
   cp /scripts/rm.sh /tmp/system/bin/rm
   cp /scripts/mv.sh /tmp/system/bin/mv
   cp /usr/bin/curl /tmp/system/bin
+  cp /usr/bin/find /tmp/system/bin/find_libc
   mkdir -p /tmp/system/modules
   mkdir -p /tmp/system/lib
   mount -o bind /lib /atom/tmp/system/lib

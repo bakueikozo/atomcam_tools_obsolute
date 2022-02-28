@@ -92,6 +92,7 @@ if [ "$FMT" != "" ]; then
       /bin/busybox mv $TMPFILE $2
     else
       /bin/busybox rm $TMPFILE
+      LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/find_libc /media/mmc/record -depth -type d -empty -delete
     fi
     if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
       if [ "$WEBHOOK_RECORD_EVENT" = "on" ]; then
