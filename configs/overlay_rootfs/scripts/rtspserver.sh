@@ -1,23 +1,31 @@
 #!/bin/sh
 
-if [ "$1" = "off" ]; then
+if [ "$1" = "off" -o "$1" = "restart" ]; then
   /scripts/cmd audio off > /dev/null
   /scripts/cmd video off > /dev/null
   kill `pidof v4l2rtspserver` > /dev/null 2>&1
-  exit 0
+  [ "$1" = "off" ] && exit 0
+  while pidof v4l2rtspserver > /dev/null ; do
+    sleep 0.5
+  done
 fi
 
 HACK_INI=/tmp/hack.ini
+RTSP_OVER_HTTP=$(awk -F "=" '/RTSP_OVER_HTTP *=/ {print $2}' $HACK_INI)
 RTSP_AUDIO=$(awk -F "=" '/RTSP_AUDIO *=/ {print $2}' $HACK_INI)
 RTSPSERVER=$(awk -F "=" '/RTSPSERVER *=/ {print $2}' $HACK_INI)
-if [ "$1" = "on" -o "$RTSPSERVER" = "on" ]; then
+if [ "$1" = "on" -o "$1" = "restart" -o "$RTSPSERVER" = "on" ]; then
   /scripts/cmd video on > /dev/null
   /scripts/cmd audio on > /dev/null
   if ! pidof v4l2rtspserver > /dev/null ; then
     while netstat -ltn 2> /dev/null | egrep ":(8554|8080)"; do
       sleep 0.5
     done
-    /usr/bin/v4l2rtspserver -p 8080 -C 1 -a S16_LE -l 0 /dev/video1,hw:Loopback,0 >> /tmp/log/rtspserver.log 2>&1 &
+    if [ "$RTSP_OVER_HTTP" = "on" ] ; then
+      /usr/bin/v4l2rtspserver -p 8080 -C 1 -a S16_LE -l 0 /dev/video1,hw:Loopback,0 >> /tmp/log/rtspserver.log 2>&1 &
+    else
+      /usr/bin/v4l2rtspserver -C 1 -a S16_LE -l 0 /dev/video1,hw:Loopback,0 >> /tmp/log/rtspserver.log 2>&1 &
+    fi
   fi
   if [ "$RTSP_AUDIO" != "on" ] ; then
     /scripts/cmd audio off > /dev/null

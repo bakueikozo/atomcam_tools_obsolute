@@ -279,20 +279,22 @@
           </ElCol>
         </ElRow>
       </ElTooltip>
+      <ElTooltip v-if="config.RTSPSERVER === 'on'" :tabindex="-1" placement="top" content="RTSPをHTTP経由で配信します" effect="light" :open-delay="500">
+        <ElRow>
+          <ElCol :offset="2" :span="7">
+            <h4>RTSP over HTTP</h4>
+          </ElCol>
+          <ElCol :span="10">
+            <ElSwitch v-model="config.RTSP_OVER_HTTP" active-value="on" inactive-value="off" />
+          </ElCol>
+        </ElRow>
+      </ElTooltip>
       <ElRow v-if="config.RTSPSERVER === 'on'">
         <ElCol :offset="2" :span="7">
-          <h4>RTSP(UDP)</h4>
+          <h4>RTSP URL</h4>
         </ElCol>
         <ElCol :span="10">
-          <ElInput type="text" readonly v-model="RTSP_UDP" />
-        </ElCol>
-      </ElRow>
-      <ElRow v-if="config.RTSPSERVER === 'on'">
-        <ElCol :offset="2" :span="7">
-          <h4>RTSP(over HTTP)</h4>
-        </ElCol>
-        <ElCol :span="10">
-          <ElInput type="text" readonly v-model="RTSP_OVER_HTTP" />
+          <ElInput type="text" readonly :value="RtspUrl" />
         </ElCol>
       </ElRow>
 
@@ -588,8 +590,6 @@
     },
     data() {
       return {
-        RTSP_UDP: '',
-        RTSP_OVER_HTTP: '',
         config: {
           appver: '', // ATOMCam app_ver (/atom/config/app.ver)
           ATOMHACKVER: '', // AtomHack Ver (/etc/atomhack.ver)
@@ -602,6 +602,7 @@
           RECORDING_LOCAL_SCHEDULE: 'off',
           RECORDING_LOCAL_SCHEDULE_LIST: '', // -> /media/mmc/local_schedule
           RTSPSERVER: 'off',
+          RTSP_OVER_HTTP: 'off',
           RTSP_AUDIO: 'off',
           STORAGE_SDCARD: 'on',
           STORAGE_SDCARD_PUBLISH: 'off',
@@ -678,6 +679,10 @@
       isSwing() {
         return !this.rebooting && this.posValid && (this.config.PRODUCT_MODEL === 'ATOM_CAKP1JZJP');
       },
+      RtspUrl() {
+        const port = (this.config.RTSP_OVER_HTTP  === 'on') ? 8080 : 8554;
+        return `rtsp://${window.location.host}:${port}/unicast`;
+      },
     },
     async mounted() {
       const res = await axios.get('./cgi-bin/hack_ini.cgi').catch(err => {
@@ -747,9 +752,6 @@
         this.reboot.time = `${str[1].padStart(2, '0')}:${str[0].padStart(2, '0')}`;
         this.reboot.dayOfWeekSelect = days.map(d => this.weekDays[(d + 6) % 7]);
       }
-
-      this.RTSP_UDP = `rtsp://${window.location.host}:8554/unicast`;
-      this.RTSP_OVER_HTTP = `rtsp://${window.location.host}:8080/unicast`;
 
       setInterval(async () => {
         const res = await axios.get('./cgi-bin/cmd.cgi?name=time').catch(err => {
@@ -911,9 +913,14 @@
             execCmds.push(`samba ${this.config.STORAGE_SDCARD_PUBLISH}`);
           }
           if(((this.config.RTSPSERVER !== this.oldConfig.RTSPSERVER) ||
-              (this.config.RTSP_AUDIO !== this.oldConfig.RTSP_AUDIO)) &&
+              (this.config.RTSP_AUDIO !== this.oldConfig.RTSP_AUDIO) ||
+              (this.config.RTSP_OVER_HTTP !== this.oldConfig.RTSP_OVER_HTTP)) &&
               (this.config.RTSPSERVER === "on")) {
-            execCmds.push(`rtspserver ${this.config.RTSPSERVER}`);
+            if(this.config.RTSP_OVER_HTTP !== this.oldConfig.RTSP_OVER_HTTP) {
+              execCmds.push('rtspserver restart');
+            } else {
+              execCmds.push('rtspserver on');
+            }
           }
           if(Object.keys(this.config).some(prop => (prop.search(/WEBHOOK/) === 0) && (this.config[prop] !== this.oldConfig[prop]))) {
             execCmds.push('setwebhook');
