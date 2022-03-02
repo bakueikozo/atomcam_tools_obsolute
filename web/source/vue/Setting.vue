@@ -750,7 +750,7 @@
         const str = this.config.REBOOT_SCHEDULE.split(' ');
         const days = (str[4] || '').split(':');
         this.reboot.time = `${str[1].padStart(2, '0')}:${str[0].padStart(2, '0')}`;
-        this.reboot.dayOfWeekSelect = days.map(d => this.weekDays[(d + 6) % 7]);
+        this.reboot.dayOfWeekSelect = days.map(d => this.weekDays[(parseInt(d) + 6) % 7]);
       }
 
       setInterval(async () => {
