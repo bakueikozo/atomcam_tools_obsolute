@@ -17,15 +17,7 @@ WEBHOOK_URL=$(awk -F "=" '/WEBHOOK_URL *=/ {print $2}' $HACK_INI)
 WEBHOOK_RECORD_EVENT=$(awk -F "=" '/WEBHOOK_RECORD_EVENT *=/ {print $2}' $HACK_INI)
 HOSTNAME=`hostname`
 
-USER_CONFIG=/configs/.user_config
-SCHEDULE_CONFIG=/configs/.multiplealarm_config
-ALARMDATE=$(awk -F "=" '/alarmDate *=/ {print $2}' $USER_CONFIG)
-RECORDTYPE=$(awk -F "=" '/recordType *=/ {print $2}' $USER_CONFIG)
-if [ "$RECORDTYPE" = "1" ] && [ "$RECORDING_LOCAL_SCHEDULE" = "on" ]; then
-  ALARMDATE= "0"
-  SCHEDULE_CONFIG=/media/mmc/local_schedule
-fi
-if [ "$ALARMDATE" = "0" ] && [ -f $SCHEDULE_CONFIG ]; then
+if [ "$RECORDING_LOCAL_SCHEDULE" = "on" ]; then
   FMT=`TZ=JST-9 awk '
     BEGIN {
       FS = "=";
@@ -71,7 +63,7 @@ if [ "$ALARMDATE" = "0" ] && [ -f $SCHEDULE_CONFIG ]; then
       }
       if(FLAG) print strftime("%Y%m%d_%H%M%S");
     }
-  ' ALARMDATE=$ALARMDATE $SCHEDULE_CONFIG`
+  ' /media/mmc/local_schedule`
 else
   FMT=`TZ=JST-9 date +"%Y%m%d_%H%M%S"`
 fi

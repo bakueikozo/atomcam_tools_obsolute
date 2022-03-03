@@ -12,6 +12,7 @@ fi
 
 HACK_INI=/tmp/hack.ini
 RECORDING_ALARM=$(awk -F "=" '/RECORDING_ALARM *=/ {print $2}' $HACK_INI)
+RECORDING_LOCAL_SCHEDULE=$(awk -F "=" '/RECORDING_LOCAL_SCHEDULE *=/ {print $2}' $HACK_INI)
 STORAGE_CIFS_PATH=$(awk -F "=" '/STORAGE_CIFS_PATH *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
 STORAGE_SDCARD_PATH=$(awk -F "=" '/STORAGE_SDCARD_PATH *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
 STORAGE_SDCARD=$(awk -F "=" '/STORAGE_SDCARD *=/ {print $2}' $HACK_INI)
@@ -23,10 +24,7 @@ WEBHOOK_ALERM_VIDEO=$(awk -F "=" '/WEBHOOK_ALERM_VIDEO *=/ {print $2}' $HACK_INI
 WEBHOOK_ALARM_VIDEO_FINISH=$(awk -F "=" '/WEBHOOK_ALARM_VIDEO_FINISH *=/ {print $2}' $HACK_INI)
 HOSTNAME=`hostname`
 
-USER_CONFIG=/configs/.user_config
-ALARM_CONFIG=/configs/.multiplealarm_config
-ALARMDATE=$(awk -F "=" '/alarmDate *=/ {print $2}' $USER_CONFIG)
-if [ "$ALARMDATE" = "0" ] && [ -f $ALARM_CONFIG ]; then
+if [ "$RECORDING_LOCAL_SCHEDULE" = "on" ]; then
   FMT=`TZ=JST-9 awk '
     BEGIN {
       FS = "=";
@@ -72,7 +70,7 @@ if [ "$ALARMDATE" = "0" ] && [ -f $ALARM_CONFIG ]; then
       }
       if(FLAG) print strftime("%Y%m%d_%H%M%S");
     }
-  ' ALARMDATE=$ALARMDATE $ALARM_CONFIG`
+  ' /media/mmc/local_schedule`
 else
   FMT=`TZ=JST-9 date +"%Y%m%d_%H%M%S"`
 fi
