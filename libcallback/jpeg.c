@@ -84,7 +84,7 @@ static int GetJpegData(int fd) {
 
 error2:
   if(IMP_Encoder_StopRecvPic(encoder) < 0) {
-    fprintf(stderr, "[jpeg]err: IMP_Encoder_StopRecvPic(chn%d) failed\n", encoder);
+    fprintf(stderr, "[command] jpeg err: IMP_Encoder_StopRecvPic(chn%d) failed\n", encoder);
   }
 
 error1:

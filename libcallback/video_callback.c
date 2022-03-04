@@ -42,14 +42,8 @@ char *VideoCapture(int fd, char *tokenPtr) {
 
 static uint32_t video_encode_capture(struct frames_st *frames) {
 
-  uint32_t ret;
   static int firstEntry = 0;
   static int v4l2Fd = -1;
-  static unsigned char *jpegBuffer[2] = { NULL, NULL };
-  static int jpegBufferSize[2] = { 0, 0 };
-  static int jpegBufferPtr = 0;
-  static const int jpegAllocateSize = 128 * 1024;
-  static const char *httpResHeader = "Cache-Control: no-cache\nContent-Type: image/jpeg\n\n";
 
   if(!firstEntry) {
     firstEntry++;
@@ -77,7 +71,7 @@ static uint32_t video_encode_capture(struct frames_st *frames) {
   if( (v4l2Fd >= 0) && VideoCaptureEnable) {
     uint32_t *buf = frames->buf;
     int size = write(v4l2Fd, frames->buf, frames->length);
-    if(size != frames->length) fprintf(stderr,"Stream write error: %s\n", ret);
+    if(size != frames->length) fprintf(stderr,"Stream write error: %s\n", size);
   }
   return ((framecb)video_encode_cb)(frames);
 }
