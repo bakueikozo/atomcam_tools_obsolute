@@ -52,7 +52,7 @@ static int GetJpegData(int fd) {
     return -1;
   }
 
-  video_param_set_mutex_lock();
+  video_param_set_mutex_lock(1);
   int encoder = chConfig->encoder;
   int ret = 0;
 
@@ -68,7 +68,8 @@ static int GetJpegData(int fd) {
     goto error2;
   }
 
-  uint stream[6];
+  uint stream[17];
+  memset(stream, 0, 60);
   if(IMP_Encoder_GetStream(encoder, stream, 1) < 0) {
     fprintf(stderr, "[command] jpeg err: IMP_Encoder_GetStream(chn%d) failed\n", encoder);
     ret = -1;
@@ -88,7 +89,7 @@ error2:
   }
 
 error1:
-  video_param_set_mutex_unlock();
+  video_param_set_mutex_unlock(1);
   if(ret == -1) write(JpegCaptureFd, HttpErrorHeader, strlen(HttpErrorHeader));
   return ret;
 }
