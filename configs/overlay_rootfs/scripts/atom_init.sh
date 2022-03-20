@@ -80,11 +80,3 @@ grep '^RTSP_SWITCH=[^2]$' /configs/.rtsp_config && rm /configs/.rtsp_config
 LD_PRELOAD=/tmp/system/lib/modules/libcallback.so /system/bin/iCamera_app >> /tmp/log/atom.log 2>&1 &
 
 [ "AC1" = "$PRODUCT_MODEL" ] && /system/bin/dongle_app >> /tmp/log/dongle.log &
-
-(
-while sleep 3600
-do
-  TZ=JST-9 date >> /media/mmc/atomhack.log
-  free >> /media/mmc/atomhack.log
-done
-) &

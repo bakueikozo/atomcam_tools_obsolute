@@ -12,13 +12,6 @@ BEGIN {
   "hostname" | getline HOSTNAME;
 }
 
-/__NTP Set SysTime To/ {
-  gsub(/^.*__NTP Set SysTime To /, "");
-  gsub(/__.*$/, "000");
-  print strftime("Reboot Time : %Y/%m/%d %H:%M:%S") >> "/media/mmc/atomhack.log";
-  fflush("/media/mmc/atomhack.log");
-}
-
 {
   if(ENV["WEBHOOK"] != "on") next;
   if(ENV["WEBHOOK_URL"] == "") next;
