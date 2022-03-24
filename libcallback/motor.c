@@ -2,12 +2,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 
 extern int local_sdk_motor_get_position(float *step,float *angle);
 extern int local_sdk_motor_move_abs_angle(float pan, float tilt, int speed, void (*done)(float a, float b), void (*canceled)(void), int mode);
 extern void CommandResponse(int fd, const char *res);
 
-static int motorFd = 0;
+int motorFd = 0;
+int motorLastMovedTime = 0;
+
 static void motor_move_done(float pan, float tilt) {
 
   if(motorFd) {
@@ -16,12 +19,18 @@ static void motor_move_done(float pan, float tilt) {
     CommandResponse(motorFd, motorResBuf);
   }
   motorFd = 0;
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  motorLastMovedTime = tv.tv_sec;
 }
 
 static void motor_move_canceled() {
 
   if(motorFd) CommandResponse(motorFd, "error");
   motorFd = 0;
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  motorLastMovedTime = tv.tv_sec;
 }
 
 char *MotorMove(int fd, char *tokenPtr) {
