@@ -40,9 +40,9 @@ BEGIN {
 
 function Post(event, data) {
   if(data == "") {
-    system("curl -X POST -H \x27Content-Type: application/json\x27 -d \x27{\"type\":\"" event "\", \"device\":\"" HOSTNAME "\"}\x27 " ENV["WEBHOOK_URL"] " > /dev/null 2>&1");
+    system("curl -X POST -m 3 -H \x27Content-Type: application/json\x27 -d \x27{\"type\":\"" event "\", \"device\":\"" HOSTNAME "\"}\x27 " ENV["WEBHOOK_URL"] " > /dev/null 2>&1");
   } else {
-    system("curl -X POST -H \x27Content-Type: application/json\x27 -d \x27{\"type\":\"" event "\", \"device\":\"" HOSTNAME "\", \"data\":" data "}\x27 " ENV["WEBHOOK_URL"] " > /dev/null 2>&1");
+    system("curl -X POST -m 3 -H \x27Content-Type: application/json\x27 -d \x27{\"type\":\"" event "\", \"device\":\"" HOSTNAME "\", \"data\":" data "}\x27 " ENV["WEBHOOK_URL"] " > /dev/null 2>&1");
   }
 }
 ' -v HACK_INI=$HACK_INI
