@@ -31,7 +31,7 @@ char *JpegCapture(int fd, char *tokenPtr) {
   if(JpegCaptureFd >= 0) {
     fprintf(stderr, "[command] jpeg capture error %d %d\n", JpegCaptureFd, fd);
     write(fd, HttpErrorHeader, strlen(HttpErrorHeader));
-    CommandResponse(fd, "error : buffer size error");
+    CommandResponse(fd, "error : jpeg capture error");
     return NULL;
   }
   JpegCaptureFd = fd;
