@@ -18,6 +18,7 @@ extern char *JpegCapture(int fd, char *tokenPtr);
 extern char *VideoCapture(int fd, char *tokenPtr);
 extern char *AudioCapture(int fd, char *tokenPtr);
 extern char *MotorMove(int fd, char *tokenPtr);
+extern char *WaitMotion(int fd, char *tokenPtr);
 
 struct CommandTableSt {
   const char *cmd;
@@ -25,10 +26,11 @@ struct CommandTableSt {
 };
 
 struct CommandTableSt CommandTable[] = {
-  { "video",  &VideoCapture },
-  { "audio",  &AudioCapture },
-  { "jpeg",   &JpegCapture },
-  { "move",   &MotorMove },
+  { "video",      &VideoCapture },
+  { "audio",      &AudioCapture },
+  { "jpeg",       &JpegCapture },
+  { "move",       &MotorMove },
+  { "waitMotion", &WaitMotion },
 };
 
 void CommandResponse(int fd, const char *res) {
@@ -143,7 +145,7 @@ static void *CommandThread(void *arg) {
             if(!p) continue;
             int executed = 0;
             for(int i = 0; i < sizeof(CommandTable) / sizeof(struct CommandTableSt); i++) {
-              if(!strcmp(p, CommandTable[i].cmd)) {
+              if(!strcasecmp(p, CommandTable[i].cmd)) {
                 char *res = (*CommandTable[i].func)(fd, tokenPtr);
                 if(res) {
                   send(fd, res, strlen(res) + 1, 0);

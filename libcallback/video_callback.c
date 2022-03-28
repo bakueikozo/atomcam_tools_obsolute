@@ -11,8 +11,6 @@
 #include <sys/time.h>
 #include <pthread.h>
 
-extern void CommandResponse(int fd, const char *res);
-
 struct frames_st {
   void *buf;
   size_t length;
