@@ -88,7 +88,7 @@ if [ "$FMT" != "" ]; then
     fi
     if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
       if [ "$WEBHOOK_RECORD_EVENT" = "on" ]; then
-        LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -H "Content-Type: application/json" -d "{\"type\":\"recordEvent\", \"device\":\"${HOSTNAME}\"}" $WEBHOOK_URL > /dev/null 2>&1
+        LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"recordEvent\", \"device\":\"${HOSTNAME}\"}" $WEBHOOK_URL > /dev/null 2>&1
       fi
     fi
   ) &
