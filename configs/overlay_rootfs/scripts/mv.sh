@@ -10,6 +10,7 @@ fi
 
 HACK_INI=/tmp/hack.ini
 RECORDING_LOCAL_SCHEDULE=$(awk -F "=" '/RECORDING_LOCAL_SCHEDULE *=/ {print $2}' $HACK_INI)
+STORAGE_CIFS=$(awk -F "=" '/STORAGE_CIFS *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
 STORAGE_CIFS_PATH=$(awk -F "=" '/STORAGE_CIFS_PATH *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
 STORAGE_SDCARD=$(awk -F "=" '/STORAGE_SDCARD *=/ {print $2}' $HACK_INI)
 WEBHOOK=$(awk -F "=" '/WEBHOOK *=/ {print $2}' $HACK_INI)
@@ -72,7 +73,7 @@ if [ "$FMT" != "" ]; then
   TMPFILE="/tmp/`cat /proc/sys/kernel/random/uuid`"
   mv $1 $TMPFILE
   (
-    if /tmp/system/bin/mount_cifs ; then
+    if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "record" ] && /tmp/system/bin/mount_cifs ; then
       TIME=`echo $2 | sed -e 's|^/media/mmc/record/||' -e 's|/||g' -e 's|.mp4$||'`
       OUTFILE=`TZ=JST-9 date -d $TIME +"/mnt/$HOSTNAME/record/$STORAGE_CIFS_PATH.mp4"`
       DIR_PATH=${OUTFILE%/*}
@@ -80,7 +81,7 @@ if [ "$FMT" != "" ]; then
       cp $TMPFILE $OUTFILE
     fi
 
-    if [ "$STORAGE_SDCARD" = "on" ]; then
+    if [ "$STORAGE_SDCARD" = "on" -o "$STORAGE_SDCARD" = "record" ]; then
       /bin/busybox mv $TMPFILE $2
     else
       /bin/busybox rm $TMPFILE

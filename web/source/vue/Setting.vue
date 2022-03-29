@@ -125,18 +125,28 @@
       </div>
 
       <h3>記録メディア</h3>
-      <ElTooltip :tabindex="-1" placement="top" content="SD-Cardへの記録をします" effect="light" :open-delay="500">
+      <ElTooltip :tabindex="-1" placement="top" content="SD-Cardのrecordフォルダへの記録をします" effect="light" :open-delay="500">
         <ElRow>
           <ElCol :offset="1" :span="8">
-            <h4>SD-Card</h4>
+            <h4>SD-Card録画</h4>
           </ElCol>
           <ElCol :span="4">
-            <ElSwitch v-model="config.STORAGE_SDCARD" active-value="on" inactive-value="off" />
+            <ElSwitch v-model="storage_sdcard_record" />
+          </ElCol>
+        </ElRow>
+      </ElTooltip>
+      <ElTooltip :tabindex="-1" placement="top" content="SD-Cardのalarm_recordフォルダへの記録をします" effect="light" :open-delay="500">
+        <ElRow>
+          <ElCol :offset="1" :span="8">
+            <h4>SD-Cardモーション検知録画</h4>
+          </ElCol>
+          <ElCol :span="4">
+            <ElSwitch v-model="storage_sdcard_alarm" />
           </ElCol>
         </ElRow>
       </ElTooltip>
       <ElTooltip :tabindex="-1" placement="top" content="ATOMCamのSD-CardをCIFS(smb) serverとしてLAN内に公開します" effect="light" :open-delay="500">
-        <ElRow v-if="config.STORAGE_SDCARD === 'on'">
+        <ElRow v-if="storage_sdcard">
           <ElCol :offset="2" :span="7">
             <h4>ネットワークアクセス</h4>
           </ElCol>
@@ -146,7 +156,7 @@
         </ElRow>
       </ElTooltip>
       <ElTooltip :tabindex="-1" placement="top" content="録画するPATHをstrftimeの書式指定で記述します。最後に拡張子が付加されます。alarm_recordのみに有効。" effect="light" :open-delay="500">
-        <ElRow v-if="config.STORAGE_SDCARD==='on'">
+        <ElRow v-if="storage_sdcard">
           <ElCol :offset="2" :span="7">
             <h4>保存するPATH</h4>
           </ElCol>
@@ -156,7 +166,7 @@
         </ElRow>
       </ElTooltip>
       <ElTooltip :tabindex="-1" placement="top" content="SD-Cardに録画したファイルを自動的に削除します" effect="light" :open-delay="500">
-        <ElRow v-if="config.STORAGE_SDCARD==='on'">
+        <ElRow v-if="storage_sdcard">
           <ElCol :offset="2" :span="7">
             <h4>ファイルの自動削除</h4>
           </ElCol>
@@ -165,7 +175,7 @@
           </ElCol>
         </ElRow>
       </ElTooltip>
-      <ElTooltip v-if="config.STORAGE_SDCARD==='on' && config.STORAGE_SDCARD_REMOVE === 'on'" :tabindex="-1" placement="top" content="指定日数後に削除します" effect="light" :open-delay="500">
+      <ElTooltip v-if="storage_sdcard && config.STORAGE_SDCARD_REMOVE === 'on'" :tabindex="-1" placement="top" content="指定日数後に削除します" effect="light" :open-delay="500">
         <ElRow>
           <ElCol :offset="2" :span="7">
             <h4>保存日数</h4>
@@ -175,7 +185,7 @@
           </ElCol>
         </ElRow>
       </ElTooltip>
-      <ElTooltip v-if="config.STORAGE_SDCARD==='on'" :tabindex="-1" placement="top" content="SD-Card内のファイルを表示します" effect="light" :open-delay="500">
+      <ElTooltip v-if="storage_sdcard" :tabindex="-1" placement="top" content="SD-Card内のファイルを表示します" effect="light" :open-delay="500">
         <ElRow>
           <ElCol :offset="2" :span="7">
             <h4>ファイル一覧</h4>
@@ -186,18 +196,29 @@
         </ElRow>
       </ElTooltip>
 
-      <ElTooltip :tabindex="-1" placement="top" content="NAS(CIFS Server)への記録をします" effect="light" :open-delay="500">
+      <ElTooltip :tabindex="-1" placement="top" content="NAS(CIFS Server)のrecordフォルダへの記録をします" effect="light" :open-delay="500">
         <ElRow>
           <ElCol :offset="1" :span="8">
-            <h4>NAS</h4>
+            <h4>NAS録画</h4>
           </ElCol>
           <ElCol :span="4">
-            <ElSwitch v-model="config.STORAGE_CIFS" active-value="on" inactive-value="off" />
+            <ElSwitch v-model="storage_cifs_record" />
           </ElCol>
         </ElRow>
       </ElTooltip>
 
-      <ElTooltip v-if="config.STORAGE_CIFS === 'on'" :tabindex="-1" placement="top" content="NASのパスを設定。(//server/folder/の形式で指定)" effect="light" :open-delay="500">
+      <ElTooltip :tabindex="-1" placement="top" content="NAS(CIFS Server)のalarm_recordフォルダへの記録をします" effect="light" :open-delay="500">
+        <ElRow>
+          <ElCol :offset="1" :span="8">
+            <h4>NASモーション検知録画</h4>
+          </ElCol>
+          <ElCol :span="4">
+            <ElSwitch v-model="storage_cifs_alarm" />
+          </ElCol>
+        </ElRow>
+      </ElTooltip>
+
+      <ElTooltip v-if="storage_cifs" :tabindex="-1" placement="top" content="NASのパスを設定。(//server/folder/の形式で指定)" effect="light" :open-delay="500">
         <ElRow>
           <ElCol :offset="2" :span="7">
             <h4>ネットワークパス</h4>
@@ -207,7 +228,7 @@
           </ElCol>
         </ElRow>
       </ElTooltip>
-      <ElTooltip v-if="config.STORAGE_CIFS === 'on'" :tabindex="-1" placement="top" content="NASのユーザー名を設定します" effect="light" :open-delay="500">
+      <ElTooltip v-if="storage_cifs" :tabindex="-1" placement="top" content="NASのユーザー名を設定します" effect="light" :open-delay="500">
         <ElRow>
           <ElCol :offset="2" :span="7">
             <h4>アカウント</h4>
@@ -217,7 +238,7 @@
           </ElCol>
         </ElRow>
       </ElTooltip>
-      <ElTooltip v-if="config.STORAGE_CIFS === 'on'" :tabindex="-1" placement="top" content="NASのパスワードを設定します" effect="light" :open-delay="500">
+      <ElTooltip v-if="storage_cifs" :tabindex="-1" placement="top" content="NASのパスワードを設定します" effect="light" :open-delay="500">
         <ElRow>
           <ElCol :offset="2" :span="7">
             <h4>パスワード</h4>
@@ -227,7 +248,7 @@
           </ElCol>
         </ElRow>
       </ElTooltip>
-      <ElTooltip v-if="config.STORAGE_CIFS === 'on'" :tabindex="-1" placement="top" content="録画するPATHをstrftimeの書式指定で記述します。最後に拡張子が付加されます。" effect="light" :open-delay="500">
+      <ElTooltip v-if="storage_cifs" :tabindex="-1" placement="top" content="録画するPATHをstrftimeの書式指定で記述します。最後に拡張子が付加されます。" effect="light" :open-delay="500">
         <ElRow>
           <ElCol :offset="2" :span="7">
             <h4>保存するPATH</h4>
@@ -237,7 +258,7 @@
           </ElCol>
         </ElRow>
       </ElTooltip>
-      <ElTooltip v-if="config.STORAGE_CIFS === 'on'" :tabindex="-1" placement="top" content="CIFS Serverに録画したファイルを自動的に削除します" effect="light" :open-delay="500">
+      <ElTooltip v-if="storage_cifs" :tabindex="-1" placement="top" content="CIFS Serverに録画したファイルを自動的に削除します" effect="light" :open-delay="500">
         <ElRow>
           <ElCol :offset="2" :span="7">
             <h4>ファイルの自動削除</h4>
@@ -247,7 +268,7 @@
           </ElCol>
         </ElRow>
       </ElTooltip>
-      <ElTooltip v-if="config.STORAGE_CIFS === 'on' && config.STORAGE_CIFS_REMOVE === 'on'" :tabindex="-1" placement="top" content="指定日数後に削除します" effect="light" :open-delay="500">
+      <ElTooltip v-if="storage_cifs && config.STORAGE_CIFS_REMOVE === 'on'" :tabindex="-1" placement="top" content="指定日数後に削除します" effect="light" :open-delay="500">
         <ElRow>
           <ElCol :offset="2" :span="7">
             <h4>保存日数</h4>
@@ -604,12 +625,12 @@
           RTSPSERVER: 'off',
           RTSP_OVER_HTTP: 'off',
           RTSP_AUDIO: 'off',
-          STORAGE_SDCARD: 'on',
+          STORAGE_SDCARD: 'on', // on(alarm & record), alarm, record, off
           STORAGE_SDCARD_PUBLISH: 'off',
           STORAGE_SDCARD_PATH: '%Y%m%d/%H%M%S',
           STORAGE_SDCARD_REMOVE: 'off',
           STORAGE_SDCARD_REMOVE_DAYS: 30,
-          STORAGE_CIFS: 'off',
+          STORAGE_CIFS: 'off', // on(alarm & record), alarm, record, off
           STORAGE_CIFS_PATH: '%Y%m%d/%H%M%S',
           STORAGE_CIFS_REMOVE: 'off',
           STORAGE_CIFS_REMOVE_DAYS: 30,
@@ -636,6 +657,10 @@
         intervalValue: {
           TIMESTAMP: '',
         },
+        storage_sdcard_record: true,
+        storage_sdcard_alarm: true,
+        storage_cifs_record: false,
+        storage_cifs_alarm: false,
         schedule: [],
         reboot: {
           time: '02:00',
@@ -663,6 +688,12 @@
       },
       imageFrameStyle() {
         return this.stillFullView ? { right: '10px', width: '98%' } : { right: '30px', width: '30%' };
+      },
+      storage_sdcard() {
+        return this.storage_sdcard_record || this.storage_sdcard_alarm;
+      },
+      storage_cifs() {
+        return this.storage_cifs_record || this.storage_cifs_alarm;
       },
       updatable() {
         const ver = this.config.ATOMHACKVER.split('.');
@@ -703,6 +734,34 @@
       if(this.config.DIGEST.length) {
         this.loginAuth = 'on';
         this.account = this.config.DIGEST.replace(/:.*$/, '');
+      }
+
+      if(this.config.STORAGE_SDCARD === 'on') {
+        this.storage_sdcard_record = true;
+        this.storage_sdcard_alarm = true;
+      } else if(this.config.STORAGE_SDCARD === 'record') {
+        this.storage_sdcard_record = true;
+        this.storage_sdcard_alarm = false;
+      } else if(this.config.STORAGE_SDCARD === 'alarm') {
+        this.storage_sdcard_record = false;
+        this.storage_sdcard_alarm = true;
+      } else {
+        this.storage_sdcard_record = false;
+        this.storage_sdcard_alarm = false;
+      }
+
+      if(this.config.STORAGE_CIFS === 'on') {
+        this.storage_cifs_record = true;
+        this.storage_cifs_alarm = true;
+      } else if(this.config.STORAGE_CIFS === 'record') {
+        this.storage_cifs_record = true;
+        this.storage_cifs_alarm = false;
+      } else if(this.config.STORAGE_CIFS === 'alarm') {
+        this.storage_cifs_record = false;
+        this.storage_cifs_alarm = true;
+      } else {
+        this.storage_cifs_record = false;
+        this.storage_cifs_alarm = false;
       }
 
       if(this.config.RECORDING_LOCAL_SCHEDULE_LIST) {
@@ -877,7 +936,27 @@
           str += `DelFlags=1;`;
         }
         this.config.RECORDING_LOCAL_SCHEDULE_LIST = str;
-        if(this.config.STORAGE_SDCARD !== "on") this.config.STORAGE_SDCARD_PUBLISH = "off";
+
+        if(this.storage_sdcard_record && this.storage_sdcard_alarm) {
+          this.config.STORAGE_SDCARD = 'on';
+        } else if(this.storage_sdcard_record) {
+          this.config.STORAGE_SDCARD = 'record';
+        } else if(this.storage_sdcard_alarm) {
+          this.config.STORAGE_SDCARD = 'alarm';
+        } else {
+          this.config.STORAGE_SDCARD = 'off';
+        }
+        if(!this.storage_sdcard) this.config.STORAGE_SDCARD_PUBLISH = "off";
+
+        if(this.storage_cifs_record && this.storage_cifs_alarm) {
+          this.config.STORAGE_CIFS = 'on';
+        } else if(this.storage_cifs_record) {
+          this.config.STORAGE_CIFS = 'record';
+        } else if(this.storage_cifs_alarm) {
+          this.config.STORAGE_CIFS = 'alarm';
+        } else {
+          this.config.STORAGE_CIFS = 'off';
+        }
 
         str = parseInt(this.reboot.time.slice(-2)) + ' ';
         str += parseInt(this.reboot.time.slice(0, 2)) + ' * * ';
