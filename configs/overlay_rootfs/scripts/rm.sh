@@ -13,6 +13,7 @@ fi
 HACK_INI=/tmp/hack.ini
 RECORDING_ALARM=$(awk -F "=" '/RECORDING_ALARM *=/ {print $2}' $HACK_INI)
 RECORDING_LOCAL_SCHEDULE=$(awk -F "=" '/RECORDING_LOCAL_SCHEDULE *=/ {print $2}' $HACK_INI)
+STORAGE_CIFS=$(awk -F "=" '/STORAGE_CIFS *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
 STORAGE_CIFS_PATH=$(awk -F "=" '/STORAGE_CIFS_PATH *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
 STORAGE_SDCARD_PATH=$(awk -F "=" '/STORAGE_SDCARD_PATH *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
 STORAGE_SDCARD=$(awk -F "=" '/STORAGE_SDCARD *=/ {print $2}' $HACK_INI)
@@ -90,14 +91,14 @@ if [ "$FMT" != "" ] && [ "$RECORDING_ALARM" = "on" ]; then
   TMPFILE="/tmp/`cat /proc/sys/kernel/random/uuid`"
   mv $FILE $TMPFILE
   (
-    if /tmp/system/bin/mount_cifs ; then
+    if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "alarm" ] && /tmp/system/bin/mount_cifs ; then
       OUTFILE=`TZ=JST-9 date +"/mnt/$HOSTNAME/alarm_record/$STORAGE_CIFS_PATH.${FILE##*.}"`
       DIR_PATH=${OUTFILE%/*}
       mkdir -p $DIR_PATH
       cp $TMPFILE $OUTFILE
     fi
 
-    if [ "$STORAGE_SDCARD" = "on" ]; then
+    if [ "$STORAGE_SDCARD" = "on" -o "$STORAGE_SDCARD" = "alarm" ]; then
       OUTFILE=`TZ=JST-9 date +"/media/mmc/alarm_record/$STORAGE_SDCARD_PATH.${FILE##*.}"`
       DIR_PATH=${OUTFILE%/*}
       mkdir -p $DIR_PATH
