@@ -5,10 +5,11 @@
         <h4>{{ title }}</h4>
       </ElCol>
       <ElCol :span="span">
-        <ElButton v-if="label" :type="type" size="mini" @click="$emit('click', $event)">
-          {{ label }}
-        </ElButton>
-        <slot />
+        <slot>
+          <ElButton :type="type" size="mini" @click="$emit('click', $event)">
+            {{ label }}
+          </ElButton>
+        </slot>
       </ElCol>
     </ElRow>
   </ElTooltip>
