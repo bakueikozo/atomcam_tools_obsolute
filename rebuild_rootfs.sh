@@ -1,7 +1,5 @@
 #!/bin/sh
 
-set -x
-
 if ! docker ps | grep atomcam_tools_builder_1 ; then
   docker-compose up -d
 fi
