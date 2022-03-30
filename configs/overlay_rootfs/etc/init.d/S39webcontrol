@@ -7,10 +7,12 @@ case "$1" in
   start)
     /scripts/webhook.sh &
     /scripts/webcmd.sh &
+    /scripts/cruise.sh &
   ;;
   stop)
     kill `pidof webhook.sh`
     kill `pidof webcmd.sh`
+    kill `pidof cruise.sh`
   ;;
   restart|reload)
     $0 stop

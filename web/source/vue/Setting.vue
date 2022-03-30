@@ -21,13 +21,13 @@
     <div class="well-transparent container">
       <div class="image-frame" :style="imageFrameStyle">
         <div class="image-frame-inner1">
-          <ElSlider v-if="isSwing" class="tilt-slider" v-model="tilt" :min="0" :max="180" vertical :show-input-controls="false" height="100%" @input="Move" />
+          <ElSlider v-if="isSwing" class="tilt-slider" v-model="tilt" :min="0" :max="180" vertical :show-input-controls="false" height="100%" @change="Move" @input="Move" />
           <ElTooltip :tabindex="-1" placement="top" :content="stillFullView?'clickで縮小します':'clickで拡大します'" effect="light" :open-delay="500">
             <img class="still-image" :src="stillImage" @click="stillFullView=!stillFullView">
           </ElTooltip>
         </div>
         <div v-if="isSwing" class="image-frame-inner2">
-          <ElSlider class="pan-slider" v-model="pan" :min="0" :max="355" :show-input-controls="false" @input="Move" />
+          <ElSlider class="pan-slider" v-model="pan" :min="0" :max="355" :show-input-controls="false" @change="Move" @input="Move" />
         </div>
       </div>
 
@@ -86,6 +86,14 @@
       <h3>動体検知</h3>
       <SettingSwitch title="動体検知周期の短縮" tooltip="Alarmの無検知時間5分を30秒に短縮します" v-model="config.MINIMIZE_ALARM_CYCLE" comment="※ 変更すると設定ボタンで再起動します" />
 
+      <div v-if="isSwing" @click="ClearCruiseSelect">
+        <h3>クルーズ</h3>
+        <SettingSwitch title="クルーズ動作" tooltip="クルーズ軌道を設定し、巡回動作をします" v-model="config.CRUISE" @change="(config.CRUISE === 'on') && !cruiseList.length && AddCruise()" @click.native.stop />
+        <div>
+          <SettingCruise v-for="(cruise, idx) of cruiseList" :key="'timetable'+idx" v-model="cruiseList[idx]" :pan="pan" :tilt="tilt" :selected="cruiseSelect === idx" @add="AddCruise" @remove="DeleteCruise(idx)" @pan="pan=$event" @tilt="tilt=$event" @click="CruiseSelect(idx)" />
+        </div>
+      </div>
+
       <h3>メンテナンス</h3>
       <SettingButton v-if="isSwing" title="Swing座標初期化" :titleOffset="2" :span="4" tooltip="Swingの座標を両側の端点当てで修正します" label="初期化" @click="MoveInit" />
       <SettingSwitch title="定期リスタート" tooltip="定期的に再起動する設定をします" v-model="config.REBOOT" />
@@ -121,6 +129,7 @@
   import SettingButton from './SettingButton.vue';
   import SettingDangerButton from './SettingDangerButton.vue';
   import SettingSchedule from './SettingSchedule.vue';
+  import SettingCruise from './SettingCruise.vue';
 
   import 'element-ui/lib/theme-chalk/tooltip.css';
   import 'element-ui/lib/theme-chalk/drawer.css';
@@ -137,6 +146,7 @@
       SettingButton,
       SettingDangerButton,
       SettingSchedule,
+      SettingCruise,
     },
     data() {
       return {
@@ -177,6 +187,8 @@
           WEBHOOK_RECORD_EVENT: 'off',
           WEBHOOK_TIMELAPSE_EVENT: 'off',
           WEBHOOK_TIMELAPSE_FINISH: 'off',
+          CRUISE: 'off',
+          CRUISE_LIST: '',
           MINIMIZE_ALARM_CYCLE: 'off',
         },
         loginAuth: 'off',
@@ -192,6 +204,8 @@
         storage_cifs_record: false,
         storage_cifs_alarm: false,
         schedule: [],
+        cruiseList: [],
+        cruiseSelect: -1,
         reboot: {
           startTime: '02:00',
           endTime: '02:00',
@@ -317,6 +331,29 @@
         }, []);
       }
 
+      this.cruiseList = (this.config.CRUISE_LIST || '').split(';').reduce((array, cmd) => {
+        const args = cmd.trim().split(' ');
+        if(args[0] === 'move') {
+          array.push({
+            pan: parseInt(args[1]),
+            tilt: parseInt(args[2]),
+          });
+          return array;
+        }
+        const last = array[array.length - 1];
+        if(!last) return array;
+        if(['detect', 'follow', 'sleep'].indexOf(args[0]) < 0) return array;
+        last.wait = parseInt(args[1]);
+        last.timeout = parseInt(args[2]);
+        last.detect = true;
+        last.follow = true;
+        if(args[0] === 'follow') return array;
+        last.follow = false;
+        if(args[0] === 'detect') return array;
+        last.detect = false;
+        return array;
+      }, []);
+
       const status = (await axios.get('./cgi-bin/cmd.cgi').catch(err => {
         // eslint-disable-next-line no-console
         console.log(err);
@@ -328,8 +365,8 @@
 
       this.latestVer = status.LATESTVER;
       const pos = status.MOTORPOS.split(' ');
-      this.pan = parseFloat(pos[0]);
-      this.tilt = parseFloat(pos[1]);
+      this.pan = Math.round(parseFloat(pos[0]));
+      this.tilt = Math.round(parseFloat(pos[1]));
       this.posValid = true;
 
       if(this.config.REBOOT_SCHEDULE) {
@@ -366,6 +403,7 @@
         this.moving = true;
         await this.Exec(`move ${this.pan} ${this.tilt}`, 'socket');
         this.moving = false;
+        this.moved = true;
         this.StillImageInterval();
         if(this.moveTimeout) clearTimeout(this.moveTimeout);
         this.moveTimeout = setTimeout(() => {
@@ -385,8 +423,15 @@
           }, {});
           if(status.MOTORPOS) {
             const pos = status.MOTORPOS.split(' ');
-            this.pan = parseFloat(pos[0]);
-            this.tilt = parseFloat(pos[1]);
+            const pan = Math.round(parseFloat(pos[0]));
+            const tilt = Math.round(parseFloat(pos[1]));
+            if(this.moved) {
+              this.moved = false;
+              if((pan !== this.pan) || (tilt !== this.tilt)) this.Move();
+            } else {
+              this.pan = pan;
+              this.tilt = tilt;
+            }
           }
         }
         if(this.getposTimeout) clearTimeout(this.getposTimeout);
@@ -412,6 +457,30 @@
       DeleteSchedule(i) {
         this.schedule.splice(i, 1);
         if(!this.schedule.length) this.config.RECORDING_LOCAL_SCHEDULE = false;
+      },
+      AddCruise() {
+        this.cruiseList.push({
+          pan: this.pan,
+          tilt: this.tilt,
+          wait: 10,
+          timeout: 10,
+          detect: false,
+          follow: false,
+        });
+        this.cruiseSelect = this.cruiseList.length - 1;
+      },
+      DeleteCruise(i) {
+        this.cruiseList.splice(i, 1);
+        if(!this.cruiseList.length) this.config.CRUISE = false;
+        if(this.cruiseSelect === i) this.cruiseSelect = -1;
+      },
+      CruiseSelect(idx) {
+        this.cruiseSelect = idx;
+        this.pan = this.cruiseList[idx].pan;
+        this.tilt = this.cruiseList[idx].tilt;
+      },
+      ClearCruiseSelect() {
+        this.cruiseSelect = -1;
       },
       FixPath(label) {
         this.config[label] = this.config[label].replace(/\\/g, '/');
@@ -485,6 +554,14 @@
           this.config.STORAGE_CIFS = 'off';
         }
 
+        this.config.CRUISE_LIST = this.cruiseList.reduce((str, cruise) => {
+          str += `move ${cruise.pan} ${cruise.tilt};`;
+          const waitMode = cruise.detect ? (cruise.follow ? 'follow' : 'detect') : 'sleep';
+          str += `${waitMode} ${cruise.wait} ${cruise.timeout};`;
+          return str;
+        }, '');
+        this.ClearCruiseSelect();
+
         str = parseInt(this.reboot.startTime.slice(-2)) + ' ';
         str += parseInt(this.reboot.startTime.slice(0, 2)) + ' * * ';
         str += this.weekDays.flatMap((v, i) => this.reboot.dayOfWeekSelect.indexOf(v) < 0 ? [] : [(i + 1) % 7]).sort((a, b) => a - b).reduce((s, d) => s += (s.length ? ':' : '') + d.toString() , '');
@@ -530,6 +607,10 @@
           }
           if(Object.keys(this.config).some(prop => (prop.search(/WEBHOOK/) === 0) && (this.config[prop] !== this.oldConfig[prop]))) {
             execCmds.push('setwebhook');
+          }
+          if((this.config.CRUISE !== this.oldConfig.CRUISE) ||
+             (this.config.CRUISE_LIST !== this.oldConfig.CRUISE_LIST)) {
+               execCmds.push('cruise restart');
           }
         }
         if(this.config.DIGEST !== this.oldConfig.DIGEST) execCmds.push('lighttpd');
