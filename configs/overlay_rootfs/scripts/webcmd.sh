@@ -50,6 +50,12 @@ EOF
     echo "$cmd $params OK" >> /var/run/webres
     cmd=""
   fi
+  if [ "$cmd" = "cruise" ]; then
+    kill -9 `pidof cruise.sh`
+    /scripts/cruise.sh &
+    echo "$cmd $params OK" >> /var/run/webres
+    cmd=""
+  fi
   if [ "$cmd" = "lighttpd" ]; then
     echo "$cmd OK" >> /var/run/webres
     sleep 3
