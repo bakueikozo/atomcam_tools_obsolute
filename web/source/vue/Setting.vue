@@ -100,6 +100,8 @@
       <SettingSchedule v-if="config.REBOOT === 'on'" v-model="reboot" @add="AddSchedule" @remove="DeleteSchedule(idx)" />
       <SettingDangerButton title="リブート" tooltip="再起動します" icon="el-icon-refresh-left" label="Reboot" @click="DoReboot" />
       <SettingDangerButton title="SD-Card消去" tooltip="SD-Cardの録画フォルダを消去します" icon="el-icon-folder-delete" label="Erase" @click="DoErase" />
+      <SettingSwitch title="カスタム更新ZIPファイル" tooltip="" v-model="config.CUSTOM_ZIP" />
+      <SettingInput v-if="config.CUSTOM_ZIP === 'on'" title="URL" :titleOffset="2" :span="10" tooltip="" type="text" v-model="config.CUSTOM_ZIP_URL" placeholder="https://github.com/mnakada/atomcam_tools/releases/latest/download/atomcam_tools.zip" />
       <SettingDangerButton title="Update" tooltip="このtoolのupdateをします" icon="el-icon-refresh" label="Update" :disabled="!updatable" @click="DoUpdate">
         <span class="latest" :class="{ 'latest-updatable': updatable }">
           Latest Version : Ver.{{ latestVer }}
@@ -190,6 +192,8 @@
           CRUISE: 'off',
           CRUISE_LIST: '',
           MINIMIZE_ALARM_CYCLE: 'off',
+          CUSTOM_ZIP: 'off',
+          CUSTOM_ZIP_URL: '',
         },
         loginAuth: 'off',
         loginAuth2: 'off',
@@ -240,6 +244,7 @@
         const ver = this.config.ATOMHACKVER.split('.');
         if(ver.length !== 3) return false;
         const latest = this.latestVer.split('.');
+        if(this.config.CUSTOM_ZIP === 'on' && this.config.CUSTOM_ZIP_URL !== '') return true;
         if(latest.length !== 3) return false;
         if(parseInt(ver[0]) < parseInt(latest[0])) return true;
         if(parseInt(ver[0]) > parseInt(latest[0])) return false;
@@ -583,7 +588,11 @@
             href = `http://${this.config.HOSTNAME}.local`;
           }
         }
-        if(this.config.MINIMIZE_ALARM_CYCLE !== this.oldConfig.MINIMIZE_ALARM_CYCLE) {
+        if(
+            this.config.MINIMIZE_ALARM_CYCLE !== this.oldConfig.MINIMIZE_ALARM_CYCLE
+            || this.config.CUSTOM_ZIP !== this.oldConfig.CUSTOM_ZIP
+            || this.config.CUSTOM_ZIP_URL !== this.oldConfig.CUSTOM_ZIP_URL
+        ) {
           execCmds.push(`reboot`);
           this.rebooting = true;
           this.rebootStart = new Date();
