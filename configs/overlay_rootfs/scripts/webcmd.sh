@@ -71,8 +71,13 @@ do
     cmd=""
   fi
   if [ "$cmd" = "update" ]; then
+    HACK_INI=/tmp/hack.ini
+    CUSTOM_ZIP_URL=$(awk -F "=" '/CUSTOM_ZIP_URL *=/ {print $2}' $HACK_INI)
+    if [ "$CUSTOM_ZIP_URL" = "" ]; then
+      CUSTOM_ZIP_URL="https://github.com/mnakada/atomcam_tools/releases/latest/download/atomcam_tools.zip"
+    fi
     mkdir -p /mnt/media/update
-    (cd /media/mmc/update; curl -sL -o - https://github.com/mnakada/atomcam_tools/releases/latest/download/atomcam_tools.zip | unzip - -o factory_t31_ZMC6tiIDQN rootfs_hack.ext2)
+    (cd /media/mmc/update; curl -H 'Cache-Control: no-cache, no-store' -sL -o - $CUSTOM_ZIP_URL | unzip - -o factory_t31_ZMC6tiIDQN rootfs_hack.ext2)
     echo "$cmd $params OK" >> /var/run/webres
     sleep 1
     killall -SIGUSR2 iCamera_app
