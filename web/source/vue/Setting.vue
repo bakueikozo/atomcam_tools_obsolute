@@ -94,6 +94,10 @@
         </div>
       </div>
 
+      <h3>モニタリング</h3>
+      <SettingSwitch title="Ping" tooltip="指定されたURLで疎通確認できるようにする" v-model="config.HEALTHCHECK" />
+      <SettingInput v-if="config.HEALTHCHECK === 'on'" title="通知URL" :titleOffset="2" :span="10" tooltip="指定されたURLに１分毎にhttp getする" type="text" v-model="config.HEALTHCHECK_PING_URL" />
+
       <h3>メンテナンス</h3>
       <SettingButton v-if="isSwing" title="Swing座標初期化" :titleOffset="2" :span="4" tooltip="Swingの座標を両側の端点当てで修正します" label="初期化" @click="MoveInit" />
       <SettingSwitch title="定期リスタート" tooltip="定期的に再起動する設定をします" v-model="config.REBOOT" />
@@ -190,6 +194,8 @@
           CRUISE: 'off',
           CRUISE_LIST: '',
           MINIMIZE_ALARM_CYCLE: 'off',
+          HEALTHCHECK: 'off',
+          HEALTHCHECK_PING_URL: '',
         },
         loginAuth: 'off',
         loginAuth2: 'off',
