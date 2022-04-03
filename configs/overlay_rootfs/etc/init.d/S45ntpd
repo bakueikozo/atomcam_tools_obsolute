@@ -10,12 +10,12 @@ case "$1" in
       do
         sleep 1
       done
-      while ! ping -c 1 time.google.com > /dev/null 2>&1
+      while ! ping -c 1 ntp.nict.jp > /dev/null 2>&1
       do
         sleep 1
       done
       logger -s "Starting ntpd: "
-      /usr/sbin/ntpd
+      /usr/sbin/ntpd -p ntp.nict.jp
       [ $? == 0 ] && logger -s "OK" || logger -s "FAIL"
     ) &
   ;;
