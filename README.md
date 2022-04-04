@@ -100,13 +100,17 @@ Qiitaに少し解説を書いています。
 
 https://github.com/mnakada/atomcam_tools/releases/latest
 
-からatomcam_tools.zipをダウンロードし、適当なツールで解凍します。  
+からatomcam_tools.zipをダウンロードし、適当なツールで解凍します。
 <img src="https://github.com/mnakada/atomcam_tools/blob/main/images/extract.png">
 
-解凍されて出てきたすべてのファイルを、ATOMCamで使用可能なmicroSDカードのルートフォルダに保存します  
-保存したmicroSDカードをATOMCamに入れて電源を入れます  
+解凍されて出てきたすべてのファイルを、ATOMCamで使用可能なmicroSDカードのルートフォルダに保存します 。
+保存したmicroSDカードをATOMCamに入れて電源を入れます。
 
+**SD-Cardはできるだけ高速な32GB以下のものをFAT-FSで使用してください。**
 
+AtomCamのu-bootがexFATに対応していないため、exFATだとhackが認識されず起動されません。
+
+また、メモリ不足をSD-Card上のswapで補っているため、遅いメディアだと負荷が高くなりすぎてうまく動かない事があります。（Class10以上を推奨）
 
 
 ## Web設定画面
@@ -366,6 +370,18 @@ WebHookを受け取るURLを指定します。今のところ実験的な実装�
 
 検知後の待機時間中も動体検知は働いて、待機時間の間検知しないと次のシーケンスに進みます。
 
+### モニタリング
+
+#### ping
+
+定期的な疎通確認を行います。
+
+#### 通知URL
+
+疎通確認をするURLを指定します。
+
+ここで指定したURLにhttp getを１分毎に行います。
+
 ### メンテナンス
 
 #### Swing座標初期化
@@ -397,6 +413,12 @@ SD-Cardにtoolが入っているため、アプリからのSD-Cardのフォー�
 その代替手段として用意しています。
 
 Lockスイッチを解除してからEraseボタンを押してください。
+
+#### カスタム更新ZIPファイル
+
+Updateの更新ZIPファイルを指定のURLから取得します。
+
+独自のpackage buildをする場合の用途になります。
 
 #### Update
 
