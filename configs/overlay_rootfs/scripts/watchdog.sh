@@ -1,15 +1,15 @@
 #!/bin/sh
 
 HACK_INI=/tmp/hack.ini
-echo `TZ=JST-9 date +"%Y/%m/%d %H:%M:%S"` ": Reboot & Start watchdog" >> /media/mmc/atomhack.log
+echo $(TZ=JST-9 date +"%Y/%m/%d %H:%M:%S") ": Reboot & Start watchdog" >> /media/mmc/atomhack.log
 
+router=`ip route | awk '/default/ { print $3 }'`
 count=0
 wifi_error=0
 while sleep 20 ; do
-  let count++
+  count++
 
   # wifi
-  router=`ip route | awk '/default/ { print $3 }'`
   if ping -c 1 $router > /dev/null ; then
     wifi_error=0
 
@@ -20,10 +20,10 @@ while sleep 20 ; do
 
       HEALTHCHECK=$(awk -F "=" '/HEALTHCHECK *=/ {print $2}' $HACK_INI)
       HEALTHCHECK_PING_URL=$(awk -F "=" '/HEALTHCHECK_PING_URL *=/ {print $2}' $HACK_INI)
-      [ "$HEALTHCHECK" == "on" ] && [ "$HEALTHCHECK_PING_URL" != "" ] && echo `TZ=JST-9 date +"%Y/%m/%d %H:%M:%S"` >> /media/mmc/healthcheck.log && curl -fsS -m 10 --retry 5 $HEALTHCHECK_PING_URL >> /media/mmc/healthcheck.log
+      [ "$HEALTHCHECK" == "on" ] && [ "$HEALTHCHECK_PING_URL" != "" ] && echo $(TZ=JST-9 date +"%Y/%m/%d %H:%M:%S") >> /media/mmc/healthcheck.log && curl -fsS -m 10 --retry 5 $HEALTHCHECK_PING_URL >> /media/mmc/healthcheck.log
     fi
   else
-    let wifi_error++
+    wifi_error++
   fi
 
   if [ $wifi_error -ge 3 ]; then
