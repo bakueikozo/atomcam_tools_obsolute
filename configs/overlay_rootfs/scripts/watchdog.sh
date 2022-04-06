@@ -20,7 +20,7 @@ while sleep 20 ; do
 
       HEALTHCHECK=$(awk -F "=" '/HEALTHCHECK *=/ {print $2}' $HACK_INI)
       HEALTHCHECK_PING_URL=$(awk -F "=" '/HEALTHCHECK_PING_URL *=/ {print $2}' $HACK_INI)
-      [ "$HEALTHCHECK" == "on" ] && [ "$HEALTHCHECK_PING_URL" != "" ] && echo `TZ=JST-9 date +"%Y/%m/%d %H:%M:%S"` >> /media/mmc/healthcheck.log && curl -fsS -m 10 --retry 5 -o /dev/null $HEALTHCHECK_PING_URL
+      [ "$HEALTHCHECK" == "on" ] && [ "$HEALTHCHECK_PING_URL" != "" ] && echo `TZ=JST-9 date +"%Y/%m/%d %H:%M:%S"` >> /media/mmc/healthcheck.log && curl -fsS -m 10 --retry 5 $HEALTHCHECK_PING_URL >> /media/mmc/healthcheck.log
     fi
   else
     let wifi_error++
