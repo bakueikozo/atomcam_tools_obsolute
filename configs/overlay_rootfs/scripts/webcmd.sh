@@ -78,7 +78,7 @@ do
       ZIP_URL="https://github.com/mnakada/atomcam_tools/releases/latest/download/atomcam_tools.zip"
     fi
     mkdir -p /media/mmc/update
-    (cd /media/mmc/update; curl -H 'Cache-Control: no-cache, no-store' -sL -o atomcam_tools.zip $ZIP_URL)
+    (cd /media/mmc/update; curl -H 'Cache-Control: no-cache, no-store' -sL -o - $ZIP_URL | unzip - -o factory_t31_ZMC6tiIDQN rootfs_hack.ext2)
     echo "$cmd $params OK" >> /var/run/webres
     sleep 1
     killall -SIGUSR2 iCamera_app
