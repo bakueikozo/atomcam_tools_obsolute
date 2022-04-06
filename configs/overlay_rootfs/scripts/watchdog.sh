@@ -14,14 +14,14 @@ while sleep 20 ; do
     wifi_error=0
 
     # process check 1min interval
-      if [ `expr $count % 3` -eq 0 ]; then
-        /scripts/lighttpd.sh watchdog >> /media/mmc/atomhack.log
-        /scripts/rtspserver.sh watchdog >> /media/mmc/atomhack.log
+    if [ `expr $count % 3` -eq 0 ]; then
+      /scripts/lighttpd.sh watchdog >> /media/mmc/atomhack.log
+      /scripts/rtspserver.sh watchdog >> /media/mmc/atomhack.log
 
-        HEALTHCHECK=$(awk -F "=" '/HEALTHCHECK *=/ {print $2}' $HACK_INI)
-        HEALTHCHECK_PING_URL=$(awk -F "=" '/HEALTHCHECK_PING_URL *=/ {print $2}' $HACK_INI)
-        [ "$HEALTHCHECK" == "on" ] && [ "$HEALTHCHECK_PING_URL" != "" ] && echo $(date) >> /media/mmc/healthcheck.log && curl -fsS -m 10 --retry 5 -o /dev/null $HEALTHCHECK_PING_URL
-      fi
+      HEALTHCHECK=$(awk -F "=" '/HEALTHCHECK *=/ {print $2}' $HACK_INI)
+      HEALTHCHECK_PING_URL=$(awk -F "=" '/HEALTHCHECK_PING_URL *=/ {print $2}' $HACK_INI)
+      [ "$HEALTHCHECK" == "on" ] && [ "$HEALTHCHECK_PING_URL" != "" ] && echo `TZ=JST-9 date +"%Y/%m/%d %H:%M:%S"` >> /media/mmc/healthcheck.log && curl -fsS -m 10 --retry 5 -o /dev/null $HEALTHCHECK_PING_URL
+    fi
   else
     let wifi_error++
   fi
