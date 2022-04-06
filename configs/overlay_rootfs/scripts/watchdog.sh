@@ -3,13 +3,13 @@
 HACK_INI=/tmp/hack.ini
 echo `TZ=JST-9 date +"%Y/%m/%d %H:%M:%S"` ": Reboot & Start watchdog" >> /media/mmc/atomhack.log
 
-router=`ip route | awk '/default/ { print $3 }'`
 count=0
 wifi_error=0
 while sleep 20 ; do
   let count++
 
   # wifi
+  router=`ip route | awk '/default/ { print $3 }'`
   if ping -c 1 $router > /dev/null ; then
     wifi_error=0
 
