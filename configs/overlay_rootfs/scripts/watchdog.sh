@@ -20,14 +20,14 @@ while sleep 20 ; do
 
       HEALTHCHECK=$(awk -F "=" '/HEALTHCHECK *=/ {print $2}' $HACK_INI)
       HEALTHCHECK_PING_URL=$(awk -F "=" '/HEALTHCHECK_PING_URL *=/ {print $2}' $HACK_INI)
-      [ "$HEALTHCHECK" == "on" ] && [ "$HEALTHCHECK_PING_URL" != "" ] && echo $(TZ=JST-9 date +"%Y/%m/%d %H:%M:%S") >> /media/mmc/healthcheck.log && curl -fsS -m 10 --retry 5 $HEALTHCHECK_PING_URL >> /media/mmc/healthcheck.log
+      [ "$HEALTHCHECK" == "on" ] && [ "$HEALTHCHECK_PING_URL" != "" ] && echo $(TZ=JST-9 date +"%Y/%m/%d %H:%M:%S : ") `curl -fsS -m 10 --retry 5 $HEALTHCHECK_PING_URL` >> /media/mmc/healthcheck.log
     fi
   else
     let wifi_error++
   fi
 
   if [ $wifi_error -ge 3 ]; then
-    echo "WiFi restart" >> /media/mmc/atomhack.log
+    echo $(TZ=JST-9 date +"%Y/%m/%d %H:%M:%S : WiFi restart") >> /media/mmc/atomhack.log
     ifconfig wlan0 down
     ifconfig wlan0 up
     wifi_error=0
