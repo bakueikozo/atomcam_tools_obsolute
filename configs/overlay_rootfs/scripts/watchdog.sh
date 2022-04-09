@@ -30,6 +30,7 @@ while sleep 20 ; do
     echo $(TZ=JST-9 date +"%Y/%m/%d %H:%M:%S : WiFi restart") >> /media/mmc/atomhack.log
     ifconfig wlan0 down
     ifconfig wlan0 up
+    killall -USR1 udhcpc || udhcpc -i wlan0 -p /var/run/udhcpc.pid
     wifi_error=0
   fi
 
