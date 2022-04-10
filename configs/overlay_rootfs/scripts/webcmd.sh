@@ -18,7 +18,7 @@ do
     reboot
     cmd=""
   fi
-  if [ "$cmd" = "scheduleReboot" ]; then
+  if [ "$cmd" = "setCron" ]; then
     /scripts/set_crontab.sh
   fi
   if [ "$cmd" = "setwebhook" ]; then

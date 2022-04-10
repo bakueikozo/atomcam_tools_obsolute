@@ -1,6 +1,5 @@
 #!/bin/sh
 
-HACK_INI=/tmp/hack.ini
 echo $(TZ=JST-9 date +"%Y/%m/%d %H:%M:%S") ": Reboot & Start watchdog" >> /media/mmc/atomhack.log
 
 router=`ip route | awk '/default/ { print $3 }'`
@@ -17,10 +16,6 @@ while sleep 20 ; do
     if [ `expr $count % 3` -eq 0 ]; then
       /scripts/lighttpd.sh watchdog >> /media/mmc/atomhack.log
       /scripts/rtspserver.sh watchdog >> /media/mmc/atomhack.log
-
-      HEALTHCHECK=$(awk -F "=" '/HEALTHCHECK *=/ {print $2}' $HACK_INI)
-      HEALTHCHECK_PING_URL=$(awk -F "=" '/HEALTHCHECK_PING_URL *=/ {print $2}' $HACK_INI)
-      [ "$HEALTHCHECK" == "on" ] && [ "$HEALTHCHECK_PING_URL" != "" ] && echo $(TZ=JST-9 date +"%Y/%m/%d %H:%M:%S : ") `curl -fsS -m 10 --retry 5 $HEALTHCHECK_PING_URL` >> /media/mmc/healthcheck.log
     fi
   else
     let wifi_error++

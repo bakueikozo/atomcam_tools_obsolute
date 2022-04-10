@@ -512,6 +512,7 @@
         this.executing = false;
       },
       async DoUpdate() {
+        this.Submit();
         this.rebootTime = 180;
         this.rebooting = true;
         this.rebootStart = new Date();
@@ -585,8 +586,9 @@
 
         const execCmds = [];
         let href = null;
-        if(this.config.REBOOT_SCHEDULE !== this.oldConfig.REBOOT_SCHEDULE) {
-          execCmds.push(`scheduleReboot ${this.config.REBOOT_SCHEDULE}`);
+        if((this.config.REBOOT_SCHEDULE !== this.oldConfig.REBOOT_SCHEDULE) ||
+           (this.config.HEALTHCHECK !== this.oldConfig.HEALTHCHECK)) {
+          execCmds.push('setCron');
         }
         if(this.config.HOSTNAME !== this.oldConfig.HOSTNAME) {
           execCmds.push(`hostname ${this.config.HOSTNAME}`);
