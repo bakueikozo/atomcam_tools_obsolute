@@ -12,4 +12,8 @@ BEGIN {
   gsub(/:/,",", $2);
   printf("%s /scripts/reboot.sh\n", $2);
 }
+
+/HEALTHCHECK *=/ {
+  if($2 == "on") printf("* * * * * /scripts/health_check.sh\n");
+}
 ' $HACK_INI | crontab -
