@@ -112,7 +112,7 @@
 
       <SettingSwitch title="カスタムアップデート" tooltip="localでカスタム更新ZIPを作成して運用できます" v-model="config.CUSTOM_ZIP" />
       <SettingInput v-if="config.CUSTOM_ZIP === 'on'" title="URL" :titleOffset="2" :span="10" tooltip="カスタム更新ZIPファイルの読み込みURLを指定します" type="text" v-model="config.CUSTOM_ZIP_URL" placeholder="https://github.com/mnakada/atomcam_tools/releases/latest/download/atomcam_tools.zip" />
-      <SettingDangerButton v-if="config.CUSTOM_ZIP === 'on'" icon="el-icon-refresh" label="Custom Update" :disabled="config.CUSTOM_ZIP_URL === ''" @click="DoCustomUpdate" />
+      <SettingDangerButton v-if="config.CUSTOM_ZIP === 'on'" icon="el-icon-refresh" label="Custom Update" :disabled="config.CUSTOM_ZIP_URL === ''" @click="DoUpdate" />
     </div>
     <ElRow class="submit">
       <ElCol :offset="20" :span="4">
@@ -514,7 +514,7 @@
         this.executing = false;
       },
       async DoUpdate() {
-        this.Submit();
+        await this.Submit();
         this.rebootTime = 180;
         this.rebooting = true;
         this.rebootStart = new Date();
@@ -522,10 +522,6 @@
         await this.Exec('update');
         this.rebootStart = new Date();
         this.rebootStart.setSeconds(this.rebootStart.getSeconds() + 30);
-      },
-      async DoCustomUpdate() {
-        await this.Submit();
-        await this.DoUpdate();
       },
       async Submit() {
         if((this.loginAuth === 'on') && this.account.length) {
