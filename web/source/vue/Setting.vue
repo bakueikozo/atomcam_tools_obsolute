@@ -104,15 +104,13 @@
       <SettingSchedule v-if="config.REBOOT === 'on'" v-model="reboot" @add="AddSchedule" @remove="DeleteSchedule(idx)" />
       <SettingDangerButton title="リブート" tooltip="再起動します" icon="el-icon-refresh-left" label="Reboot" @click="DoReboot" />
       <SettingDangerButton title="SD-Card消去" tooltip="SD-Cardの録画フォルダを消去します" icon="el-icon-folder-delete" label="Erase" @click="DoErase" />
-      <SettingDangerButton title="公式アップデート" tooltip="このtoolのupdateをします" icon="el-icon-refresh" label="Official Update" :disabled="!updatable" @click="DoUpdate">
+      <SettingSwitch title="カスタム更新ZIPファイル" tooltip="localでカスタム更新ZIPを作成して運用できます" v-model="config.CUSTOM_ZIP" />
+      <SettingInput v-if="config.CUSTOM_ZIP === 'on'" title="URL" :titleOffset="2" :span="10" tooltip="カスタム更新ZIPファイルの読み込みURLを指定します" type="text" v-model="config.CUSTOM_ZIP_URL" placeholder="https://github.com/mnakada/atomcam_tools/releases/latest/download/atomcam_tools.zip" />
+      <SettingDangerButton title="Update" tooltip="このtoolのupdateをします" icon="el-icon-refresh" label="Update" :disabled="!updatable" @click="DoUpdate">
         <span class="latest" :class="{ 'latest-updatable': updatable }">
           Latest Version : Ver.{{ latestVer }}
         </span>
       </SettingDangerButton>
-
-      <SettingSwitch title="カスタムアップデート" tooltip="localでカスタム更新ZIPを作成して運用できます" v-model="config.CUSTOM_ZIP" />
-      <SettingInput v-if="config.CUSTOM_ZIP === 'on'" title="URL" :titleOffset="2" :span="10" tooltip="カスタム更新ZIPファイルの読み込みURLを指定します" type="text" v-model="config.CUSTOM_ZIP_URL" placeholder="https://github.com/mnakada/atomcam_tools/releases/latest/download/atomcam_tools.zip" />
-      <SettingDangerButton v-if="config.CUSTOM_ZIP === 'on'" icon="el-icon-refresh" label="Custom Update" :disabled="config.CUSTOM_ZIP_URL === ''" @click="DoUpdate" />
     </div>
     <ElRow class="submit">
       <ElCol :offset="20" :span="4">
