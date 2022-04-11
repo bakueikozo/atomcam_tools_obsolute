@@ -512,7 +512,7 @@
         this.executing = false;
       },
       async DoUpdate() {
-        this.Submit();
+        await this.Submit();
         this.rebootTime = 180;
         this.rebooting = true;
         this.rebootStart = new Date();
