@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if ! docker ps | grep atomcam_tools_builder_1 ; then
+if ! docker-compose ps | grep builder ; then
   docker-compose up -d
 fi
 docker-compose exec builder /src/buildscripts/build_all rebuild
