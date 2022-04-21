@@ -20,8 +20,9 @@ if [ $RES -eq 0 ] ; then
   retry=0
   [ -f /tmp/healthcheck.retry_count ] && retry=`cat /tmp/healthcheck.retry_count`
   let retry++
+  echo $(TZ=JST-9 date +"%Y/%m/%d %H:%M:%S : retry : ") $retry >> /media/mmc/healthcheck.log
   if [ $retry -ge 3 ] ; then
-    echo $(TZ=JST-9 date +"%Y/%m/%d %H:%M:%S : WiFi restart") >> /media/mmc/atomhack.log
+    echo $(TZ=JST-9 date +"%Y/%m/%d %H:%M:%S : WiFi restart") >> /media/mmc/healthcheck.log
     ifconfig wlan0 down
     ifconfig wlan0 up
     killall -USR1 udhcpc || udhcpc -i wlan0 -p /var/run/udhcpc.pid
