@@ -5,7 +5,13 @@
 touch /tmp/healthcheck.lock
 
 RES=1
-ping -c 1 `cat /tmp/router_address` > /dev/null || RES=0
+ROUTER=`cat /tmp/router_address`
+if [ "$ROUTER" = "" ]; then
+  ip route | awk '/default/ { print $3 }' > /tmp/router_address
+  ROUTER=`cat /tmp/router_address`
+fi
+[ "$ROUTER" != "" ] && ping -c 1 $ROUTER > /dev/null || RES=0
+
 if [ $RES -eq 1 ] ; then
   HACK_INI=/tmp/hack.ini
   HEALTHCHECK=$(awk -F "=" '/HEALTHCHECK *=/ {print $2}' $HACK_INI)

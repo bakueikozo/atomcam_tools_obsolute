@@ -2,8 +2,7 @@
 
 HACK_INI=/tmp/hack.ini
 mkdir -p /tmp/log
-touch /tmp/log/atom.log
-tail -F /tmp/log/atom.log | TZ=JST-9 awk '
+TZ=JST-9 awk '
 BEGIN {
   FS = "=";
   while(getline < HACK_INI) {
@@ -13,6 +12,7 @@ BEGIN {
 }
 
 {
+  print >> "/tmp/log/atom.log";
   if(ENV["WEBHOOK"] != "on") next;
   if(ENV["WEBHOOK_URL"] == "") next;
 }
@@ -45,4 +45,4 @@ function Post(event, data) {
     system("curl -X POST -m 3 -H \x27Content-Type: application/json\x27 -d \x27{\"type\":\"" event "\", \"device\":\"" HOSTNAME "\", \"data\":" data "}\x27 " ENV["WEBHOOK_URL"] " > /dev/null 2>&1");
   }
 }
-' -v HACK_INI=$HACK_INI
+' -v HACK_INI=$HACK_INI /var/run/atomapp

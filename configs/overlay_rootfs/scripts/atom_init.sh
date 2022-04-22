@@ -71,12 +71,12 @@ fi
 grep '^RTSP_SWITCH=[^2]$' /configs/.rtsp_config && rm /configs/.rtsp_config
 
 /system/bin/ver-comp
-/system/bin/assis >> /tmp/log/assis.log 2>&1 &
+/system/bin/assis >> /dev/null 2>&1 &
 
 [ "ATOM_CAKP1JZJP" = "$PRODUCT_MODEL" ] && insmod /system/driver/sample_motor.ko vstep_offset=0 hmaxstep=2130 vmaxstep=1580
 
-/system/bin/hl_client >> /tmp/log/hl_client.log 2>&1 &
+/system/bin/hl_client >> /dev/null 2>&1 &
 
-LD_PRELOAD=/tmp/system/lib/modules/libcallback.so /system/bin/iCamera_app >> /tmp/log/atom.log 2>&1 &
+LD_PRELOAD=/tmp/system/lib/modules/libcallback.so /system/bin/iCamera_app >> /var/run/atomapp &
 
-[ "AC1" = "$PRODUCT_MODEL" ] && /system/bin/dongle_app >> /tmp/log/dongle.log &
+[ "AC1" = "$PRODUCT_MODEL" -o "ATOM_CamV3C" = "$PRODUCT_MODEL" ] && /system/bin/dongle_app >> /dev/null &

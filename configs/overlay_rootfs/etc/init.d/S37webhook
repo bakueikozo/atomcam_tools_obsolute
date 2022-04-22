@@ -1,16 +1,15 @@
 #!/bin/sh
 #
-# Start webcmd for atomcam
+# Start webhook for atomcam
 #
 
 case "$1" in
   start)
-    /scripts/webcmd.sh &
-    /scripts/cruise.sh &
+    mkfifo /var/run/atomapp
+    /scripts/webhook.sh &
   ;;
   stop)
-    kill `pidof webcmd.sh`
-    kill `pidof cruise.sh`
+    kill `pidof webhook.sh`
   ;;
   restart|reload)
     $0 stop
