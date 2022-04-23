@@ -57,10 +57,6 @@ elif [ "0x424c" = "$VENDERID" ]; then
 fi
 
 rm -rf /media/mmc/.Trashes
-mkdir -p /tmp/app
-touch /tmp/resolv.conf
-mkdir -p /tmp/log
-chmod 777 /tmp/log
 
 if [ "on" = "$MINIMIZE_ALARM_CYCLE" ]; then
   grep '^alarmInterval=30$' /configs/.user_config || sed -i.old -e 's/^alarmInterval=.*$/alarmInterval=30/' /configs/.user_config
