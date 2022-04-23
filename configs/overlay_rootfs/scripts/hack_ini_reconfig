@@ -25,3 +25,8 @@ echo "STORAGE_CIFS_PATH=${RECORDING_PATH}" >> ${HACK_INI}_new
 mv -f ${HACK_INI}_new ${HACK_INI}
 cp ${HACK_INI} /tmp/hack.ini
 chmod 666 /tmp/hack.ini
+
+for i in `ls /media/mmc/atomhack.log.? /media/mmc/healthcheck.log.? 2> /dev/null`
+do
+  gzip $i
+done
