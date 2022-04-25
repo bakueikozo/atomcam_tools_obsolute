@@ -9,10 +9,25 @@ BEGIN {
     ENV[$1]=$2;
   }
   "hostname" | getline HOSTNAME;
+  lastTimestamp = 0;
+  logDisable = 0;
 }
 
 {
-  print >> "/tmp/log/atom.log";
+  timestamp = systime();
+  logLength += length($0);
+  if(timestamp != lastTimestamp) {
+    if(logLength / (timestamp - lastTimestamp) < 1024) {
+      logDisable = 0;
+    } else {
+      logDisable = 1;
+      time = strftime("%Y/%m/%d %H:%M:%S", timestamp);
+      printf("%s : --- Logging is suspended ---\n", time) >> "/tmp/log/atom.log";
+    }
+    logLength = 0;
+    lastTimestamp = timestamp;
+  }
+  if(!logDisable) print >> "/tmp/log/atom.log";
   if(ENV["WEBHOOK"] != "on") next;
   if(ENV["WEBHOOK_URL"] == "") next;
 }

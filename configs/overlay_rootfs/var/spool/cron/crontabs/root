@@ -1,0 +1,8 @@
+*/15 * * * * /usr/sbin/logrotate /etc/logrotate.conf
+0 * * * * /scripts/remove_old.sh
+0 * * * * /scripts/memory_check.sh
+* * * * * /scripts/health_check.sh
+* * * * * /scripts/lighttpd.sh watchdog >> /media/mmc/atomhack.log
+* * * * * /scripts/rtspserver.sh watchdog >> /media/mmc/atomhack.log
+0 2 * * 0 /scripts/reboot.sh
+
