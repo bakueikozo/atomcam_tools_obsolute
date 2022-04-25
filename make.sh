@@ -1,7 +1,7 @@
 #!/bin/sh
 
-if docker ps | grep atomcam_tools_builder_1 ; then
-  docker stop atomcam_tools_builder_1
+if docker-compose ps | grep builder ; then
+  docker-compose down --rmi all
 fi
 docker-compose up -d
 docker-compose exec builder /src/buildscripts/build_all new
