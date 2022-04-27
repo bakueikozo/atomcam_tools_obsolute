@@ -70,7 +70,7 @@ else
 fi
 
 if [ "$FMT" != "" ]; then
-  TMPFILE="/tmp/`cat /proc/sys/kernel/random/uuid`"
+  TMPFILE="/tmp/mv_`cat /proc/sys/kernel/random/uuid`"
   mv $1 $TMPFILE
   (
     if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "record" ] && /tmp/system/bin/mount_cifs ; then
@@ -82,7 +82,7 @@ if [ "$FMT" != "" ]; then
     fi
 
     if [ "$STORAGE_SDCARD" = "on" -o "$STORAGE_SDCARD" = "record" ]; then
-      /bin/busybox mv $TMPFILE $2
+      /bin/busybox mv $TMPFILE $2 || /bin/busybox rm $TMPFILE
     else
       /bin/busybox rm $TMPFILE
       LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/find_libc /media/mmc/record -depth -type d -empty -delete
