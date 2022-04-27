@@ -21,7 +21,7 @@ while : ; do
   for str in $CRUISE_LIST ; do
     cmd=${str%% *}
     param=${str#* }
-    echo `TZ=JST-9 date +"%Y/%m/%d %H:%M:%S"` : $cmd :  $param
+    echo `date +"%Y/%m/%d %H:%M:%S"` : $cmd :  $param
     if [ "$cmd" = "move" ] ; then
       echo "$cmd $param" | /usr/bin/nc localhost 4000
     fi

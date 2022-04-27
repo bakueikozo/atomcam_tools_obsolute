@@ -8,7 +8,7 @@ if [ "$1" = "off" -o "$1" = "restart" ]; then
   while pidof v4l2rtspserver > /dev/null ; do
     sleep 0.5
   done
-  echo `TZ=JST-9 date +"%Y/%m/%d %H:%M:%S"` ": v4l2rtspserver stop"
+  echo `date +"%Y/%m/%d %H:%M:%S"` ": v4l2rtspserver stop"
 fi
 
 HACK_INI=/tmp/hack.ini
@@ -28,7 +28,7 @@ if [ "$1" = "on" -o "$1" = "restart" -o "$1" = "watchdog" -o "$RTSPSERVER" = "on
     while netstat -ltn 2> /dev/null | egrep ":(8554|8080)"; do
       sleep 0.5
     done
-    echo `TZ=JST-9 date +"%Y/%m/%d %H:%M:%S"` ": v4l2rtspserever start"
+    echo `date +"%Y/%m/%d %H:%M:%S"` ": v4l2rtspserever start"
     if [ "$RTSP_OVER_HTTP" = "on" ] ; then
       /usr/bin/v4l2rtspserver -p 8080 -C 1 -a S16_LE -l 0 /dev/video1,hw:Loopback,0 >> /tmp/log/rtspserver.log 2>&1 &
     else

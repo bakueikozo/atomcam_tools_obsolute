@@ -13,7 +13,7 @@ if [ "$REQUEST_METHOD" = "GET" ]; then
     echo LATESTVER=${latest}
   fi
   if [ "$NAME" = "" -o "$NAME" = "time" ] ; then
-    echo TIMESTAMP=`TZ=JST-9 date +"%Y/%m/%d %X"`
+    echo TIMESTAMP=`date +"%Y/%m/%d %X"`
   fi
   if [ "$NAME" = "" -o "$NAME" = "move" ] ; then
     echo MOTORPOS=`echo move | nc localhost:4000`
