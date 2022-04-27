@@ -2,7 +2,7 @@
 
 HACK_INI=/tmp/hack.ini
 mkdir -p /tmp/log
-TZ=JST-9 awk '
+awk '
 BEGIN {
   FS = "=";
   while(getline < HACK_INI) {

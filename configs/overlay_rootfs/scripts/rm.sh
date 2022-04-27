@@ -26,7 +26,7 @@ WEBHOOK_ALARM_VIDEO_FINISH=$(awk -F "=" '/WEBHOOK_ALARM_VIDEO_FINISH *=/ {print 
 HOSTNAME=`hostname`
 
 if [ "$RECORDING_LOCAL_SCHEDULE" = "on" ]; then
-  FMT=`TZ=JST-9 awk '
+  FMT=`awk '
     BEGIN {
       FS = "=";
       INDEX=-1;
@@ -73,7 +73,7 @@ if [ "$RECORDING_LOCAL_SCHEDULE" = "on" ]; then
     }
   ' /media/mmc/local_schedule`
 else
-  FMT=`TZ=JST-9 date +"%Y%m%d_%H%M%S"`
+  FMT=`date +"%Y%m%d_%H%M%S"`
 fi
 
 if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
@@ -92,14 +92,14 @@ if [ "$FMT" != "" ] && [ "$RECORDING_ALARM" = "on" ]; then
   mv $FILE $TMPFILE
   (
     if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "alarm" ] && /tmp/system/bin/mount_cifs ; then
-      OUTFILE=`TZ=JST-9 date +"/mnt/$HOSTNAME/alarm_record/$STORAGE_CIFS_PATH.${FILE##*.}"`
+      OUTFILE=`date +"/mnt/$HOSTNAME/alarm_record/$STORAGE_CIFS_PATH.${FILE##*.}"`
       DIR_PATH=${OUTFILE%/*}
       mkdir -p $DIR_PATH
       cp $TMPFILE $OUTFILE
     fi
 
     if [ "$STORAGE_SDCARD" = "on" -o "$STORAGE_SDCARD" = "alarm" ]; then
-      OUTFILE=`TZ=JST-9 date +"/media/mmc/alarm_record/$STORAGE_SDCARD_PATH.${FILE##*.}"`
+      OUTFILE=`date +"/media/mmc/alarm_record/$STORAGE_SDCARD_PATH.${FILE##*.}"`
       DIR_PATH=${OUTFILE%/*}
       mkdir -p $DIR_PATH
       /bin/busybox mv $TMPFILE $OUTFILE || /bin/busybox rm $TMPFILE

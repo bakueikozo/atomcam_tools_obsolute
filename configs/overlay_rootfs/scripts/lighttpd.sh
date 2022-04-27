@@ -2,7 +2,7 @@
 
 if [ "$1" = "off" ]; then
   kill `pidof lighttpd` > /dev/null 2>&1
-  echo `TZ=JST-9 date +"%Y/%m/%d %H:%M:%S"` ": lighttpd stop"
+  echo `date +"%Y/%m/%d %H:%M:%S"` ": lighttpd stop"
   exit 0
 fi
 
@@ -27,5 +27,5 @@ if [ "$1" = "restart" ]; then
   done
 fi
 
-echo `TZ=JST-9 date +"%Y/%m/%d %H:%M:%S"` ": lighttpd start"
+echo `date +"%Y/%m/%d %H:%M:%S"` ": lighttpd start"
 /usr/sbin/lighttpd -f /etc/lighttpd/lighttpd.conf

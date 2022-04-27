@@ -19,7 +19,7 @@ WEBHOOK_RECORD_EVENT=$(awk -F "=" '/WEBHOOK_RECORD_EVENT *=/ {print $2}' $HACK_I
 HOSTNAME=`hostname`
 
 if [ "$RECORDING_LOCAL_SCHEDULE" = "on" ]; then
-  FMT=`TZ=JST-9 awk '
+  FMT=`awk '
     BEGIN {
       FS = "=";
       INDEX=-1;
@@ -66,7 +66,7 @@ if [ "$RECORDING_LOCAL_SCHEDULE" = "on" ]; then
     }
   ' /media/mmc/local_schedule`
 else
-  FMT=`TZ=JST-9 date +"%Y%m%d_%H%M%S"`
+  FMT=`date +"%Y%m%d_%H%M%S"`
 fi
 
 if [ "$FMT" != "" ]; then
@@ -75,7 +75,7 @@ if [ "$FMT" != "" ]; then
   (
     if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "record" ] && /tmp/system/bin/mount_cifs ; then
       TIME=`echo $2 | sed -e 's|^/media/mmc/record/||' -e 's|/||g' -e 's|.mp4$||'`
-      OUTFILE=`TZ=JST-9 date -d $TIME +"/mnt/$HOSTNAME/record/$STORAGE_CIFS_PATH.mp4"`
+      OUTFILE=`date -d $TIME +"/mnt/$HOSTNAME/record/$STORAGE_CIFS_PATH.mp4"`
       DIR_PATH=${OUTFILE%/*}
       mkdir -p $DIR_PATH
       cp $TMPFILE $OUTFILE
