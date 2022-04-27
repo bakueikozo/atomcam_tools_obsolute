@@ -88,7 +88,7 @@ if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
 fi
 
 if [ "$FMT" != "" ] && [ "$RECORDING_ALARM" = "on" ]; then
-  TMPFILE="/tmp/`cat /proc/sys/kernel/random/uuid`"
+  TMPFILE="/tmp/rm_`cat /proc/sys/kernel/random/uuid`"
   mv $FILE $TMPFILE
   (
     if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "alarm" ] && /tmp/system/bin/mount_cifs ; then
@@ -102,7 +102,7 @@ if [ "$FMT" != "" ] && [ "$RECORDING_ALARM" = "on" ]; then
       OUTFILE=`TZ=JST-9 date +"/media/mmc/alarm_record/$STORAGE_SDCARD_PATH.${FILE##*.}"`
       DIR_PATH=${OUTFILE%/*}
       mkdir -p $DIR_PATH
-      /bin/busybox mv $TMPFILE $OUTFILE
+      /bin/busybox mv $TMPFILE $OUTFILE || /bin/busybox rm $TMPFILE
     else
       /bin/busybox rm $TMPFILE
     fi
