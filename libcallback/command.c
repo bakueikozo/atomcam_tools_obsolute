@@ -19,6 +19,7 @@ extern char *VideoCapture(int fd, char *tokenPtr);
 extern char *AudioCapture(int fd, char *tokenPtr);
 extern char *MotorMove(int fd, char *tokenPtr);
 extern char *WaitMotion(int fd, char *tokenPtr);
+extern char *IrLed(int fd, char *tokenPtr);
 
 struct CommandTableSt {
   const char *cmd;
@@ -31,6 +32,7 @@ struct CommandTableSt CommandTable[] = {
   { "jpeg",       &JpegCapture },
   { "move",       &MotorMove },
   { "waitMotion", &WaitMotion },
+  { "irled",      &IrLed },
 };
 
 void CommandResponse(int fd, const char *res) {
