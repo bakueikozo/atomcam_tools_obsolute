@@ -111,12 +111,11 @@
       </SettingDangerButton>
       <SettingSwitch title="カスタム更新ZIPファイル" tooltip="localでカスタム更新ZIPを作成して運用できます" v-model="config.CUSTOM_ZIP" />
       <SettingInput v-if="config.CUSTOM_ZIP === 'on'" title="URL" :titleOffset="2" :span="10" tooltip="カスタム更新ZIPファイルの読み込みURLを指定します" type="text" v-model="config.CUSTOM_ZIP_URL" placeholder="https://github.com/mnakada/atomcam_tools/releases/latest/download/atomcam_tools.zip" />
+      <div class="bottom-padding" />
     </div>
-    <ElRow class="submit">
-      <ElCol :offset="20" :span="4">
-        <ElButton @click="Submit" type="primary" :disabled="stillFullView">設定</ElButton>
-      </ElCol>
-    </ElRow>
+    <div class="submit">
+      <ElButton @click="Submit" type="primary" :disabled="stillFullView">設定</ElButton>
+    </div>
     <ElDrawer title="設定中" :visible.sync="executing" direction="btt" :show-close="false" :wrapperClosable="false">
       <h4 class="comment">設定変更中。暫くお待ち下さい。</h4>
     </ElDrawer>
@@ -238,7 +237,7 @@
         return this.stillFullView ? 500 : 1000;
       },
       imageFrameStyle() {
-        return this.stillFullView ? { right: '10px', width: '98%' } : { right: '30px', width: '30%' };
+        return this.stillFullView ? { right: '10px', width: '98vw', height: '55.125vw' } : { right: '30px', width: '30vw', height: '16.875vw' };
       },
       storage_sdcard() {
         return this.storage_sdcard_record || this.storage_sdcard_alarm;
@@ -693,7 +692,7 @@
   }
 
   .container {
-    height: calc(100vh - 160px);
+    height: calc(100vh - 200px);
     margin: 10px 20px 5px 20px;
     overflow-x: hidden;
     overflow-y: scroll;
@@ -737,7 +736,9 @@
     text-decoration: none;
   }
   .submit {
-    margin: 20px 0 20px 0;
+    position: fixed;
+    bottom: 75px;
+    right: 100px;
   }
   .comment {
     width: 100%;
@@ -752,5 +753,8 @@
     color: 'red';
     font-size: 1.2em;
     font-weight: 600;
+  }
+  .bottom-padding {
+    padding-bottom: 150px;
   }
 </style>
