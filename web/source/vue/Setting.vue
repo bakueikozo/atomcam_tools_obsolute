@@ -29,6 +29,20 @@
         <div v-if="isSwing" class="image-frame-inner2">
           <ElSlider class="pan-slider" v-model="pan" :min="0" :max="355" :show-input-controls="false" @change="Move" @input="Move" />
         </div>
+        <div v-if="!rebooting && posValid" class="image-frame-inner3">
+          <i class="el-icon-moon ir-led" />
+          <ElButtonGroup>
+            <ElButton size="mini" type="primary" @click="IrLED('on')">
+              on
+            </ElButton>
+            <ElButton size="mini" type="primary" @click="IrLED('auto')">
+              auto
+            </ElButton>
+            <ElButton size="mini" type="primary" @click="IrLED('off')">
+              off
+            </ElButton>
+          </ElButtonGroup>
+        </div>
       </div>
 
       <h3>基本設定</h3>
@@ -128,7 +142,7 @@
 <script>
   import axios from 'axios';
   import md5 from 'js-md5';
-  import { Tooltip, Drawer, Slider } from 'element-ui';
+  import { Tooltip, Drawer, Slider, ButtonGroup } from 'element-ui';
   import SettingSwitch from './SettingSwitch.vue';
   import SettingInput from './SettingInput.vue';
   import SettingButton from './SettingButton.vue';
@@ -139,6 +153,7 @@
   import 'element-ui/lib/theme-chalk/tooltip.css';
   import 'element-ui/lib/theme-chalk/drawer.css';
   import 'element-ui/lib/theme-chalk/slider.css';
+  import 'element-ui/lib/theme-chalk/button-group.css';
 
   export default {
     name: 'ATOMCamSetting',
@@ -146,6 +161,7 @@
       ElTooltip: Tooltip,
       ElDrawer: Drawer,
       ElSlider: Slider,
+      ElButtonGroup: ButtonGroup,
       SettingSwitch,
       SettingInput,
       SettingButton,
@@ -420,6 +436,9 @@
           this.moveTimeout = null;
           this.Exec('posrec');
         }, 3000);
+      },
+      IrLED(mode) {
+        this.Exec(`irled ${mode}`, 'socket');
       },
       async GetPosInterval() {
         if(!this.moving) {
@@ -713,6 +732,17 @@
   .image-frame-inner2 {
     justify-content: flex-end;
     display: flex;
+  }
+
+  .image-frame-inner3 {
+    justify-content: flex-end;
+    display: flex;
+    margin: 5px 0 5px 0;
+  }
+
+  .ir-led {
+    font-size: 24px;
+    color: gray;
   }
 
   .still-image {
