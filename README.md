@@ -428,6 +428,18 @@ GitHubのLatest VersionにUpdate します。GitHubからLatest Versionをダウ
 
 台数が多い場合や回線が細い場合、PCで[GitHubのLatest Version](https://github.com/mnakada/atomcam_tools/releases/latest)のatomcam_tools.zipをダウンロードし、展開せずにそのままSamba経由でSD-Cardのupdateフォルダに入れて、リブートすることでもUpdateできます。この場合はVerのチェックは行われません。
 
+**bug-fix**
+
+Latest Verが表示されない問題が発生しています。Latestが表示されていない場合、カスタム更新ZIPファイルをOnにしてURLに
+
+```
+https://github.com/mnakada/atomcam_tools/releases/latest/download/atomcam_tools.zip
+```
+
+を指定してから、１つ上のUpdateのLockを解除して**[CustomUpdate]**のボタンを押してください。
+
+Ver.1.2.23以降は修正しています。
+
 
 ### Copyright
 
