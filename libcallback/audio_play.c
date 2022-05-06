@@ -55,8 +55,10 @@ int PlayPCM(char *file, int vol) {
       while(local_sdk_speaker_feed_pcm_data(buf, size)) usleep(100 * 1000);
     }
     fclose(fp);
-    usleep(200 * 1000);
+    usleep(2 * 1000 * 1000);
     local_sdk_speaker_finish_buf_data();
+    local_sdk_speaker_set_volume(0);
+    local_sdk_speaker_set_ap_mode(0);
   }
   fprintf(stderr, "[command] aplay: finish\n");
   return 0;
