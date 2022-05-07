@@ -4,11 +4,13 @@
 #include <string.h>
 #include <unistd.h>
 
-extern void local_sdk_speaker_set_ap_mode(int mode);
-extern void local_sdk_speaker_clean_buf_data();
-extern void local_sdk_speaker_set_volume(int volume);
+extern int local_sdk_speaker_set_ap_mode(int mode);
+extern int local_sdk_speaker_clean_buf_data();
+extern int local_sdk_speaker_set_volume(int volume);
 extern int local_sdk_speaker_feed_pcm_data(unsigned char *buf, int size);
-extern void local_sdk_speaker_finish_buf_data();
+extern int *get_speaker_params();
+extern int get_speaker_params_run_state();
+extern int IMP_AO_QueryChnStat(unsigned int a, unsigned int b, int *buf);
 extern void CommandResponse(int fd, const char *res);
 
 static pthread_mutex_t AudioPlayMutex = PTHREAD_MUTEX_INITIALIZER;
@@ -48,16 +50,25 @@ int PlayPCM(char *file, int vol) {
     local_sdk_speaker_clean_buf_data();
     local_sdk_speaker_set_volume(vol);
     local_sdk_speaker_set_ap_mode(3);
-
-    while(!feof(fp)) {
+    int chunkSize = (buf[43] << 24) | (buf[42] << 16) | (buf[41] << 8) | buf[40];
+    while(!feof(fp) && (chunkSize > 0)) {
       size = fread(buf, 1, bufLength, fp);
       if (size <= 0) break;
+      if(size > chunkSize) size = chunkSize;
+      chunkSize -= size;
       while(local_sdk_speaker_feed_pcm_data(buf, size)) usleep(100 * 1000);
     }
     fclose(fp);
-    usleep(2 * 1000 * 1000);
-    local_sdk_speaker_finish_buf_data();
-    local_sdk_speaker_set_volume(0);
+    int *params = get_speaker_params();
+    while(1) {
+      int runState = get_speaker_params_run_state();
+      if(runState != 3) break;
+      int buf[3];
+      int stat = IMP_AO_QueryChnStat(params[7], params[8], buf);
+      if(stat || !buf[2]) break;
+      usleep(100 * 1000);
+    }
+    usleep(500 * 1000);
     local_sdk_speaker_set_ap_mode(0);
   }
   fprintf(stderr, "[command] aplay: finish\n");
