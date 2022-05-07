@@ -78,9 +78,9 @@ sshは物理的にSD-Cardへアクセスして公開鍵を書かないとlogin�
 
  atomcam_toolsは以下のATOMCamのVersionで動作確認しています。更新した場合機能が使えなくなることもあるのでご注意ください。
 
-ATOMCam Ver.4.33.3.64, 4.33.3.66
+ATOMCam Ver.4.33.3.64, 4.33.3.66, 4.33.3.68
 
-ATOMCam2 Ver.4.58.0.65, 4.58.0.71, 4.58.0.73, 4.58.0.79
+ATOMCam2 Ver.4.58.0.65, 4.58.0.71, 4.58.0.73, 4.58.0.79, 4.58.0.86
 
 ATOMSwing Ver.4.37.1.85, 4.37.1.90, 4.37.1.93, 4.37.1.95
 
@@ -106,7 +106,7 @@ https://github.com/mnakada/atomcam_tools/releases/latest
 解凍されて出てきたすべてのファイルを、ATOMCamで使用可能なmicroSDカードのルートフォルダに保存します 。
 保存したmicroSDカードをATOMCamに入れて電源を入れます。
 
-**SD-Cardはできるだけ高速な32GB以下のものをFAT-FSで使用してください。**
+**SD-Cardはできるだけ高速なものをFAT-FSで使用してください。**
 
 AtomCamのu-bootがexFATに対応していないため、exFATだとhackが認識されず起動されません。
 
@@ -438,7 +438,7 @@ https://github.com/mnakada/atomcam_tools/releases/latest/download/atomcam_tools.
 
 を指定してから、１つ上のUpdateのLockを解除して**[CustomUpdate]**のボタンを押してください。
 
-Ver.1.2.23以降は修正しています。
+Ver.1.3.0以降は修正しています。
 
 
 ### Copyright
