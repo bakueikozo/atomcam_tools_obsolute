@@ -1,10 +1,10 @@
+#include <dlfcn.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
-extern int local_sdk_speaker_set_ap_mode(int mode);
 extern int local_sdk_speaker_clean_buf_data();
 extern int local_sdk_speaker_set_volume(int volume);
 extern int local_sdk_speaker_feed_pcm_data(unsigned char *buf, int size);
@@ -13,6 +13,7 @@ extern int get_speaker_params_run_state();
 extern int IMP_AO_QueryChnStat(unsigned int a, unsigned int b, int *buf);
 extern void CommandResponse(int fd, const char *res);
 
+static int (*local_sdk_speaker_set_pa_mode)(int mode);
 static pthread_mutex_t AudioPlayMutex = PTHREAD_MUTEX_INITIALIZER;
 static int AudioPlayFd = -1;
 static char waveFile[256];
@@ -49,7 +50,7 @@ int PlayPCM(char *file, int vol) {
     }
     local_sdk_speaker_clean_buf_data();
     local_sdk_speaker_set_volume(vol);
-    local_sdk_speaker_set_ap_mode(3);
+    local_sdk_speaker_set_pa_mode(3);
     int chunkSize = (buf[43] << 24) | (buf[42] << 16) | (buf[41] << 8) | buf[40];
     while(!feof(fp) && (chunkSize > 0)) {
       size = fread(buf, 1, bufLength, fp);
@@ -69,7 +70,7 @@ int PlayPCM(char *file, int vol) {
       usleep(100 * 1000);
     }
     usleep(500 * 1000);
-    local_sdk_speaker_set_ap_mode(0);
+    local_sdk_speaker_set_pa_mode(0);
   }
   fprintf(stderr, "[command] aplay: finish\n");
   return 0;
@@ -94,6 +95,11 @@ char *AudioPlay(int fd, char *tokenPtr) {
     return "error";
   }
 
+  if(!local_sdk_speaker_set_pa_mode) {
+    fprintf(stderr, "[command] aplay err: local_sdk_speaker_set_[ap]_mode not found.\n", AudioPlayFd, fd);
+    return "error";
+  }
+
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   if(!p) {
     fprintf(stderr, "[command] aplay err: usage : aplay <wave file> [<volume>]\n");
@@ -111,6 +117,14 @@ char *AudioPlay(int fd, char *tokenPtr) {
 }
 
 static void __attribute ((constructor)) AudioPlayInit(void) {
+
+  void *dl = dlopen("/system/lib/liblocalsdk.so", RTLD_LAZY);
+  local_sdk_speaker_set_pa_mode = dlsym(dl, "local_sdk_speaker_set_pa_mode");
+  if(!local_sdk_speaker_set_pa_mode) local_sdk_speaker_set_pa_mode = dlsym(dl, "local_sdk_speaker_set_ap_mode");
+  if(!local_sdk_speaker_set_pa_mode) {
+    fprintf(stderr, "[command] aplay err: local_sdk_speaker_set_[ap]_mode not found.");
+    return;
+  }
 
   pthread_mutex_lock(&AudioPlayMutex);
   pthread_t thread;
