@@ -91,7 +91,7 @@ if [ "$FMT" != "" ] && [ "$RECORDING_ALARM" = "on" ]; then
   TMPFILE="/tmp/rm_`cat /proc/sys/kernel/random/uuid`"
   mv $FILE $TMPFILE
   (
-    if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "alarm" ] && /tmp/system/bin/mount_cifs ; then
+    if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "alarm" ] && /tmp/system/bin/mount_cifs && [ ! -f /tmp/disable_cifs ] ; then
       OUTFILE=`date +"/mnt/$HOSTNAME/alarm_record/$STORAGE_CIFS_PATH.${FILE##*.}"`
       DIR_PATH=${OUTFILE%/*}
       mkdir -p $DIR_PATH

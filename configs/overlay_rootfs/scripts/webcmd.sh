@@ -112,6 +112,13 @@ do
   if [ "$cmd" = "moveinit" ]; then
     /scripts/motor_init
   fi
+  if [ "$cmd" = "cifsaccess" ]; then
+    if [ "$params" = "disable" ]; then
+      touch /tmp/disable_cifs
+    else
+      rm -f /tmp/disable_cifs
+    fi
+  fi
   if [ "$cmd" != "" ]; then
     echo "$cmd $param : syntax error" >> /var/run/webres
   fi
