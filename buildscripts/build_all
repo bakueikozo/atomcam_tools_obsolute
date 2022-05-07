@@ -19,6 +19,7 @@ git clone https://github.com/tinyalsa/tinyalsa.git -b v2.0.0 --depth 1
   export PREFIX=/usr
   export CFLAGS="-std=gnu99 -msoft-float"
   make install
+  mkdir -p $ROOTFS/lib/modules
   cp ${DESTDIR}/usr/lib/libtinyalsa.so.* $ROOTFS/lib/modules
 )
 
