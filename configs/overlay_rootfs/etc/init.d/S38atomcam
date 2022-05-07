@@ -9,7 +9,14 @@ case "$1" in
   mkdir -p /atom
   mount -t squashfs /dev/mtdblock2 /atom
   mount -t squashfs /dev/mtdblock3 /atom/system
-  mount -t jffs2 /dev/mtdblock6 /atom/configs
+  [ -f /media/mmc/configs ] || dd if=/dev/zero of=/media/mmc/configs bs=1M count=1 && mkfs.ext2 -F /media/mmc/configs
+  mount -t ext2 -o loop /media/mmc/configs /atom/configs
+  if [ ! -f /atom/configs/.product_config -o ! -f /atom/configs/.user_config ] ; then
+    mount -t jffs2 /dev/mtdblock6 /mnt
+    cp -p /mnt/.* /mnt/* /atom/configs 2> /dev/null
+    umount /mnt
+    sync
+  fi
   mount -t proc proc /atom/proc
   mount -o rbind /dev /atom/dev
   mount -t sysfs sysfs /atom/sys
