@@ -34,7 +34,7 @@ if [ "$REQUEST_METHOD" = "POST" ]; then
     }
   }
   ' /tmp/hack.ini > /media/mmc/local_schedule
-
+  rm -f /tmp/disable_cifs
   exit 0
 fi
 

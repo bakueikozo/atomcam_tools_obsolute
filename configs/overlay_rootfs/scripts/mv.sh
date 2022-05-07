@@ -73,7 +73,7 @@ if [ "$FMT" != "" ]; then
   TMPFILE="/tmp/mv_`cat /proc/sys/kernel/random/uuid`"
   mv $1 $TMPFILE
   (
-    if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "record" ] && /tmp/system/bin/mount_cifs ; then
+    if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "record" ] && /tmp/system/bin/mount_cifs && [ ! -f /tmp/disable_cifs ] ; then
       TIME=`echo $2 | sed -e 's|^/media/mmc/record/||' -e 's|/||g' -e 's|.mp4$||'`
       OUTFILE=`date -d $TIME +"/mnt/$HOSTNAME/record/$STORAGE_CIFS_PATH.mp4"`
       DIR_PATH=${OUTFILE%/*}
