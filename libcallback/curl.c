@@ -50,12 +50,15 @@ struct SessionHandle {
 };
 
 static CURLcode (*original_curl_easy_perform)(CURL *curl);
-static int curl_hook_enable = 0;
+static int curl_minimum_alarm_cycle = 0;
 
 static void __attribute ((constructor)) curl_hook_init(void) {
   original_curl_easy_perform = dlsym(dlopen("/thirdlib/libcurl.so", RTLD_LAZY), "curl_easy_perform");
   char *p = getenv("MINIMIZE_ALARM_CYCLE");
-  curl_hook_enable = p && !strcmp(p, "on");
+  if(!p) return;
+  if(!strcmp(p, "off")) return;
+  curl_minimum_alarm_cycle = atoi(p);
+  if(curl_minimum_alarm_cycle < 300) curl_minimum_alarm_cycle = 300;
 }
 
 static void Dump(const char *str, void *start, int size) {
@@ -77,7 +80,7 @@ static void Dump(const char *str, void *start, int size) {
 
 CURLcode curl_easy_perform(struct SessionHandle *data) {
 
-  if(!curl_hook_enable) return original_curl_easy_perform(data);
+  if(!curl_minimum_alarm_cycle) return original_curl_easy_perform(data);
 
   unsigned int ra = 0;
   asm volatile(
@@ -100,7 +103,7 @@ CURLcode curl_easy_perform(struct SessionHandle *data) {
     static time_t lastAccess = 0;
     struct timeval now;
     gettimeofday(&now, NULL);
-    if(now.tv_sec - lastAccess < 300) {
+    if(now.tv_sec - lastAccess < curl_minimum_alarm_cycle) {
       printf("[curl-debug] Dismiss short cycle alarms.\n");
       memcpy(data->out, DummyRes, strlen(DummyRes));
       data->httpcode = 200;
