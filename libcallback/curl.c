@@ -55,10 +55,13 @@ static int curl_minimum_alarm_cycle = 0;
 static void __attribute ((constructor)) curl_hook_init(void) {
   original_curl_easy_perform = dlsym(dlopen("/thirdlib/libcurl.so", RTLD_LAZY), "curl_easy_perform");
   char *p = getenv("MINIMIZE_ALARM_CYCLE");
-  if(!p) return;
-  if(!strcmp(p, "off")) return;
-  curl_minimum_alarm_cycle = atoi(p);
-  if(curl_minimum_alarm_cycle < 300) curl_minimum_alarm_cycle = 300;
+  if(p && !strcmp(p, "on")) {
+    curl_minimum_alarm_cycle = 300;
+  }
+  p = getenv("ATOMTECH_AWS_ACCESS");
+  if(p && !strcmp(p, "disable_video")) {
+    curl_minimum_alarm_cycle = -1;
+  }
 }
 
 static void Dump(const char *str, void *start, int size) {
@@ -103,7 +106,7 @@ CURLcode curl_easy_perform(struct SessionHandle *data) {
     static time_t lastAccess = 0;
     struct timeval now;
     gettimeofday(&now, NULL);
-    if(now.tv_sec - lastAccess < curl_minimum_alarm_cycle) {
+    if((curl_minimum_alarm_cycle < 0) || (now.tv_sec - lastAccess < curl_minimum_alarm_cycle)) {
       printf("[curl-debug] Dismiss short cycle alarms.\n");
       memcpy(data->out, DummyRes, strlen(DummyRes));
       data->httpcode = 200;
