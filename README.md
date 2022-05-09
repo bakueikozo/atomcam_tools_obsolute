@@ -6,6 +6,38 @@
 それ以外、自由に利用できますが、仮に悪用し、他人へ迷惑をかけた場合の責任は、その設定を行った者が負うべきものであることを理解してください。
 質問、動作不具合、機能のリクエストは　Issues を立ててください。
 
+
+
+---
+
+**Latest Verが表示されない問題が発生しています。**
+
+**Latestが表示されていない場合、下記のいずれかの方法でupdateをお願いします。**
+
+- カスタム更新ZIPファイルをOnにしてURLに
+
+```
+https://github.com/mnakada/atomcam_tools/releases/latest/download/atomcam_tools.zip
+```
+
+を指定してから、１つ上のUpdateのLockを解除して[CustomUpdate]のボタンを押してください。
+
+- ssh接続を有効にしている場合、最新のatomcam_tools.zipをダウンロードして
+
+```
+scp atomcam_tools.zip atomcam.local:/media/mmc/update
+```
+
+を実行後、リブートを実行してください。
+
+- どちらもできない場合、SD-Cardを取り出し直接書き込んでください。
+
+Ver.1.3.0以降は修正しています。
+
+---
+
+
+
 ## 実現される機能
 - WebUI (Port: 80)
   - ATOMCamのアプリから設定できない追加機能について設定します。
