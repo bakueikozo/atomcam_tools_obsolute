@@ -178,6 +178,7 @@ static void *CommandThread(void *arg) {
 
 static void __attribute ((constructor)) command_init(void) {
 
+  if(getppid() != 1) return;
   if(pipe(SelfPipe)) {
     fprintf(stderr, "pipe error\n");
     return;

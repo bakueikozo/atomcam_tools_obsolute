@@ -108,6 +108,7 @@ static void *JpegCaptureThread() {
 
 static void __attribute ((constructor)) JpegInit(void) {
 
+  if(getppid() != 1) return;
   pthread_mutex_lock(&JpegDataMutex);
   pthread_t thread;
   if(pthread_create(&thread, NULL, JpegCaptureThread, NULL)) {
