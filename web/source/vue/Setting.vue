@@ -22,7 +22,7 @@
       <div class="image-frame" :style="imageFrameStyle">
         <div class="image-frame-inner1">
           <ElSlider v-if="isSwing" class="tilt-slider" v-model="tilt" :min="0" :max="180" vertical :show-input-controls="false" height="100%" @change="Move" @input="Move" />
-          <ElTooltip :tabindex="-1" placement="top" :content="stillFullView?'clickで縮小します':'clickで拡大します'" effect="light" :open-delay="500">
+          <ElTooltip v-if="!rebooting && posValid" :tabindex="-1" placement="top" :content="stillFullView?'clickで縮小します':'clickで拡大します'" effect="light" :open-delay="500">
             <img class="still-image" :src="stillImage" @click="stillFullView=!stillFullView">
           </ElTooltip>
         </div>
