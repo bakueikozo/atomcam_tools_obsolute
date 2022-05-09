@@ -108,9 +108,13 @@ do
     }
     ' POS="$pos" /atom/configs/.user_config > /atom/configs/.user_config_new
     mv -f /atom/configs/.user_config_new /atom/configs/.user_config
+    echo "$cmd OK" >> /var/run/webres
+    cmd=""
   fi
   if [ "$cmd" = "moveinit" ]; then
     /scripts/motor_init
+    echo "$cmd OK" >> /var/run/webres
+    cmd=""
   fi
   if [ "$cmd" = "cifsaccess" ]; then
     if [ "$params" = "disable" ]; then
@@ -118,6 +122,8 @@ do
     else
       rm -f /tmp/disable_cifs
     fi
+    echo "$cmd $params OK" >> /var/run/webres
+    cmd=""
   fi
   if [ "$cmd" != "" ]; then
     echo "$cmd $param : syntax error" >> /var/run/webres
