@@ -7,17 +7,18 @@ set -o pipefail         # Use last non-zero exit code in a pipeline
 
 if [ $# -eq 0 ]
 then
-    echo "Usage: $0 <target_dir>"
+    echo "Usage: $0 <output_dir>"
     exit 1
 fi
 
-ROOTFS_DIR=$1
-
+ROOTFS_DIR=$1/initramfs_root
+rm -rf $ROOTFS_DIR
 mkdir -p $ROOTFS_DIR
+
 cd $ROOTFS_DIR
 mkdir -p {bin,dev,etc,lib,mnt,proc,root,sbin,sys,tmp}
 
-cp -r /src/configs/initramfs_skeleton/* $ROOTFS_DIR/
+cp -r /src/initramfs_skeleton/* $ROOTFS_DIR/
 
 # Save a few bytes by removing the readme
 rm -f $ROOTFS_DIR/README.md
@@ -29,3 +30,5 @@ mknod $ROOTFS_DIR/dev/tty1 c 4 1
 mknod $ROOTFS_DIR/dev/tty2 c 4 2
 mknod $ROOTFS_DIR/dev/tty3 c 4 3
 mknod $ROOTFS_DIR/dev/tty4 c 4 4
+
+find . | cpio -H newc -o > ../images/initramfs.cpio

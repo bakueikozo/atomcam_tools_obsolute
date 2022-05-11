@@ -5,7 +5,7 @@ The reason for this skeleton is so you can put files in here that will be embedd
 The skeleton is used because you cannot commit into git the empty directories or special dev nodes which are required to be created in the initramfs root tree. Thus the script src/buildscripts/make_initramfs.sh serves to create these dynamically. It then cpio's up the whole thing and puts it in
 
 ```
-CONFIG_INITRAMFS_SOURCE="/openmiko/build/buildroot-2016.02/output/images/initramfs.cpio"
+CONFIG_INITRAMFS_SOURCE="/atomtools/build/buildroot-2016.02/output/images/initramfs.cpio"
 ```
 # Rebuilding
 

@@ -21,7 +21,7 @@
 ```shell
 # git clone atomcam_tools
 # cd atomcam_tools
-# ./make.sh
+# make
 ```
 
 環境に依存しますが１時間程度でatomcam_tools.zipが出来上がります。
@@ -91,7 +91,7 @@ WiFiはatom側のシステムが起動しているので、rootfs側は起動し
 
 ##### u-boot -> kernel内蔵のinitramfs上の/init_atomcam
 
-​	*initramfsの中身はconfigs/overlay_initramfs/です。。*
+​	*initramfsの中身はinitramfs_skeleton/です。。*
 
 　initramfsはkernel 起動時のcmdlineで/initを実行するようにしています。
 
@@ -99,11 +99,11 @@ WiFiはatom側のシステムが起動しているので、rootfs側は起動し
 
 ##### rootfs_hack.ext2
 
-　*rootfs_hack.ext2はconfigs/rootfs.configの設定でbuildされたイメージにconfigs/overlay_rootfsを重ねたものになります。*
+　*rootfs_hack.ext2はconfigs/rootfs.configの設定でbuildされたイメージにoverlay_rootfsを重ねたものになります。*
 
 ​	/sbin/initがinittabに従って/etc/init.d/rcSを起動して、rcSで/etc/init.d/S*を順番に実行します。
 
-　S35wifiはAtomCamのシステム側で処理しているので実行しないほうが良いのですが、wifiパッケージを入れると起動スクリプトが入るため、config/overlay_rootfsで中身の無いものを上書きして無効にしています。
+　S35wifiはAtomCamのシステム側で処理しているので実行しないほうが良いのですが、wifiパッケージを入れると起動スクリプトが入るため、overlay_rootfsで中身の無いものを上書きして無効にしています。
 	/etc/init.dを最後まで実行すると、serialを繋いでいればgettyでlogin promptが出ます。AtomCamの後ろ側のLEDが青点滅ー＞青点灯になるとsshでloginできる状態になります。
 
 ​	途中でATOMCamのシステムを起動する環境を整える/etc/init.d/S38atomcamを呼び出しています。
@@ -203,19 +203,19 @@ Docker環境では/srcがatomcam_tools/にmapされています。
 以下、基本的にDocker内のコマンドは下記のDirectoryから実行します。
 
 ```shell
-root@ac0375635c01:/openmiko# cd /openmiko/build/buildroot-2016.02
+root@ac0375635c01:/atomtools# cd /atomtools/build/buildroot-2016.02
 ```
 
 rootfsはglibc環境でDocker内のgccを使用します。
 build時にgccも生成されます。
 gccのprefixは
-**/openmiko/build/buildroot-2016.02/output/host/usr/bin/mipsel-ingenic-linux-gnu-**
+**/atomtools/build/buildroot-2016.02/output/host/usr/bin/mipsel-ingenic-linux-gnu-**
 です。
 
 ATOMCam本来のシステムのカメラアプリiCamera_appはuClibcの環境でbuildされています。
 
 そのためiCamera_appのhack用のlibcallback.soのbuildにはuClibc環境が必要なので別途cloneしている
-**/openmiko/build/mips-gcc472-glibc216-64bit/bin/mips-linux-uclibc-gnu-**
+**/atomtools/build/mips-gcc472-glibc216-64bit/bin/mips-linux-uclibc-gnu-**
 を使用しています。
 
 
@@ -225,8 +225,8 @@ ATOMCam本来のシステムのカメラアプリiCamera_appはuClibcの環境�
  initramfs, kernelのconfigを変更した場合
 
 ```shell
-root@ac0375635c01:/openmiko# make linux-rebuild
-root@ac0375635c01:/openmiko# cp output/images/uImage.lzma /src
+root@ac0375635c01:/atomtools# make linux-rebuild
+root@ac0375635c01:/atomtools# cp output/images/uImage.lzma /src
 ```
 
 でbuildされてatomcam_tools/にコピーされます。
@@ -235,8 +235,8 @@ root@ac0375635c01:/openmiko# cp output/images/uImage.lzma /src
 
 rootfs内のファイルやbusyboxのmenuconfigを修正した場合
 ```shell
-root@ac0375635c01:/openmiko# make
-root@ac0375635c01:/openmiko# cp output/images/rootfs.ext2 /src
+root@ac0375635c01:/atomtools# make
+root@ac0375635c01:/atomtools# cp output/images/rootfs.ext2 /src
 ```
 
 でbuildされてatomcam_tools/にコピーされます。
@@ -248,8 +248,8 @@ root@ac0375635c01:/openmiko# cp output/images/rootfs.ext2 /src
 rootfsに含まれるpackageの変更した場合
 
 ```shell
-root@ac0375635c01:/openmiko# make menuconfig
-root@ac0375635c01:/openmiko# make
+root@ac0375635c01:/atomtools# make menuconfig
+root@ac0375635c01:/atomtools# make
 ```
 
 でrootfsがbuildされます。
@@ -259,7 +259,7 @@ root@ac0375635c01:/openmiko# make
 個別のpackegeのrebuildの場合
 
 ```shell
-root@ac0375635c01:/openmiko# make <package>-rebuild
+root@ac0375635c01:/atomtools# make <package>-rebuild
 ```
 
 です。
@@ -269,8 +269,8 @@ root@ac0375635c01:/openmiko# make <package>-rebuild
 busyboxのコマンド等の設定変更の場合
 
 ```shell
-root@ac0375635c01:/openmiko# make busybox-menuconfig
-root@ac0375635c01:/openmiko# make
+root@ac0375635c01:/atomtools# make busybox-menuconfig
+root@ac0375635c01:/atomtools# make
 ```
 
 でrootfsがbuildされます。
@@ -280,8 +280,8 @@ root@ac0375635c01:/openmiko# make
 kernelの設定変更の場合
 
 ```shell
-root@ac0375635c01:/openmiko# make linux-menuconfig
-root@ac0375635c01:/openmiko# make linux-rebuild
+root@ac0375635c01:/atomtools# make linux-menuconfig
+root@ac0375635c01:/atomtools# make linux-rebuild
 ```
 
 でuImage.lzmaが生成されます。

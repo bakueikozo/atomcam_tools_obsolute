@@ -1,78 +1,12 @@
 #!/bin/sh
 
-# mipsel-gcc for uLibc
-cd /openmiko/build
-git clone https://github.com/Dafang-Hacks/mips-gcc472-glibc216-64bit.git --depth 1
-
-# overlay_rootfs
-cp -pr /src/configs/overlay_rootfs /openmiko/build/buildroot-2016.02/output
-ROOTFS=/openmiko/build/buildroot-2016.02/output/overlay_rootfs
-find ${ROOTFS} -name .DS_Store -delete
-
-# tinyalsa
-git clone https://github.com/tinyalsa/tinyalsa.git -b v2.0.0 --depth 1
-(
-  cd tinyalsa
-  patch -p1 -N < /src/patches/tinyalsa/tinyalsa.patch
-  export CROSS_COMPILE="/openmiko/build/mips-gcc472-glibc216-64bit/bin/mips-linux-uclibc-gnu-"
-  export DESTDIR=/openmiko/build/mips-gcc472-glibc216-64bit/mips-linux-gnu/libc/uclibc
-  export PREFIX=/usr
-  export CFLAGS="-std=gnu99 -msoft-float"
-  make install
-  mkdir -p $ROOTFS/lib/modules
-  cp ${DESTDIR}/usr/lib/libtinyalsa.so.* $ROOTFS/lib/modules
-)
-
-# build libcallback.so
-mkdir -p /openmiko/build/buildroot-2016.02/output/local
-cp -pr /src/libcallback /openmiko/build/buildroot-2016.02/output/local
-cd /openmiko/build/buildroot-2016.02/output/local/libcallback
-make
-[ $? != 0 ] && exit 1
-mkdir -p $ROOTFS/lib/modules/
-cp libcallback.so $ROOTFS/lib/modules/libcallback.so
-
-# set version
-cp /src/configs/atomhack.ver $ROOTFS/etc
-
-# build webpage
-. /root/.nvm/nvm.sh
-mkdir -p /openmiko/build/buildroot-2016.02/output/web
-cp -pr /src/web/webpack.config.js /src/web/package* /src/web/source /openmiko/build/buildroot-2016.02/output/web
-cd /openmiko/build/buildroot-2016.02/output/web
-rm -rf frontend
-npm install -g npm@latest
-npm install
-./node_modules/.bin/webpack --mode production --progress
-[ $? != 0 ] && exit 1
-rm -rf $ROOTFS/var/www/bundle*
-cp -pr frontend/* $ROOTFS/var/www
-
-# package patch
-for i in `ls /src/patches/package`
-do
-  cp -pr /src/patches/package/$i/*patch /openmiko/build/buildroot-2016.02/package/$i
-done
-
 # build kernel and rootfs
-if [ "$1" = "new" ] ; then
-  cd /openmiko/build/buildroot-2016.02
-  cp /src/configs/rootfs.config .config
-  make oldconfig
-  make clean
-else
-  cd /openmiko/build/buildroot-2016.02/output
-  rm -rf target
-  mkdir -p target/lib
-  cp -dpf staging/lib/libgcc_s.so* target/lib/
-  mkdir -p target/usr/lib
-  cp -dpf staging/usr/lib/libstdc++.so* target/usr/lib/
-  find ./build -name ".stamp_target_installed*" -print | xargs rm -f
-fi
-cd /openmiko/build/buildroot-2016.02
+cd /atomtools/build/buildroot-2016.02/output
+rm -rf target
+mkdir -p target/lib
+cp -dpf staging/lib/libgcc_s.so* target/lib/
+mkdir -p target/usr/lib
+cp -dpf staging/usr/lib/libstdc++.so* target/usr/lib/
+find ./build -name ".stamp_target_installed*" -print | xargs rm -f
+cd /atomtools/build/buildroot-2016.02
 make
-[ $? != 0 ] && exit 1
-
-# sdcard image
-cp output/images/uImage.lzma /src/target/factory_t31_ZMC6tiIDQN
-cp output/images/rootfs.ext2 /src/target/rootfs_hack.ext2

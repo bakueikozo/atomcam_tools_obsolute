@@ -1,0 +1,7 @@
+INGENIC_VIDEOCAP_VERSION = f56caf60df55b16f9825e214183b567cd34aaaee
+INGENIC_VIDEOCAP_SITE = https://github.com/openmiko/ingenic_videocap.git
+INGENIC_VIDEOCAP_SITE_METHOD = git
+INGENIC_VIDEOCAP_DEPENDENCIES =
+INGENIC_VIDEOCAP_CONF_OPTS =
+
+$(eval $(cmake-package))
