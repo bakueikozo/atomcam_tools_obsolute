@@ -8,6 +8,8 @@ APPVER_FILE=/configs/app.ver
 APPVER=$(awk -F "=" '/appver *=/ {print $2}' $APPVER_FILE)
 HACK_INI=/tmp/hack.ini
 export MINIMIZE_ALARM_CYCLE=$(awk -F "=" '/MINIMIZE_ALARM_CYCLE *=/ {print $2}' $HACK_INI)
+AWS_VIDEO_DISABLE=$(awk -F "=" '/AWS_VIDEO_DISABLE *=/ {print $2}' $HACK_INI)
+[ "$AWS_VIDEO_DISABLE" = "on" ] && export ATOMTECH_AWS_ACCESS=disable_video
 
 sleep 1
 

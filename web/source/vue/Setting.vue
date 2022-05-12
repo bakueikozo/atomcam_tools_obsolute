@@ -99,6 +99,7 @@
 
       <h3>動体検知</h3>
       <SettingSwitch title="動体検知周期の短縮" tooltip="Alarmの無検知時間5分を30秒に短縮します" v-model="config.MINIMIZE_ALARM_CYCLE" comment="※ 変更すると設定ボタンで再起動します" />
+      <SettingSwitch title="動体検知録画upload停止" tooltip="AtomTechサーバーへの検知動画転送を停止します。アプリから確認できなくなります。サーバーへの転送が気になる場合は設定してください。" v-model="config.AWS_VIDEO_DISABLE" comment="※ 変更すると設定ボタンで再起動します" />
 
       <div v-if="isSwing" @click="ClearCruiseSelect">
         <h3>クルーズ</h3>
@@ -211,6 +212,7 @@
           CRUISE: 'off',
           CRUISE_LIST: '',
           MINIMIZE_ALARM_CYCLE: 'off',
+          AWS_VIDEO_DISABLE: 'off',
           CUSTOM_ZIP: 'off',
           CUSTOM_ZIP_URL: '',
           HEALTHCHECK: 'off',
@@ -614,7 +616,8 @@
             href = `http://${this.config.HOSTNAME}.local`;
           }
         }
-        if(this.config.MINIMIZE_ALARM_CYCLE !== this.oldConfig.MINIMIZE_ALARM_CYCLE) {
+        if((this.config.MINIMIZE_ALARM_CYCLE !== this.oldConfig.MINIMIZE_ALARM_CYCLE) ||
+           (this.config.AWS_VIDEO_DISABLE !== this.oldConfig.AWS_VIDEO_DISABLE))  {
           execCmds.push(`reboot`);
           this.rebooting = true;
           this.rebootStart = new Date();
