@@ -52,7 +52,6 @@
       <SettingInput v-if="loginAuth==='on'" title="パスワード" tooltip="ログインのためのパスワードを設定します" type="password" v-model="password" />
 
       <h3>録画</h3>
-      <SettingSwitch title="検出通知のローカル録画" tooltip="モーション／サウンド検出したときの12秒の映像をローカルにも録画します" v-model="config.RECORDING_ALARM" />
       <SettingSwitch title="ローカル録画スケジュール" tooltip="SD-Card/NASに録画される時間帯を設定します" v-model="config.RECORDING_LOCAL_SCHEDULE" :text="['スケジュール ','常時録画 ']" @change="(config.RECORDING_LOCAL_SCHEDULE === 'on') && !schedule.length && AddSchedule()" />
       <div v-if="config.RECORDING_LOCAL_SCHEDULE === 'on'">
         <SettingSchedule v-for="(timeTable, idx) of schedule" :key="'timetable'+idx" :timeRange="true" v-model="schedule[idx]" @add="AddSchedule" @remove="DeleteSchedule(idx)" />
@@ -180,7 +179,6 @@
           DIGEST: '',
           REBOOT: 'off',
           REBOOT_SCHEDULE: '0 2 * * 7', // -> /var/spool/crontabs/root
-          RECORDING_ALARM: 'on',
           RECORDING_LOCAL_SCHEDULE: 'off',
           RECORDING_LOCAL_SCHEDULE_LIST: '', // -> /media/mmc/local_schedule
           RTSPSERVER: 'off',

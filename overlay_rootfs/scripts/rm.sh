@@ -11,7 +11,6 @@ if [ "$FILE" != "/tmp/alarm.jpg" ] && [ "$FILE" != "/tmp/alarm_record.mp4" ] ; t
 fi
 
 HACK_INI=/tmp/hack.ini
-RECORDING_ALARM=$(awk -F "=" '/RECORDING_ALARM *=/ {print $2}' $HACK_INI)
 RECORDING_LOCAL_SCHEDULE=$(awk -F "=" '/RECORDING_LOCAL_SCHEDULE *=/ {print $2}' $HACK_INI)
 STORAGE_CIFS=$(awk -F "=" '/STORAGE_CIFS *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
 STORAGE_CIFS_PATH=$(awk -F "=" '/STORAGE_CIFS_PATH *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
@@ -87,7 +86,7 @@ if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
   ) &
 fi
 
-if [ "$FMT" != "" ] && [ "$RECORDING_ALARM" = "on" ]; then
+if [ "$FMT" != "" ] ; then
   TMPFILE="/tmp/rm_`cat /proc/sys/kernel/random/uuid`"
   mv $FILE $TMPFILE
   (
