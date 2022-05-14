@@ -91,7 +91,7 @@ if [ "$FMT" != "" ]; then
       /bin/busybox mv $TMPFILE $2 || /bin/busybox rm $TMPFILE
 
       if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ] && [ "$WEBHOOK_RECORD_EVENT" = "on" ]; then
-        LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"recordEvent\", \"device\":\"${HOSTNAME}\", \"storage\": \"cifs\", \"file\":\"${FILE}\"}" $WEBHOOK_URL > /dev/null 2>&1
+        LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"recordEvent\", \"device\":\"${HOSTNAME}\", \"storage\": \"sdcard\", \"file\":\"${FILE}\"}" $WEBHOOK_URL > /dev/null 2>&1
       fi
     fi
 
