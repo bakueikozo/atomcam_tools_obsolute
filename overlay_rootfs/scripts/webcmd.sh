@@ -108,6 +108,7 @@ do
     }
     ' POS="$pos" /atom/configs/.user_config > /atom/configs/.user_config_new
     mv -f /atom/configs/.user_config_new /atom/configs/.user_config
+    echo 3 > /proc/sys/vm/drop_caches
     echo "$cmd OK" >> /var/run/webres
     cmd=""
   fi

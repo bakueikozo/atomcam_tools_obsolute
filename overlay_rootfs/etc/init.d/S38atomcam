@@ -14,6 +14,7 @@ case "$1" in
   if [ ! -f /atom/configs/.product_config -o ! -f /atom/configs/.user_config ] ; then
     mount -t jffs2 /dev/mtdblock6 /mnt
     cp -p /mnt/.* /mnt/* /atom/configs 2> /dev/null
+    echo 3 > /proc/sys/vm/drop_caches
     umount /mnt
     sync
   fi
