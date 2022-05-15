@@ -73,30 +73,27 @@ if [ "$FMT" != "" ]; then
   TMPFILE="/tmp/mv_`cat /proc/sys/kernel/random/uuid`"
   mv $1 $TMPFILE
   (
-    TIME=`echo $2 | sed -e 's|^/media/mmc/record/||' -e 's|/||g' -e 's|.mp4$||'`
-    FILE=`date -d $TIME +"$STORAGE_CIFS_PATH.mp4"`
-    OUTFILE="/mnt/$HOSTNAME/record/$FILE"
-
     if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "record" ] && /tmp/system/bin/mount_cifs && [ ! -f /tmp/disable_cifs ] ; then
+      TIME=`echo $2 | sed -e 's|^/media/mmc/record/||' -e 's|/||g' -e 's|.mp4$||'`
+      CIFSFILE=`date -d $TIME +"record/$STORAGE_CIFS_PATH.mp4"`
+      OUTFILE="/mnt/$HOSTNAME/$CIFSFILE"
       DIR_PATH=${OUTFILE%/*}
       mkdir -p $DIR_PATH
       cp $TMPFILE $OUTFILE
-
-      if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ] && [ "$WEBHOOK_RECORD_EVENT" = "on" ]; then
-        LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"recordEvent\", \"device\":\"${HOSTNAME}\", \"storage\": \"cifs\", \"file\":\"${FILE}\"}" $WEBHOOK_URL > /dev/null 2>&1
-      fi
+      STORAGE=", \"cifsFile\":\"${CIFSFILE}\""
     fi
 
     if [ "$STORAGE_SDCARD" = "on" -o "$STORAGE_SDCARD" = "record" ]; then
       /bin/busybox mv $TMPFILE $2 || /bin/busybox rm $TMPFILE
-
-      if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ] && [ "$WEBHOOK_RECORD_EVENT" = "on" ]; then
-        LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"recordEvent\", \"device\":\"${HOSTNAME}\", \"storage\": \"sdcard\", \"file\":\"${FILE}\"}" $WEBHOOK_URL > /dev/null 2>&1
-      fi
+      SDCARDFILE=${2##*media/mmc/}
+      STORAGE="${STORAGE}, \"sdcardFile\":\"${SDCARDFILE}\""
+    else
+      /bin/busybox rm $TMPFILE
+      LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/find_libc /media/mmc/record -depth -type d -empty -delete
     fi
-
-    /bin/busybox rm $TMPFILE
-    LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/find_libc /media/mmc/record -depth -type d -empty -delete
+    if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ] && [ "$WEBHOOK_RECORD_EVENT" = "on" ]; then
+      LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"recordEvent\", \"device\":\"${HOSTNAME}\"${STORAGE}}" $WEBHOOK_URL > /dev/null 2>&1
+    fi
   ) &
 else
   /bin/busybox rm $1
