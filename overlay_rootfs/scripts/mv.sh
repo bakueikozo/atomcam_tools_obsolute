@@ -75,22 +75,24 @@ if [ "$FMT" != "" ]; then
   (
     if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "record" ] && /tmp/system/bin/mount_cifs && [ ! -f /tmp/disable_cifs ] ; then
       TIME=`echo $2 | sed -e 's|^/media/mmc/record/||' -e 's|/||g' -e 's|.mp4$||'`
-      OUTFILE=`date -d $TIME +"/mnt/$HOSTNAME/record/$STORAGE_CIFS_PATH.mp4"`
+      CIFSFILE=`date -d $TIME +"record/$STORAGE_CIFS_PATH.mp4"`
+      OUTFILE="/mnt/$HOSTNAME/$CIFSFILE"
       DIR_PATH=${OUTFILE%/*}
       mkdir -p $DIR_PATH
       cp $TMPFILE $OUTFILE
+      STORAGE=", \"cifsFile\":\"${CIFSFILE}\""
     fi
 
     if [ "$STORAGE_SDCARD" = "on" -o "$STORAGE_SDCARD" = "record" ]; then
       /bin/busybox mv $TMPFILE $2 || /bin/busybox rm $TMPFILE
+      SDCARDFILE=${2##*media/mmc/}
+      STORAGE="${STORAGE}, \"sdcardFile\":\"${SDCARDFILE}\""
     else
       /bin/busybox rm $TMPFILE
       LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/find_libc /media/mmc/record -depth -type d -empty -delete
     fi
-    if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
-      if [ "$WEBHOOK_RECORD_EVENT" = "on" ]; then
-        LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"recordEvent\", \"device\":\"${HOSTNAME}\"}" $WEBHOOK_URL > /dev/null 2>&1
-      fi
+    if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ] && [ "$WEBHOOK_RECORD_EVENT" = "on" ]; then
+      LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"recordEvent\", \"device\":\"${HOSTNAME}\"${STORAGE}}" $WEBHOOK_URL > /dev/null 2>&1
     fi
   ) &
 else
