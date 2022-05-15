@@ -42,9 +42,6 @@ case "$1" in
   cp /etc/nsswitch.conf /tmp/system/etc
   mount -o bind /tmp/system/etc /atom/etc
   cp /bin/busybox /tmp/system/bin
-  [ -f /media/mmc/hack.ini ] || touch /media/mmc/hack.ini
-  cp /media/mmc/hack.ini /tmp/hack.ini
-  chmod 666 /tmp/hack.ini
   /scripts/set_crontab.sh
   mkdir -p /media/mmc/update
   mkdir -p /tmp/app
