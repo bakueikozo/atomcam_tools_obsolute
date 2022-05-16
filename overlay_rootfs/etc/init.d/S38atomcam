@@ -9,9 +9,10 @@ case "$1" in
   mkdir -p /atom
   mount -t squashfs /dev/mtdblock2 /atom
   mount -t squashfs /dev/mtdblock3 /atom/system
-  [ -f /media/mmc/configs ] || dd if=/dev/zero of=/media/mmc/configs bs=1M count=1 && mkfs.ext2 -F /media/mmc/configs
+  [ -f /media/mmc/configs ] || ( dd if=/dev/zero of=/media/mmc/configs bs=1M count=1 && mkfs.ext2 -F /media/mmc/configs )
   mount -t ext2 -o loop /media/mmc/configs /atom/configs
   if [ ! -f /atom/configs/.product_config -o ! -f /atom/configs/.user_config ] ; then
+    echo "rebuild configs" >> /media/mmc/atomhack.log
     mount -t jffs2 /dev/mtdblock6 /mnt
     cp -p /mnt/.* /mnt/* /atom/configs 2> /dev/null
     echo 3 > /proc/sys/vm/drop_caches
