@@ -76,13 +76,16 @@ else
 fi
 
 if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
+  TMPFILE1="/tmp/rm_`cat /proc/sys/kernel/random/uuid`"
+  ln $FILE $TMPFILE1
   (
     if [ "$WEBHOOK_ALERM_PICT" = "on" ] && [ "$FILE" = "/tmp/alarm.jpg" ]; then
-      LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -F "image=@$FILE" -F"type=image/jpeg" -F"device=${HOSTNAME}" $WEBHOOK_URL > /dev/null 2>&1
+      LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -F "image=@$TMPFILE1" -F"type=image/jpeg" -F"device=${HOSTNAME}" $WEBHOOK_URL > /dev/null 2>&1
     fi
     if [ "$WEBHOOK_ALERM_VIDEO" = "on" ] && [ "$FILE" = "/tmp/alarm_record.mp4" ]; then
-      LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -F "video=@$FILE" -F "type=video/mp4" -F"device=${HOSTNAME}" $WEBHOOK_URL > /dev/null 2>&1
+      LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -F "video=@$TMPFILE1" -F "type=video/mp4" -F"device=${HOSTNAME}" $WEBHOOK_URL > /dev/null 2>&1
     fi
+    rm -f $TMPFILE1
   ) &
 fi
 
