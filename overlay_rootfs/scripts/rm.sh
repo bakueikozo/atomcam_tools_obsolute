@@ -77,7 +77,7 @@ else
 fi
 
 if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
-  TMPFILE1="/tmp/rm_`cat /proc/sys/kernel/random/uuid`"
+  TMPFILE1="${SPATH}/rm_`cat /proc/sys/kernel/random/uuid`"
   ln $FILE $TMPFILE1
   (
     if [ "$WEBHOOK_ALERM_PICT" = "on" ] && [ "$FILE" = "/tmp/alarm.jpg" ]; then
