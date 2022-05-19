@@ -5,10 +5,11 @@
 
 [ "$1" != "" ] && [ -e $1 ] && FILE=$1
 [ "$2" != "" ] && [ -e $2 ] && FILE=$2
-if [ "$FILE" != "/tmp/alarm.jpg" ] && [ "$FILE" != "/tmp/alarm_record.mp4" ] ; then
+if [ "$FILE" != "/tmp/alarm.jpg" ] && [ "$FILE" != "/media/mmc/tmp/alarm_record.mp4" ] ; then
   /bin/busybox ${0##*/} $*
   exit
 fi
+SPATH=${FILE%/*}
 
 HACK_INI=/tmp/hack.ini
 RECORDING_LOCAL_SCHEDULE=$(awk -F "=" '/RECORDING_LOCAL_SCHEDULE *=/ {print $2}' $HACK_INI)
@@ -87,8 +88,8 @@ if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
 fi
 
 if [ "$FMT" != "" ] ; then
-  TMPFILE="/tmp/rm_`cat /proc/sys/kernel/random/uuid`"
-  mv $FILE $TMPFILE
+  TMPFILE="${SPATH}/rm_`cat /proc/sys/kernel/random/uuid`"
+  /bin/busybox mv $FILE $TMPFILE
   (
     if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "alarm" ] && /tmp/system/bin/mount_cifs && [ ! -f /tmp/disable_cifs ] ; then
       CIFSFILE=`date +"alarm_record/$STORAGE_CIFS_PATH.${FILE##*.}"`

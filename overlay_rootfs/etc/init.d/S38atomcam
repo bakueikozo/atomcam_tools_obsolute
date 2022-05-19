@@ -46,6 +46,8 @@ case "$1" in
   cp /bin/busybox /tmp/system/bin
   /scripts/set_crontab.sh
   mkdir -p /media/mmc/update
+  mkdir -p /media/mmc/tmp
+  rm -f /media/mmc/tmp/*
   mkdir -p /tmp/app
   touch /tmp/resolv.conf
   mkdir -p /tmp/log/lighttpd
