@@ -66,8 +66,6 @@ else
   grep '^alarmInterval=300$' /configs/.user_config || sed -i.old -e 's/^alarmInterval=.*$/alarmInterval=300/' /configs/.user_config
 fi
 
-grep '^RTSP_SWITCH=[^2]$' /configs/.rtsp_config && rm /configs/.rtsp_config
-
 /system/bin/ver-comp
 /system/bin/assis >> /dev/null 2>&1 &
 

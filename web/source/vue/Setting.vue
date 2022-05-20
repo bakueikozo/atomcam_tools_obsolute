@@ -56,8 +56,6 @@
       <div v-if="config.RECORDING_LOCAL_SCHEDULE === 'on'">
         <SettingSchedule v-for="(timeTable, idx) of schedule" :key="'timetable'+idx" :timeRange="true" v-model="schedule[idx]" @add="AddSchedule" @remove="DeleteSchedule(idx)" />
       </div>
-
-      <h3>記録メディア</h3>
       <SettingSwitch title="SD-Card録画" tooltip="SD-Cardのrecordフォルダへの記録をします" v-model="storage_sdcard_record" :onOff="false" />
       <SettingSwitch title="SD-Cardモーション検知録画" tooltip="SD-Cardのalarm_recordフォルダへの記録をします" v-model="storage_sdcard_alarm" :onOff="false" />
       <SettingSwitch v-if="storage_sdcard" title="ネットワークアクセス" :titleOffset="2" tooltip="ATOMCamのSD-CardをCIFS(smb) serverとしてLAN内に公開します" v-model="config.STORAGE_SDCARD_PUBLISH" />
