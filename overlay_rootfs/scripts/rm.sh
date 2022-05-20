@@ -80,10 +80,10 @@ if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
   TMPFILE1="${SPATH}/rm_`cat /proc/sys/kernel/random/uuid`"
   ln $FILE $TMPFILE1
   (
-    if [ "$WEBHOOK_ALERM_PICT" = "on" ] && [ "$FILE" = "/tmp/alarm.jpg" ]; then
+    if [ "$WEBHOOK_ALERM_PICT" = "on" ] && [ "$FILE" = "$SPATH/alarm.jpg" ]; then
       LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -F "image=@$TMPFILE1" -F"type=image/jpeg" -F"device=${HOSTNAME}" $WEBHOOK_URL > /dev/null 2>&1
     fi
-    if [ "$WEBHOOK_ALERM_VIDEO" = "on" ] && [ "$FILE" = "/tmp/alarm_record.mp4" ]; then
+    if [ "$WEBHOOK_ALERM_VIDEO" = "on" ] && [ "$FILE" = "$SPATH/alarm_record.mp4" ]; then
       LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -F "video=@$TMPFILE1" -F "type=video/mp4" -F"device=${HOSTNAME}" $WEBHOOK_URL > /dev/null 2>&1
     fi
     rm -f $TMPFILE1
@@ -115,10 +115,10 @@ if [ "$FMT" != "" ] ; then
     fi
 
     if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
-      if [ "$WEBHOOK_ALARM_PICT_FINISH" = "on" ] && [ "$FILE" = "/tmp/alarm.jpg" ]; then
+      if [ "$WEBHOOK_ALARM_PICT_FINISH" = "on" ] && [ "$FILE" = "$SPATH/alarm.jpg" ]; then
         LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"uploadPictureFinish\", \"device\":\"${HOSTNAME}\"${STORAGE}}" $WEBHOOK_URL > /dev/null 2>&1
       fi
-      if [ "$WEBHOOK_ALARM_VIDEO_FINISH" = "on" ] && [ "$FILE" = "/tmp/alarm_record.mp4" ]; then
+      if [ "$WEBHOOK_ALARM_VIDEO_FINISH" = "on" ] && [ "$FILE" = "$SPATH/alarm_record.mp4" ]; then
         LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"uploadVideoFinish\", \"device\":\"${HOSTNAME}\"${STORAGE}}" $WEBHOOK_URL > /dev/null 2>&1
       fi
     fi
