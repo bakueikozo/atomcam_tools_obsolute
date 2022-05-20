@@ -76,24 +76,18 @@ else
   FMT=`date +"%Y%m%d_%H%M%S"`
 fi
 
-if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
-  TMPFILE1="${SPATH}/rm_`cat /proc/sys/kernel/random/uuid`"
-  ln $FILE $TMPFILE1
-  (
+TMPFILE="${SPATH}/rm_`cat /proc/sys/kernel/random/uuid`"
+mv $FILE $TMPFILE
+(
+  if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
     if [ "$WEBHOOK_ALERM_PICT" = "on" ] && [ "$FILE" = "$SPATH/alarm.jpg" ]; then
-      LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -F "image=@$TMPFILE1" -F"type=image/jpeg" -F"device=${HOSTNAME}" $WEBHOOK_URL > /dev/null 2>&1
+      LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -F "image=@$TMPFILE" -F"type=image/jpeg" -F"device=${HOSTNAME}" $WEBHOOK_URL > /dev/null 2>&1
     fi
     if [ "$WEBHOOK_ALERM_VIDEO" = "on" ] && [ "$FILE" = "$SPATH/alarm_record.mp4" ]; then
-      LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -F "video=@$TMPFILE1" -F "type=video/mp4" -F"device=${HOSTNAME}" $WEBHOOK_URL > /dev/null 2>&1
+      LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -F "video=@$TMPFILE" -F "type=video/mp4" -F"device=${HOSTNAME}" $WEBHOOK_URL > /dev/null 2>&1
     fi
-    rm -f $TMPFILE1
-  ) &
-fi
-
-if [ "$FMT" != "" ] ; then
-  TMPFILE="${SPATH}/rm_`cat /proc/sys/kernel/random/uuid`"
-  /bin/busybox mv $FILE $TMPFILE
-  (
+  fi
+  if [ "$FMT" != "" ] ; then
     if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "alarm" ] && /tmp/system/bin/mount_cifs && [ ! -f /tmp/disable_cifs ] ; then
       CIFSFILE=`date +"alarm_record/$STORAGE_CIFS_PATH.${FILE##*.}"`
       OUTFILE="/mnt/$HOSTNAME/$CIFSFILE"
@@ -108,10 +102,8 @@ if [ "$FMT" != "" ] ; then
       OUTFILE="/media/mmc/$SDCARDFILE"
       DIR_PATH=${OUTFILE%/*}
       mkdir -p $DIR_PATH
-      /bin/busybox mv $TMPFILE $OUTFILE || /bin/busybox rm $TMPFILE
+      /bin/busybox mv $TMPFILE $OUTFILE
       STORAGE="${STORAGE}, \"sdcardFile\":\"${SDCARDFILE}\""
-    else
-      /bin/busybox rm $TMPFILE
     fi
 
     if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
@@ -122,8 +114,8 @@ if [ "$FMT" != "" ] ; then
         LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"uploadVideoFinish\", \"device\":\"${HOSTNAME}\"${STORAGE}}" $WEBHOOK_URL > /dev/null 2>&1
       fi
     fi
-  ) &
-else
-  /bin/busybox rm $FILE
-fi
+  fi
+  /bin/busybox rm -f $TMPFILE
+) &
+
 exit 0
