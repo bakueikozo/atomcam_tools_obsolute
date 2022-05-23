@@ -1,7 +1,7 @@
 # Makefile
 
 build:
-	docker-compose ps | grep builder || docker-compose up -d
+	docker-compose ps | grep -v exited | grep builder || docker-compose up -d
 	docker-compose exec builder /src/buildscripts/build_all | tee rebuild_`date +"%Y%m%d_%H%M%S"`.log
 
 docker-build:
