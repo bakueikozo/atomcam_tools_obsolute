@@ -1,11 +1,11 @@
 diff --git a/src/mixer_plugin.c b/src/mixer_plugin.c
-index a07b8f6..1f2a7d8 100644
+index 34117a9..aa9e50e 100644
 --- a/src/mixer_plugin.c
 +++ b/src/mixer_plugin.c
 @@ -51,6 +51,18 @@
  #include "snd_card_plugin.h"
  #include "mixer_io.h"
- 
+
 +#if defined(__UCLIBC__)
 +int eventfd_read(int fd, eventfd_t* value) {
 +       return (read(fd, value, sizeof(*value)) == sizeof(*value)) ? 0 : -1;
@@ -21,3 +21,19 @@ index a07b8f6..1f2a7d8 100644
  /** Encapulates the mixer plugin specific data */
  struct mixer_plug_data {
      /** Card number associated with the plugin */
+diff --git a/src/pcm.c b/src/pcm.c
+index 10e477b..1e46e3f 100644
+--- a/src/pcm.c
++++ b/src/pcm.c
+@@ -1081,8 +1081,10 @@ struct pcm *pcm_open(unsigned int card, unsigned int device,
+     }
+     pcm->subdevice = info.subdevice;
+
+-    if (pcm_set_config(pcm, config) != 0)
++    if (pcm_set_config(pcm, config) != 0) {
++        memcpy(bad_pcm.error, pcm->error, PCM_ERROR_MAX);
+         goto fail_close;
++    }
+
+     rc = pcm_hw_mmap_status(pcm);
+     if (rc < 0) {

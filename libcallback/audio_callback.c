@@ -18,11 +18,15 @@ typedef int (* framecb)(struct frames_st *);
 static uint32_t (*real_local_sdk_audio_set_pcm_frame_callback)(int ch, void *callback);
 static void *audio_pcm_cb = NULL;
 static int AudioCaptureEnable = 0;
+static struct pcm *pcm = NULL;
 
 char *AudioCapture(int fd, char *tokenPtr) {
 
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
-  if(!p) return AudioCaptureEnable ? "on" : "off";
+  if(!p) {
+    if(!pcm) return "disabled";
+    return AudioCaptureEnable ? "on" : "off";
+  }
   if(!strcmp(p, "on")) {
     AudioCaptureEnable = 1;
     fprintf(stderr, "[command] audio capute on\n", p);
@@ -38,39 +42,33 @@ char *AudioCapture(int fd, char *tokenPtr) {
 
 static uint32_t audio_pcm_capture(struct frames_st *frames) {
 
-  static struct pcm *pcm = NULL;
   static int firstEntry = 0;
   uint32_t *buf = frames->buf;
 
-  if(!firstEntry) {
-    firstEntry++;
-    unsigned int card = 0;
-    unsigned int device = 1;
-    int flags = PCM_OUT | PCM_MMAP;
+  if(!pcm) {
     const struct pcm_config config = {
       .channels = 1,
       .rate = 8000,
       .format = PCM_FORMAT_S16_LE,
       .period_size = 320,
-      .period_count = 4,
-      .start_threshold = 320,
+      .period_count = 8,
+      .start_threshold = 320 * 4,
       .silence_threshold = 0,
       .silence_size = 0,
-      .stop_threshold = 320 * 4
+      .stop_threshold = 320 * 8,
+      .avail_min = 0,
     };
-    pcm = pcm_open(card, device, flags, &config);
+    pcm = pcm_open(0, 1, PCM_OUT | PCM_MMAP, &config);
     if(pcm == NULL) {
         fprintf(stderr, "failed to allocate memory for PCM\n");
     } else if(!pcm_is_ready(pcm)) {
+      fprintf(stderr, "failed to open PCM : %s\n", pcm_get_error(pcm));
       pcm_close(pcm);
-      fprintf(stderr, "failed to open PCM\n");
+      pcm = NULL;
     }
   }
 
   if(pcm && AudioCaptureEnable) {
-    int avail = pcm_mmap_avail(pcm);
-    int delay = pcm_get_delay(pcm);
-    int ready = pcm_is_ready(pcm);
     int err = pcm_writei(pcm, buf, pcm_bytes_to_frames(pcm, frames->length));
     if(err < 0) fprintf(stderr, "pcm_writei err=%d\n", err);
   }
