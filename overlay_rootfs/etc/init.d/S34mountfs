@@ -1,0 +1,65 @@
+#!/bin/sh
+#
+# Start webhook for atomcam
+#
+#
+# /atom          : squashfs  /dev/mtdblock2  (SPI Flash)
+# /atom/system   : squashfs  /dev/mtdblock3  (SPI Flash)
+# /atom/configs  : ext2      /media/mmc/configs copy from /dev/mtdblock6(jffs2)
+# ---- The following are bind mounts ----
+# /atom/run -> /run
+# /atom/tmp -> /tmp
+# /atom/media -> /media
+# /atom/tmp/system/lib -> /lib
+# /atom/usr -> /tmp/system/usr
+# /atom/usr/lib -> /usr/lib
+# /atom/etc -> /tmp/system/etc
+# /atom/sbin -> /tmp/system/sbin
+#
+
+case "$1" in
+  start)
+    mkdir -p /atom
+    mount -t squashfs /dev/mtdblock2 /atom
+    mount -t squashfs /dev/mtdblock3 /atom/system
+    [ -f /media/mmc/configs ] || ( dd if=/dev/zero of=/media/mmc/configs bs=1M count=1 && mkfs.ext2 -F /media/mmc/configs )
+    mount -t ext2 -o loop /media/mmc/configs /atom/configs
+    if [ ! -f /atom/configs/.product_config -o ! -f /atom/configs/.user_config ] ; then
+      echo "rebuild configs" >> /media/mmc/atomhack.log
+      mount -t jffs2 /dev/mtdblock6 /mnt
+      cp -p /mnt/.* /mnt/* /atom/configs 2> /dev/null
+      echo 3 > /proc/sys/vm/drop_caches
+      umount /mnt
+      sync
+    fi
+    mount -t proc proc /atom/proc
+    mount -o rbind /dev /atom/dev
+    mount -t sysfs sysfs /atom/sys
+    mount -o bind /run /atom/run
+    mount -o bind /tmp /atom/tmp
+    mount -o rbind /media /atom/media
+    mkdir -p /tmp/system/lib
+    mount -o bind /lib /atom/tmp/system/lib
+    cp -pr /atom/usr /tmp/system
+    mkdir -p /tmp/system/usr/lib
+    mount -o bind /tmp/system/usr /atom/usr
+    mount -o bind /usr/lib /atom/usr/lib
+    cp -pr /atom/etc /tmp/system
+    mount -o bind /tmp/system/etc /atom/etc
+    cp -pr /atom/sbin /tmp/system
+    mount -o bind /tmp/system/sbin /atom/sbin
+    mkdir -p /media/mmc/update
+    mkdir -p /media/mmc/tmp
+    rm -f /media/mmc/tmp/*
+    insmod /atom/system/driver/exfat.ko
+  ;;
+  stop)
+  ;;
+  restart|reload)
+  ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit $?

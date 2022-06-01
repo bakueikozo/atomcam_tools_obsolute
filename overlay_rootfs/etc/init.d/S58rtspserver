@@ -5,13 +5,7 @@
 
 case "$1" in
   start)
-    (
-      while ! ifconfig wlan0 | grep 'inet addr' > /dev/null
-      do
-        sleep 1
-      done
-      /scripts/rtspserver.sh
-    ) &
+    /scripts/rtspserver.sh &
     ;;
   stop)
     /scripts/rtspserver.sh off
