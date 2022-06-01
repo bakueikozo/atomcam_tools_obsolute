@@ -13,7 +13,7 @@ static void __attribute ((constructor)) remove_hook_init(void) {
 
 int remove(const char *pathname) {
 
-  if(!strncmp(pathname, HookPath, strlen(HookPath))) printf("[webhook] time_lapse_finish %s\n", TimeLapsePath);
+  if(!strncmp(pathname, HookPath, strlen(HookPath))) printf("[webhook] time_lapse_finish %s\n", TimeLapsePath); // stdout: for webhook
   return original_remove(pathname);
 }
 

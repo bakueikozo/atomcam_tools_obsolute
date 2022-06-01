@@ -29,12 +29,12 @@ char *AudioCapture(int fd, char *tokenPtr) {
   }
   if(!strcmp(p, "on")) {
     AudioCaptureEnable = 1;
-    fprintf(stderr, "[command] audio capute on\n", p);
+    printf("[command] audio capute on\n", p);
     return "ok";
   }
   if(!strcmp(p, "off")) {
     AudioCaptureEnable = 0;
-    fprintf(stderr, "[command] audio capute off\n", p);
+    printf("[command] audio capute off\n", p);
     return "ok";
   }
   return "error";

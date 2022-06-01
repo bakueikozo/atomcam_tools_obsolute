@@ -18,7 +18,7 @@ DIR *opendir(const char *pathname) {
 
   if(!strncmp(pathname, HookPath, strlen(HookPath))) {
     strncpy(TimeLapsePath, pathname + strlen(MediaPath), 255);
-    printf("[webhook] time_lapse_event %s\n", TimeLapsePath);
+    printf("[webhook] time_lapse_event %s\n", TimeLapsePath); // stdout: for webhook
   }
   return original_opendir(pathname);
 }

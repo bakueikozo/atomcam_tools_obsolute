@@ -27,12 +27,12 @@ char *VideoCapture(int fd, char *tokenPtr) {
   if(!p) return VideoCaptureEnable ? "on" : "off";
   if(!strcmp(p, "on")) {
     VideoCaptureEnable = 1;
-    fprintf(stderr, "[command] video capute on\n", p);
+    printf("[command] video capute on\n", p);
     return "ok";
   }
   if(!strcmp(p, "off")) {
     VideoCaptureEnable = 0;
-    fprintf(stderr, "[command] video capute off\n", p);
+    printf("[command] video capute off\n", p);
     return "ok";
   }
   return "error";
