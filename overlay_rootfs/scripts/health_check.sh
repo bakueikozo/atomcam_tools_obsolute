@@ -48,8 +48,7 @@ if [ $RES -eq 0 ] ; then
     echo $(date +"%Y/%m/%d %H:%M:%S : WiFi restart : error : ") $error >> /media/mmc/healthcheck.log
     ifconfig wlan0 down
     ifconfig wlan0 up
-    killall -USR1 udhcpc || udhcpc -i wlan0 -n -p /var/run/udhcpc.pid >> /media/mmc/healthcheck.log 2>&1
-
+    killall -USR1 udhcpc || udhcpc -i wlan0 -H ATOM -p /var/run/udhcpc.pid -b >> /media/mmc/healthcheck.log 2>&1
   fi
   echo $retry $error > /tmp/healthcheck.retry_count
 else

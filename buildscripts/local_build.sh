@@ -1,5 +1,9 @@
 #!/bin/sh
 
+#remove init.d files
+rm -f $TARGET_DIR/etc/init.d/S40network
+rm -f $TARGET_DIR/etc/init.d/S50sshd
+
 # tinyalsa
 cd $BUILD_DIR
 git clone https://github.com/tinyalsa/tinyalsa.git -b v2.0.0 --depth 1

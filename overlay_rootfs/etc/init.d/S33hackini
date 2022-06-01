@@ -8,6 +8,7 @@ case "$1" in
     [ -f /media/mmc/hack.ini ] || touch /media/mmc/hack.ini
     cp /media/mmc/hack.ini /tmp/hack.ini
     chmod 666 /tmp/hack.ini
+    mkdir -p /tmp/log
   ;;
   stop)
   ;;

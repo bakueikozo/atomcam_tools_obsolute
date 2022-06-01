@@ -28,4 +28,6 @@ if [ "$1" = "restart" ]; then
 fi
 
 echo `date +"%Y/%m/%d %H:%M:%S"` ": lighttpd start"
+mkdir -p /tmp/log/lighttpd
+chown www-data:www-data /tmp/log/lighttpd
 /usr/sbin/lighttpd -f /etc/lighttpd/lighttpd.conf
