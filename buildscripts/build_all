@@ -2,7 +2,7 @@
 
 if ! cmp /src/configs/atomcam_defconfig .config > /dev/null ; then
   cp /src/configs/atomcam_defconfig .config
-  make old_config
+  make oldconfig
 fi
 
 # build kernel and rootfs

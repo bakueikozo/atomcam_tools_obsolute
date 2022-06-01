@@ -1,0 +1,70 @@
+arch: default
+
+images:
+  - location: "https://cloud-images.ubuntu.com/releases/21.10/release/ubuntu-21.10-server-cloudimg-amd64.img"
+    arch: "x86_64"
+  - location: "https://cloud-images.ubuntu.com/releases/21.10/release/ubuntu-21.10-server-cloudimg-arm64.img"
+    arch: "aarch64"
+
+cpus: 4
+memory: "4GiB"
+disk: "30GiB"
+
+mounts:
+  - location: "~"
+    writable: true
+  - location: "/tmp/lima"
+    writable: true
+
+containerd:
+  system: false
+  user: false
+
+provision:
+  - mode: system
+    script: |
+      #!/bin/sh
+      sed -i 's/host.lima.internal.*/host.lima.internal host.docker.internal/' /etc/hosts
+  - mode: system
+    script: |
+      #!/bin/bash
+      set -eux -o pipefail
+      command -v docker >/dev/null 2>&1 && exit 0
+      export DEBIAN_FRONTEND=noninteractive
+      curl -fsSL https://get.docker.com | sh
+      apt install -y docker-compose qemu-system-x86 binfmt-support qemu-user qemu-user-static
+  - mode: system
+    script: |
+      #!/bin/bash
+      set -eux -o pipefail
+      mkdir -p /etc/systemd/system/docker.service.d/
+      cat <<EOF > /etc/systemd/system/docker.service.d/override.conf
+      [Service]
+      ExecStart=
+      ExecStart=/usr/bin/dockerd -H tcp://127.0.0.1:2375
+      EOF
+      systemctl daemon-reload
+      systemctl restart docker
+
+probes:
+  - mode: readiness
+    description: docker to be installed
+    script: |
+      #!/bin/bash
+      set -eux -o pipefail
+      if ! timeout 30s bash -c "until command -v docker >/dev/null 2>&1; do sleep 3; done"; then
+        echo >&2 "docker is not installed yet"
+        exit 1
+      fi
+    hint: See "/var/log/cloud-init-output.log". in the guest
+
+hostResolver:
+  hosts:
+    host.docker.internal: host.lima.internal
+
+message: |
+  $ export DOCKER_HOST='tcp://127.0.0.1:2375'
+
+env:
+  DOCKER_HOST: 'tcp://127.0.0.1:2375'
+

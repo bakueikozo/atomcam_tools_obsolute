@@ -14,6 +14,7 @@ mkdir -p $TARGET_DIR/lib/modules
 cp -dpf ${DESTDIR}/usr/lib/libtinyalsa.so.* $TARGET_DIR/lib/modules
 
 # build libcallback.so
+rm -rf /atomtools/build/buildroot-2016.02/output/local/libcallback
 mkdir -p /atomtools/build/buildroot-2016.02/output/local
 cp -pr /src/libcallback /atomtools/build/buildroot-2016.02/output/local
 cd /atomtools/build/buildroot-2016.02/output/local/libcallback
