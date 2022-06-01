@@ -32,7 +32,7 @@ int PlayPCM(char *file, int vol) {
     0x02, 0x00, 0x10, 0x00, 0x64, 0x61, 0x74, 0x61
   };
 
-  fprintf(stderr, "[command] aplay: file:%s\n", file);
+  printf("[command] aplay: file:%s\n", file);
   FILE *fp = fopen(file, "rb");
   if(fp == NULL) {
     fprintf(stderr, "[command] aplay err: fopen %s failed!\n", file);
@@ -74,7 +74,6 @@ int PlayPCM(char *file, int vol) {
     usleep(500 * 1000);
     set_pa_mode(0);
   }
-  fprintf(stderr, "[command] aplay: finish\n");
   return 0;
 }
 
