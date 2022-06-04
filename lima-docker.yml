@@ -64,6 +64,7 @@ hostResolver:
 
 message: |
   $ export DOCKER_HOST='tcp://127.0.0.1:2375'
+  $ export LIMA_INSTANCE=lima-docker
 
 env:
   DOCKER_HOST: 'tcp://127.0.0.1:2375'

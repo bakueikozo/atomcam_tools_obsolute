@@ -8,6 +8,7 @@
 
 /* Begin PBXFileReference section */
 		152EEAD6274527B10084B0E3 /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
+		152FF2AC284AF69A0070E05F /* lima-docker.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "lima-docker.yml"; sourceTree = "<group>"; };
 		1541FB8D1F1116CE006343F3 /* license */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = license; sourceTree = "<group>"; };
 		156A36DA1F5AE96F0026EC60 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		159AA925276B6D0E00C8D898 /* target */ = {isa = PBXFileReference; lastKnownFileType = folder; path = target; sourceTree = "<group>"; };
@@ -30,6 +31,7 @@
 		158D68711B79C58E002B30E3 = {
 			isa = PBXGroup;
 			children = (
+				152FF2AC284AF69A0070E05F /* lima-docker.yml */,
 				15F0A888282B79A400E95C1D /* Dockerfile */,
 				15F0A887282B79A300E95C1D /* Makefile */,
 				156A36DA1F5AE96F0026EC60 /* README.md */,
