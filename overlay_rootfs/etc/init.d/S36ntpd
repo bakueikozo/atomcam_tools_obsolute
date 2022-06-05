@@ -5,10 +5,6 @@
 
 case "$1" in
   start)
-    while ! ping -c 1 ntp.nict.jp > /dev/null 2>&1
-    do
-      sleep 0.5
-    done
     logger -s "Starting ntpd: "
     /usr/sbin/ntpd -p ntp.nict.jp
     [ $? == 0 ] && logger -s "OK" || logger -s "FAIL"

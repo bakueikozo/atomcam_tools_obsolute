@@ -1,3 +1,11 @@
 #!/bin/sh
 echo 'wpa_state=COMPLETED'
-echo ip_addresss=`/bin/busybox ifconfig wlan0 | awk '/inet / {gsub(/^.*:/, "", $2);print $2}'`
+for i in `ls /sys/class/net`
+do
+  [ "$i" = "lo" ] && continue
+  [ "$i" = "p2p0" ] && continue
+  ADDR=`/bin/busybox ifconfig | awk '/inet / {gsub(/^.*:/, "", $2);if($2 !~ "^127.*") { print $2; exit 0;}}'`
+  [ "$ADDR" = "" ] && continue;
+  echo ip_addresss=$ADDR
+  break
+done
