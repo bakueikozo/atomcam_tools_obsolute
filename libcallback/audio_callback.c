@@ -45,19 +45,19 @@ static uint32_t audio_pcm_capture(struct frames_st *frames) {
   static int firstEntry = 0;
   uint32_t *buf = frames->buf;
 
+  const struct pcm_config config = {
+    .channels = 1,
+    .rate = 8000,
+    .format = PCM_FORMAT_S16_LE,
+    .period_size = 320,
+    .period_count = 16,
+    .start_threshold = 0,
+    .silence_threshold = 0,
+    .silence_size = 0,
+    .stop_threshold = 0,
+  };
+
   if(!pcm) {
-    const struct pcm_config config = {
-      .channels = 1,
-      .rate = 8000,
-      .format = PCM_FORMAT_S16_LE,
-      .period_size = 320,
-      .period_count = 8,
-      .start_threshold = 320 * 4,
-      .silence_threshold = 0,
-      .silence_size = 0,
-      .stop_threshold = 320 * 8,
-      .avail_min = 0,
-    };
     pcm = pcm_open(0, 1, PCM_OUT | PCM_MMAP, &config);
     if(pcm == NULL) {
         fprintf(stderr, "failed to allocate memory for PCM\n");
@@ -69,8 +69,12 @@ static uint32_t audio_pcm_capture(struct frames_st *frames) {
   }
 
   if(pcm && AudioCaptureEnable) {
-    int err = pcm_writei(pcm, buf, pcm_bytes_to_frames(pcm, frames->length));
-    if(err < 0) fprintf(stderr, "pcm_writei err=%d\n", err);
+    if(pcm_mmap_avail(pcm) >= config.period_size * config.period_count / 4) {
+      int err = pcm_writei(pcm, buf, pcm_bytes_to_frames(pcm, frames->length));
+      if(err < 0) fprintf(stderr, "pcm_writei err=%d\n", err);
+    } else {
+      fprintf(stderr, "[audio] drop packet: %d\n", frames->length);
+    }
   }
   return ((framecb)audio_pcm_cb)(frames);
 }
