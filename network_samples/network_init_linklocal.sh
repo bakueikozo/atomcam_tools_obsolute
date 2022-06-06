@@ -16,7 +16,8 @@ case "$1" in
       [ 20 -le $count ] && break
     done
 
-    ifconfig usb0 up
+    HWADDR=$(awk -F "=" '/(CONFIG_INFO|NETRELATED_MAC)=/ { printf("%s:%s:%s:%s:%s:%02X\n", substr($2,1,2), substr($2,3,2), substr($2,5,2), substr($2,7,2), substr($2,9,2), (("0x" substr($2,11,2)) + 1) % 255) ; exit;}' /atom/configs/.product_config)
+    ifconfig usb0 hw ether $HWADDR up
     /usr/sbin/avahi-autoipd -D --no-drop-root usb0
 
     count=0
@@ -30,12 +31,14 @@ case "$1" in
     exit 0
   ;;
   restart)
+    ifconfig | grep usb0:avahi && exit 100 # skip error reboot
     ifconfig usb0:avahi down
     ifconfig usb0 down
     ifconfig usb0 up
+    /usr/sbin/avahi-autoipd -k usb0
     /usr/sbin/avahi-autoipd -D --no-drop-root usb0
 
-    exit 0
+    exit 100 # skip error reboot
   ;;
   *)
     echo "Usage: $0 (start|restart)"
