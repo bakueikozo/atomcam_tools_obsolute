@@ -5,7 +5,9 @@ case "$1" in
   start)
     devmem 0x10000040 32 0x0b000FFF
 
-    modprobe g_ncm
+    HOSTADDR=$(awk -F "=" '/(CONFIG_INFO|NETRELATED_MAC)=/ { printf("%s:%s:%s:%s:%s:%02X\n", substr($2,1,2), substr($2,3,2), substr($2,5,2), substr($2,7,2), substr($2,9,2), (("0x" substr($2,11,2)) + 1) % 255) ; exit;}' /atom/configs/.product_config)
+    DEVADDR=$(awk -F "=" '/(CONFIG_INFO|NETRELATED_MAC)=/ { printf("%s:%s:%s:%s:%s:%02X\n", substr($2,1,2), substr($2,3,2), substr($2,5,2), substr($2,7,2), substr($2,9,2), (("0x" substr($2,11,2)) + 2) % 255) ; exit;}' /atom/configs/.product_config)
+    modprobe g_ncm host_addr=$HOSTADDR dev_addr=$DEVADDR
     modprobe rndis_host
 
     count=0
@@ -16,8 +18,7 @@ case "$1" in
       [ 20 -le $count ] && break
     done
 
-    HWADDR=$(awk -F "=" '/(CONFIG_INFO|NETRELATED_MAC)=/ { printf("%s:%s:%s:%s:%s:%02X\n", substr($2,1,2), substr($2,3,2), substr($2,5,2), substr($2,7,2), substr($2,9,2), (("0x" substr($2,11,2)) + 1) % 255) ; exit;}' /atom/configs/.product_config)
-    ifconfig usb0 hw ether $HWADDR up
+    ifconfig usb0 up
     /usr/sbin/avahi-autoipd -D --no-drop-root usb0
 
     count=0
