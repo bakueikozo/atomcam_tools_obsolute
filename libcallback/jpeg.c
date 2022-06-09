@@ -25,6 +25,8 @@ static const char *HttpResHeader = "Cache-Control: no-cache\nContent-Type: image
 static const char *HttpErrorHeader = "Cache-Control: no-cache\nStatus: 503\n\n";
 static pthread_mutex_t JpegDataMutex = PTHREAD_MUTEX_INITIALIZER;
 static int JpegCaptureFd = -1;
+static int JpegChannel = 0;
+static int NoHeader = 0;
 
 char *JpegCapture(int fd, char *tokenPtr) {
 
@@ -35,18 +37,27 @@ char *JpegCapture(int fd, char *tokenPtr) {
     return NULL;
   }
   JpegCaptureFd = fd;
+  JpegChannel = 0;
+  NoHeader = 0;
+  char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+  if(p && (!strcmp(p, "0") || !strcmp(p, "1"))) {
+    JpegChannel = atoi(p);
+    p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+ }
+ if(p && !strcmp(p, "-n")) NoHeader = 1;
+
   pthread_mutex_unlock(&JpegDataMutex);
   return NULL;
 }
 
 static int GetJpegData(int fd) {
 
-  struct channelConfigSt *chConfig = get_enc_chn_config(0);
+  struct channelConfigSt *chConfig = get_enc_chn_config(JpegChannel);
   if (!chConfig->state) {
-    fprintf(stderr, "[command] jpeg err: ch0 is not enable jpeg!\n");
+    fprintf(stderr, "[command] jpeg err: ch%d is not enable jpeg!\n", JpegChannel);
     return -1;
   }
-  int state = get_video_run_state(0);
+  int state = get_video_run_state(JpegChannel);
   if (state < 5) {
     fprintf(stderr, "[command] jpeg err: U should call 'video_run' before this func\n");
     return -1;
@@ -76,7 +87,7 @@ static int GetJpegData(int fd) {
     goto error2;
   }
 
-  write(JpegCaptureFd, HttpResHeader, strlen(HttpResHeader));
+  if(!NoHeader) write(JpegCaptureFd, HttpResHeader, strlen(HttpResHeader));
   if(save_jpeg(fd, stream) < 0) {
     fprintf(stderr, "[command] jpeg err: save_jpeg(%d) failed\n", fd);
     ret = -2;
@@ -90,7 +101,7 @@ error2:
 
 error1:
   video_param_set_mutex_unlock(1);
-  if(ret == -1) write(JpegCaptureFd, HttpErrorHeader, strlen(HttpErrorHeader));
+  if((ret == -1) && !NoHeader) write(JpegCaptureFd, HttpErrorHeader, strlen(HttpErrorHeader));
   return ret;
 }
 
@@ -100,7 +111,7 @@ static void *JpegCaptureThread() {
     pthread_mutex_lock(&JpegDataMutex);
     if(JpegCaptureFd >= 0) {
       int res = GetJpegData(JpegCaptureFd);
-      CommandResponse(JpegCaptureFd, res >= 0 ? "" : "error : buffer size error");
+      CommandResponse(JpegCaptureFd, res >= 0 ? "" : "error");
     }
     JpegCaptureFd = -1;
   }

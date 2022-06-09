@@ -12,75 +12,116 @@
 #include <pthread.h>
 
 struct frames_st {
-  void *buf;
+  uint32_t *buf;
   size_t length;
 };
 typedef int (* framecb)(struct frames_st *);
-
 static int (*real_local_sdk_video_set_encode_frame_callback)(int ch, void *callback);
-static void *video_encode_cb = NULL;
-static int VideoCaptureEnable = 0;
+static int video0_encode_capture(struct frames_st *frames);
+static int video1_encode_capture(struct frames_st *frames);
+
+struct video_capture_st {
+  framecb callback;
+  framecb capture;
+  int enable;
+  int initialized;
+  int width;
+  int height;
+  const char *device;
+  int fd;
+};
+static struct video_capture_st video_capture[] = {
+  {
+    .callback = NULL,
+    .capture = video0_encode_capture,
+    .enable = 0,
+    .initialized = 0,
+    .width = 1920,
+    .height = 1080,
+    .device = "/dev/video0",
+    .fd = -1,
+  },
+  {
+    .callback = NULL,
+    .capture = video1_encode_capture,
+    .enable = 0,
+    .initialized = 0,
+    .width = 640,
+    .height = 360,
+    .device = "/dev/video1",
+    .fd = -1,
+  },
+};
 
 char *VideoCapture(int fd, char *tokenPtr) {
 
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
-  if(!p) return VideoCaptureEnable ? "on" : "off";
+  int ch = 0;
+  if(p && (!strcmp(p, "0") || !strcmp(p, "1"))) {
+    ch = atoi(p);
+    p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+  }
+  if(!p) return video_capture[ch].enable ? "on" : "off";
   if(!strcmp(p, "on")) {
-    VideoCaptureEnable = 1;
-    printf("[command] video capute on\n", p);
+    video_capture[ch].enable = 1;
+    printf("[command] video %d capute on\n", ch);
     return "ok";
   }
   if(!strcmp(p, "off")) {
-    VideoCaptureEnable = 0;
-    printf("[command] video capute off\n", p);
+    video_capture[ch].enable = 0;
+    printf("[command] video %d capute off\n", ch);
     return "ok";
   }
   return "error";
 }
 
-static uint32_t video_encode_capture(struct frames_st *frames) {
+static int video_encode_capture(int ch, struct frames_st *frames) {
 
-  static int firstEntry = 0;
-  static int v4l2Fd = -1;
-
-  if(!firstEntry) {
-    firstEntry++;
+  if(!video_capture[ch].initialized) {
+    video_capture[ch].initialized = 1;
     int err;
-    const char *v4l2_device_path = "/dev/video1";
-    fprintf(stderr,"Opening V4L2 device: %s \n", v4l2_device_path);
-    v4l2Fd = open(v4l2_device_path, O_WRONLY, 0777);
-    if(v4l2Fd < 0) fprintf(stderr,"Failed to open V4L2 device: %s\n", v4l2_device_path);
+    video_capture[ch].fd = open(video_capture[ch].device, O_WRONLY, 0777);
+    if(video_capture[ch].fd < 0) fprintf(stderr, "Failed to open V4L2 device: %s\n", video_capture[ch].device);
+    fprintf(stderr, "Opening V4L2 device: %s %d\n", video_capture[ch].device, video_capture[ch].fd);
     struct v4l2_format vid_format;
     memset(&vid_format, 0, sizeof(vid_format));
     vid_format.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
-    vid_format.fmt.pix.width = 1920;
-    vid_format.fmt.pix.height = 1080;
+    vid_format.fmt.pix.width = video_capture[ch].width;
+    vid_format.fmt.pix.height = video_capture[ch].height;
     vid_format.fmt.pix.pixelformat = V4L2_PIX_FMT_H264;
     vid_format.fmt.pix.sizeimage = 0;
     vid_format.fmt.pix.field = V4L2_FIELD_NONE;
     vid_format.fmt.pix.bytesperline = 0;
     vid_format.fmt.pix.colorspace = V4L2_PIX_FMT_YUV420;
-    err = ioctl(v4l2Fd, VIDIOC_S_FMT, &vid_format);
-    if(err < 0) fprintf(stderr,"Unable to set V4L2 device video format: %d\n", err);
-    err = ioctl(v4l2Fd, VIDIOC_STREAMON, &vid_format);
-    if(err < 0) fprintf(stderr,"Unable to perform VIDIOC_STREAMON: %d\n", err);
+    err = ioctl(video_capture[ch].fd, VIDIOC_S_FMT, &vid_format);
+    if(err < 0) fprintf(stderr, "Unable to set V4L2 %s format: %d\n", video_capture[ch].device, err);
+    err = ioctl(video_capture[ch].fd, VIDIOC_STREAMON, &vid_format);
+    if(err < 0) fprintf(stderr, "Unable to perform VIDIOC_STREAMON %s: %d\n", video_capture[ch].device, err);
   }
 
-  if( (v4l2Fd >= 0) && VideoCaptureEnable) {
+  if((video_capture[ch].fd >= 0) && video_capture[ch].enable) {
     uint32_t *buf = frames->buf;
-    int size = write(v4l2Fd, frames->buf, frames->length);
-    if(size != frames->length) fprintf(stderr,"Stream write error: %s\n", size);
+    int size = write(video_capture[ch].fd, frames->buf, frames->length);
+    if(size != frames->length) fprintf(stderr,"Stream write error %s: %s\n", video_capture[ch].device, size);
   }
-  return ((framecb)video_encode_cb)(frames);
+  return (video_capture[ch].callback)(frames);
+}
+
+static int video0_encode_capture(struct frames_st *frames) {
+  return video_encode_capture(0, frames);
+}
+
+static int video1_encode_capture(struct frames_st *frames) {
+  return video_encode_capture(1, frames);
 }
 
 int local_sdk_video_set_encode_frame_callback(int ch, void *callback) {
 
   fprintf(stderr, "local_sdk_video_set_encode_frame_callback streamChId=%d, callback=0x%x\n", ch, callback);
-  if(ch == 0) {
-    video_encode_cb = callback;
-    fprintf(stderr,"enc func injection save video_encode_cb=0x%x\n", video_encode_cb);
-    callback = video_encode_capture;
+  if((ch == 0) || (ch == 1)) {
+    video_capture[ch].callback = callback;
+    fprintf(stderr,"enc func injection save video_encode_cb=0x%x\n", video_capture[ch].callback);
+    callback = video_capture[ch].capture;
   }
   return real_local_sdk_video_set_encode_frame_callback(ch, callback);
 }
