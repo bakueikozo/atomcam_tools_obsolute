@@ -1,6 +1,7 @@
 #define _GNU_SOURCE
 #include <dlfcn.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <stdint.h>
@@ -17,33 +18,45 @@ typedef int (* framecb)(struct frames_st *);
 
 static uint32_t (*real_local_sdk_audio_set_pcm_frame_callback)(int ch, void *callback);
 static void *audio_pcm_cb = NULL;
-static int AudioCaptureEnable = 0;
-static struct pcm *pcm = NULL;
+
+struct audio_capture_st {
+  struct pcm *pcm;
+  int enable;
+};
+struct audio_capture_st audio_capture[] = {
+  {
+    .pcm = NULL,
+    .enable = 0,
+  },
+  {
+    .pcm = NULL,
+    .enable = 0,
+  },
+};
 
 char *AudioCapture(int fd, char *tokenPtr) {
 
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
-  if(!p) {
-    if(!pcm) return "disabled";
-    return AudioCaptureEnable ? "on" : "off";
+  int ch = 0;
+  if(p && (!strcmp(p, "0") || !strcmp(p, "1"))) {
+    ch = atoi(p);
+    p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   }
+  if(!p) return audio_capture[ch].enable ? "on" : "off";
   if(!strcmp(p, "on")) {
-    AudioCaptureEnable = 1;
-    printf("[command] audio capute on\n", p);
+    audio_capture[ch].enable = 1;
+    printf("[command] audio %d capute on\n", ch);
     return "ok";
   }
   if(!strcmp(p, "off")) {
-    AudioCaptureEnable = 0;
-    printf("[command] audio capute off\n", p);
+    audio_capture[ch].enable = 0;
+    printf("[command] audio %d capute off\n", ch);
     return "ok";
   }
   return "error";
 }
 
 static uint32_t audio_pcm_capture(struct frames_st *frames) {
-
-  static int firstEntry = 0;
-  uint32_t *buf = frames->buf;
 
   const struct pcm_config config = {
     .channels = 1,
@@ -57,23 +70,25 @@ static uint32_t audio_pcm_capture(struct frames_st *frames) {
     .stop_threshold = 0,
   };
 
-  if(!pcm) {
-    pcm = pcm_open(0, 1, PCM_OUT | PCM_MMAP, &config);
-    if(pcm == NULL) {
-        fprintf(stderr, "failed to allocate memory for PCM\n");
-    } else if(!pcm_is_ready(pcm)) {
-      fprintf(stderr, "failed to open PCM : %s\n", pcm_get_error(pcm));
-      pcm_close(pcm);
-      pcm = NULL;
+  for(int ch = 0; ch < 2; ch++) {
+    if(!audio_capture[ch].pcm) {
+      audio_capture[ch].pcm = pcm_open(0, ch, PCM_OUT | PCM_MMAP, &config);
+      if(audio_capture[ch].pcm == NULL) {
+          fprintf(stderr, "failed to allocate memory for PCM%d\n", ch);
+      } else if(!pcm_is_ready(audio_capture[ch].pcm)) {
+        fprintf(stderr, "failed to open PCM%d : %s\n", ch, pcm_get_error(audio_capture[ch].pcm));
+        pcm_close(audio_capture[ch].pcm);
+        audio_capture[ch].pcm = NULL;
+      }
     }
-  }
 
-  if(pcm && AudioCaptureEnable) {
-    if(pcm_mmap_avail(pcm) >= config.period_size * config.period_count / 4) {
-      int err = pcm_writei(pcm, buf, pcm_bytes_to_frames(pcm, frames->length));
-      if(err < 0) fprintf(stderr, "pcm_writei err=%d\n", err);
-    } else {
-      fprintf(stderr, "[audio] drop packet: %d\n", frames->length);
+    if(audio_capture[ch].pcm && audio_capture[ch].enable) {
+      if(pcm_mmap_avail(audio_capture[ch].pcm) >= config.period_size * config.period_count / 4) {
+        int err = pcm_writei(audio_capture[ch].pcm, frames->buf, pcm_bytes_to_frames(audio_capture[ch].pcm, frames->length));
+        if(err < 0) fprintf(stderr, "pcm_writei ch%d err=%d\n", ch, err);
+      } else {
+        fprintf(stderr, "[audio] drop packet: ch%d %d\n", ch, frames->length);
+      }
     }
   }
   return ((framecb)audio_pcm_cb)(frames);

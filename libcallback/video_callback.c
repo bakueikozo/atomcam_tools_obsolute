@@ -12,7 +12,7 @@
 #include <pthread.h>
 
 struct frames_st {
-  uint32_t *buf;
+  unsigned char *buf;
   size_t length;
 };
 typedef int (* framecb)(struct frames_st *);
@@ -21,34 +21,40 @@ static int video0_encode_capture(struct frames_st *frames);
 static int video1_encode_capture(struct frames_st *frames);
 
 struct video_capture_st {
-  framecb callback;
   framecb capture;
-  int enable;
-  int initialized;
   int width;
   int height;
   const char *device;
+  unsigned int format;
+
+  framecb callback;
+  int enable;
+  int initialized;
   int fd;
 };
 static struct video_capture_st video_capture[] = {
   {
-    .callback = NULL,
     .capture = video0_encode_capture,
-    .enable = 0,
-    .initialized = 0,
     .width = 1920,
     .height = 1080,
     .device = "/dev/video0",
+    .format = V4L2_PIX_FMT_H264,
+
+    .callback = NULL,
+    .enable = 0,
+    .initialized = 0,
     .fd = -1,
   },
   {
-    .callback = NULL,
     .capture = video1_encode_capture,
-    .enable = 0,
-    .initialized = 0,
     .width = 640,
     .height = 360,
     .device = "/dev/video1",
+    .format = V4L2_PIX_FMT_HEVC,
+
+    .callback = NULL,
+    .enable = 0,
+    .initialized = 0,
     .fd = -1,
   },
 };
@@ -88,7 +94,7 @@ static int video_encode_capture(int ch, struct frames_st *frames) {
     vid_format.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
     vid_format.fmt.pix.width = video_capture[ch].width;
     vid_format.fmt.pix.height = video_capture[ch].height;
-    vid_format.fmt.pix.pixelformat = V4L2_PIX_FMT_H264;
+    vid_format.fmt.pix.pixelformat = video_capture[ch].format;
     vid_format.fmt.pix.sizeimage = 0;
     vid_format.fmt.pix.field = V4L2_FIELD_NONE;
     vid_format.fmt.pix.bytesperline = 0;
@@ -100,7 +106,6 @@ static int video_encode_capture(int ch, struct frames_st *frames) {
   }
 
   if((video_capture[ch].fd >= 0) && video_capture[ch].enable) {
-    uint32_t *buf = frames->buf;
     int size = write(video_capture[ch].fd, frames->buf, frames->length);
     if(size != frames->length) fprintf(stderr,"Stream write error %s: %s\n", video_capture[ch].device, size);
   }
