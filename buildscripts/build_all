@@ -14,4 +14,10 @@ mkdir -p target/usr/lib
 cp -dpf staging/usr/lib/libstdc++.so* target/usr/lib/
 find ./build -name ".stamp_target_installed*" -print | xargs rm -f
 cd /atomtools/build/buildroot-2016.02
+
+# package patch
+for i in `ls /src/patches/package` ; do
+  cp -pr /src/patches/package/$i/*patch /atomtools/build/buildroot-2016.02/package/$i
+done
+
 make
