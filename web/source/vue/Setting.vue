@@ -76,10 +76,13 @@
       <SettingInput v-if="storage_cifs && config.STORAGE_CIFS_REMOVE === 'on'" title="保存日数" :titleOffset="2" :span="3" tooltip="指定日数後に削除します" type="number" v-model="config.STORAGE_CIFS_REMOVE_DAYS" :min="1" />
 
       <h3>ストリーミング</h3>
-      <SettingSwitch title="RTSP" tooltip="RTSPサーバーを起動します" v-model="config.RTSPSERVER" />
-      <SettingSwitch v-if="config.RTSPSERVER === 'on'" title="音声" :titleOffset="2" tooltip="RTSPの音声を設定します" v-model="config.RTSP_AUDIO" />
-      <SettingSwitch v-if="config.RTSPSERVER === 'on'" title="RTSP over HTTP" :titleOffset="2" tooltip="RTSPをHTTP経由で配信します" v-model="config.RTSP_OVER_HTTP" />
-      <SettingInput v-if="config.RTSPSERVER === 'on'" title="RTSP URL" :titleOffset="2" :span="10" tooltip="VLC playerなどにURLをcopy&pasteしてください" type="readonly" v-model="RtspUrl" :min="1" />
+      <SettingSwitch title="RTSP Main" tooltip="RTSP Main(1080p AVC)を開始します" v-model="config.RTSP_VIDEO0" />
+      <SettingSwitch v-if="config.RTSP_VIDEO0 === 'on'" title="音声" :titleOffset="2" tooltip="RTSP Mainの音声を設定します" v-model="config.RTSP_AUDIO0" />
+      <SettingInput v-if="config.RTSP_VIDEO0 === 'on'" title="URL" :titleOffset="2" :span="10" tooltip="VLC playerなどにURLをcopy&pasteしてください" type="readonly" v-model="RtspUrl0" :min="1" />
+      <SettingSwitch title="RTSP Sub" tooltip="RTSP Sub(360p HEVC)を開始します" v-model="config.RTSP_VIDEO1" />
+      <SettingSwitch v-if="config.RTSP_VIDEO1 === 'on'" title="音声" :titleOffset="2" tooltip="RTSP Subの音声を設定します" v-model="config.RTSP_AUDIO1" />
+      <SettingInput v-if="config.RTSP_VIDEO1 === 'on'" title="URL" :titleOffset="2" :span="10" tooltip="VLC playerなどにURLをcopy&pasteしてください" type="readonly" v-model="RtspUrl1" :min="1" />
+      <SettingSwitch v-if="(config.RTSP_VIDEO0 === 'on') || (config.RTSP_VIDEO1 === 'on')" title="RTSP over HTTP" :titleOffset="2" tooltip="RTSPをHTTP経由で配信します" v-model="config.RTSP_OVER_HTTP" />
 
       <h3>イベント通知</h3>
       <SettingSwitch title="WebHook" tooltip="WebHookを設定します" v-model="config.WEBHOOK" />
@@ -179,9 +182,11 @@
           REBOOT_SCHEDULE: '0 2 * * 7', // -> /var/spool/crontabs/root
           RECORDING_LOCAL_SCHEDULE: 'off',
           RECORDING_LOCAL_SCHEDULE_LIST: '', // -> /media/mmc/local_schedule
-          RTSPSERVER: 'off',
+          RTSP_VIDEO0: 'off',
+          RTSP_AUDIO0: 'off',
+          RTSP_VIDEO1: 'off',
+          RTSP_AUDIO1: 'off',
           RTSP_OVER_HTTP: 'off',
-          RTSP_AUDIO: 'off',
           STORAGE_SDCARD: 'on', // on(alarm & record), alarm, record, off
           STORAGE_SDCARD_PUBLISH: 'off',
           STORAGE_SDCARD_PATH: '%Y%m%d/%H%M%S',
@@ -275,9 +280,13 @@
       isSwing() {
         return !this.rebooting && this.posValid && (this.config.PRODUCT_MODEL === 'ATOM_CAKP1JZJP');
       },
-      RtspUrl() {
+      RtspUrl0() {
         const port = (this.config.RTSP_OVER_HTTP  === 'on') ? 8080 : 8554;
-        return `rtsp://${window.location.host}:${port}/unicast`;
+        return `rtsp://${window.location.host}:${port}/video0_unicast`;
+      },
+      RtspUrl1() {
+        const port = (this.config.RTSP_OVER_HTTP  === 'on') ? 8080 : 8554;
+        return `rtsp://${window.location.host}:${port}/video1_unicast`;
       },
     },
     async mounted() {
@@ -619,19 +628,21 @@
           this.rebootStart = new Date();
           this.rebootStart.setSeconds(this.rebootStart.getSeconds() + 30);
         } else {
-          if((this.config.RTSPSERVER !== this.oldConfig.RTSPSERVER) && (this.config.RTSPSERVER === "off")) {
-            execCmds.push(`rtspserver ${this.config.RTSPSERVER}`);
+          if(((this.config.RTSP_VIDEO0 !== this.oldConfig.RTSP_VIDEO0) ||
+              (this.config.RTSP_VIDEO1 !== this.oldConfig.RTSP_VIDEO1)) &&
+             (this.config.RTSP_VIDEO0 === "off") && (this.config.RTSP_VIDEO1 === "off")) {
+            execCmds.push('rtspserver off');
           }
           if(this.config.STORAGE_SDCARD_PUBLISH !== this.oldConfig.STORAGE_SDCARD_PUBLISH) {
             execCmds.push(`samba ${this.config.STORAGE_SDCARD_PUBLISH}`);
           }
-          if(((this.config.RTSPSERVER !== this.oldConfig.RTSPSERVER) ||
-              (this.config.RTSP_AUDIO !== this.oldConfig.RTSP_AUDIO) ||
-              (this.config.RTSP_OVER_HTTP !== this.oldConfig.RTSP_OVER_HTTP)) &&
-              (this.config.RTSPSERVER === "on")) {
+          if((this.config.RTSP_VIDEO0 === "on") || (this.config.RTSP_VIDEO1 === "on")) {
             if(this.config.RTSP_OVER_HTTP !== this.oldConfig.RTSP_OVER_HTTP) {
               execCmds.push('rtspserver restart');
-            } else {
+            } else if((this.config.RTSP_VIDEO0 !== this.oldConfig.RTSP_VIDEO0) ||
+                      (this.config.RTSP_VIDEO1 !== this.oldConfig.RTSP_VIDEO1) ||
+                      (this.config.RTSP_AUDIO0 !== this.oldConfig.RTSP_AUDIO0) ||
+                      (this.config.RTSP_AUDIO1 !== this.oldConfig.RTSP_AUDIO1)) {
               execCmds.push('rtspserver on');
             }
           }
