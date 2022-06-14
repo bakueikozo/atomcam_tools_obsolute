@@ -54,6 +54,7 @@ Ver.1.3.0以降は修正しています。
 
 - RTSPServer(Port:8554)
   - RTSP streaming を送出します。
+  - Main(video0)に1080p AVC、Sub(video1)に360p HEVCを出しています。
 
 - avahi(mDNS)機能(Port:5353)
   - microSDカードのhostnameファイルを編集することでデバイス名を変更できます（WebUIからも変更可能）
@@ -283,27 +284,43 @@ NASに録画しているファイルを自動削除する機能です。
 
 ### ストリーミング
 
-#### RTSP (not recommended)
-
-チェックを入れると、RTSPストリーミングを行います。 
-
-特に、システムの安定性に関わるため、利用には十分なテストを行ってください。  
-
 **※ 負荷が重いためSD-Cardのネットワークアクセスと同時使用は推奨しません。**
+
+#### RTSP Main
+
+Main(video0)側のRTSPストリーミングを行います。 
+
+HD(1920x1080p AVC)の出力になります。
 
 ##### - 音声
 
-RTSPの音声をon/offします。音声をonにすると負荷が大きくなるので、必要でなければoffにしておいてください。
+Main側の音声をon/offします。
 
-##### - RTSP over HTTP
+##### - URL
+
+Main側のVLC media playerの「ネットワークストリーミングを開く」で入力するURLが表示されます。
+
+#### RTSP Sub
+
+Sub(video1)側のRTSPストリーミングを行います。 
+
+360p(640x360p HEVC)の出力になります。
+
+##### - 音声
+
+Sub側の音声をon/offします。
+
+##### - URL
+
+Sub側のVLC media playerの「ネットワークストリーミングを開く」で入力するURLが表示されます。
+
+#### RTSP over HTTP
 
 RTSPをUDPでなくHTTP経由で送出します。
 
 AtomCamからPCまでの経路でのパケット伝送が保障されますが、再送により遅延が発生する可能性があります。
 
-##### - RTSP URL
-
-VLC media playerの「ネットワークストリーミングを開く」で入力するURLが表示されます。
+変更するとRTSP Main/SubのURLが変わります。
 
 
 ### イベント通知
@@ -465,18 +482,6 @@ GitHubのLatest VersionにUpdate します。GitHubからLatest Versionをダウ
  現在のtoolのバージョン（タイトル部に表示されています）がLatest Versionより古い場合のみUpdateすることができます。
 
 台数が多い場合や回線が細い場合、PCで[GitHubのLatest Version](https://github.com/mnakada/atomcam_tools/releases/latest)のatomcam_tools.zipをダウンロードし、展開せずにそのままSamba経由でSD-Cardのupdateフォルダに入れて、リブートすることでもUpdateできます。この場合はVerのチェックは行われません。
-
-**bug-fix**
-
-Latest Verが表示されない問題が発生しています。Latestが表示されていない場合、カスタム更新ZIPファイルをOnにしてURLに
-
-```
-https://github.com/mnakada/atomcam_tools/releases/latest/download/atomcam_tools.zip
-```
-
-を指定してから、１つ上のUpdateのLockを解除して**[CustomUpdate]**のボタンを押してください。
-
-Ver.1.3.0以降は修正しています。
 
 
 ### Copyright
