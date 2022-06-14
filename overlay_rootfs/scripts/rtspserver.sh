@@ -21,11 +21,11 @@ RTSP_AUDIO1=$(awk -F "=" '/RTSP_AUDIO1 *=/ {print $2}' $HACK_INI)
 RTSP_OVER_HTTP=$(awk -F "=" '/RTSP_OVER_HTTP *=/ {print $2}' $HACK_INI)
 
 if [ "$1" = "watchdog" ]; then
-  [ "$RTSPSERVER" = "on" ] || exit 0
+  [ "$RTSP_VIDEO0" = "on" -o "$RTSP_VIDEO1" = "on" ] || exit 0
   pidof v4l2rtspserver > /dev/null && exit 0
 fi
 
-if [ "$1" = "on" -o "$1" = "restart" -o "$1" = "watchdog" -o "$RTSPSERVER" = "on" ]; then
+if [ "$1" = "on" -o "$1" = "restart" -o "$1" = "watchdog" -o "$RTSP_VIDEO0" = "on" -o "$RTSP_VIDEO1" = "on" ]; then
  /scripts/cmd video 0 $RTSP_VIDEO0 > /dev/null
  /scripts/cmd video 1 $RTSP_VIDEO1 > /dev/null
  /scripts/cmd audio 0 $RTSP_AUDIO0 > /dev/null
