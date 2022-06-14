@@ -28,4 +28,4 @@ fi
 # Start the build process
 cd /atomtools/build/buildroot-2016.02
 make clean
-make
+make `make show-targets`
