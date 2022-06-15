@@ -20,7 +20,6 @@
 		15B1B2D52765CEB60034BDCF /* web */ = {isa = PBXFileReference; lastKnownFileType = folder; path = web; sourceTree = "<group>"; };
 		15B1B2D62765CEB60034BDCF /* libcallback */ = {isa = PBXFileReference; lastKnownFileType = folder; path = libcallback; sourceTree = "<group>"; };
 		15B1B2D72765CEB60034BDCF /* buildscripts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = buildscripts; sourceTree = "<group>"; };
-		15E64082273926900049275F /* make.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = make.sh; sourceTree = "<group>"; };
 		15E64E3F282CFBE90030FCCD /* overlay_rootfs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = overlay_rootfs; sourceTree = "<group>"; };
 		15E64E40282CFBFA0030FCCD /* initramfs_skeleton */ = {isa = PBXFileReference; lastKnownFileType = folder; path = initramfs_skeleton; sourceTree = "<group>"; };
 		15F0A887282B79A300E95C1D /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
@@ -38,7 +37,6 @@
 				156A36DA1F5AE96F0026EC60 /* README.md */,
 				15AD4A35273934B30093AC3F /* build.md */,
 				1541FB8D1F1116CE006343F3 /* license */,
-				15E64082273926900049275F /* make.sh */,
 				15B1B2D42765CEB60034BDCF /* docker-compose.yml */,
 				15B1B2D72765CEB60034BDCF /* buildscripts */,
 				15B1B2D32765CEB60034BDCF /* configs */,

@@ -5,7 +5,6 @@ services:
     image: atomtools/atomtools:latest
     volumes:
       - ".:/src"
-      - "./configs/local.mk:/atomtools/build/buildroot-2016.02/local.mk"
     cap_add:
       - ALL
     command: tail -f /dev/null
