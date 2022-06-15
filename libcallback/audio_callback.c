@@ -42,7 +42,10 @@ char *AudioCapture(int fd, char *tokenPtr) {
     ch = atoi(p);
     p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   }
-  if(!p) return audio_capture[ch].enable ? "on" : "off";
+  if(!p) {
+    if(!audio_capture[ch].pcm) return "disabled";
+    return audio_capture[ch].enable ? "on" : "off";
+  }
   if(!strcmp(p, "on")) {
     audio_capture[ch].enable = 1;
     printf("[command] audio %d capute on\n", ch);
