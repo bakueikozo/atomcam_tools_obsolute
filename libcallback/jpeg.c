@@ -50,14 +50,14 @@ char *JpegCapture(int fd, char *tokenPtr) {
   return NULL;
 }
 
-static int GetJpegData(int fd) {
+static int GetJpegData(int fd, int ch) {
 
-  struct channelConfigSt *chConfig = get_enc_chn_config(JpegChannel);
+  struct channelConfigSt *chConfig = get_enc_chn_config(ch);
   if (!chConfig->state) {
-    fprintf(stderr, "[command] jpeg err: ch%d is not enable jpeg!\n", JpegChannel);
+    fprintf(stderr, "[command] jpeg err: ch%d is not enable jpeg!\n", ch);
     return -1;
   }
-  int state = get_video_run_state(JpegChannel);
+  int state = get_video_run_state(ch);
   if (state < 5) {
     fprintf(stderr, "[command] jpeg err: U should call 'video_run' before this func\n");
     return -1;
@@ -87,7 +87,7 @@ static int GetJpegData(int fd) {
     goto error2;
   }
 
-  if(!NoHeader) write(JpegCaptureFd, HttpResHeader, strlen(HttpResHeader));
+  if(!NoHeader) write(fd, HttpResHeader, strlen(HttpResHeader));
   if(save_jpeg(fd, stream) < 0) {
     fprintf(stderr, "[command] jpeg err: save_jpeg(%d) failed\n", fd);
     ret = -2;
@@ -101,7 +101,7 @@ error2:
 
 error1:
   video_param_set_mutex_unlock(1);
-  if((ret == -1) && !NoHeader) write(JpegCaptureFd, HttpErrorHeader, strlen(HttpErrorHeader));
+  if((ret == -1) && !NoHeader) write(fd, HttpErrorHeader, strlen(HttpErrorHeader));
   return ret;
 }
 
@@ -110,7 +110,7 @@ static void *JpegCaptureThread() {
   while(1) {
     pthread_mutex_lock(&JpegDataMutex);
     if(JpegCaptureFd >= 0) {
-      int res = GetJpegData(JpegCaptureFd);
+      int res = GetJpegData(JpegCaptureFd, JpegChannel);
       CommandResponse(JpegCaptureFd, res >= 0 ? "" : "error");
     }
     JpegCaptureFd = -1;
