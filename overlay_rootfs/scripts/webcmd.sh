@@ -11,6 +11,8 @@ do
   params=${line#* }
   if [ "$cmd" = "reboot" ]; then
     echo "$cmd $params OK" >> /var/run/webres
+    /scripts/cmd timelapse stop
+    sleep 3
     killall -SIGUSR2 iCamera_app
     sync
     sync
@@ -22,7 +24,7 @@ do
     /scripts/set_crontab.sh
   fi
   if [ "$cmd" = "setwebhook" ]; then
-    kill -9 `pidof webhook.sh`
+    kill `pidof webhook.sh`
     /scripts/webhook.sh &
     echo "$cmd $params OK" >> /var/run/webres
     cmd=""
@@ -80,7 +82,8 @@ do
     mkdir -p /media/mmc/update
     (cd /media/mmc/update; curl -H 'Cache-Control: no-cache, no-store' -H 'Pragma: no-cache' -sL -o atomcam_tools.zip $ZIP_URL)
     echo "$cmd $params OK" >> /var/run/webres
-    sleep 1
+    /scripts/cmd timelapse stop
+    sleep 3
     killall -SIGUSR2 iCamera_app
     sync
     sync
