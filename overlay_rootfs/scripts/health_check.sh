@@ -40,6 +40,8 @@ if [ $RES -eq 0 ] ; then
       ifconfig >> /media/mmc/healthcheck.log 2>&1
       df -k >> /media/mmc/healthcheck.log
       free >> /media/mmc/healthcheck.log
+      /scripts/cmd timelapse stop
+      sleep 3
       killall -SIGUSR2 iCamera_app
       sync
       sync
