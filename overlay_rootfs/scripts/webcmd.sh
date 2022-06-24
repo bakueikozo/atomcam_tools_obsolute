@@ -24,7 +24,7 @@ do
     /scripts/set_crontab.sh
   fi
   if [ "$cmd" = "setwebhook" ]; then
-    kill `pidof webhook.sh`
+    kill `ps -l | awk '/ps -l/ { next } /webhook.sh/ { print $3 } /awk  BEGIN/ { print $3 }'`
     /scripts/webhook.sh &
     echo "$cmd $params OK" >> /var/run/webres
     cmd=""
