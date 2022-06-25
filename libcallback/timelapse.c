@@ -5,6 +5,8 @@
 #include <string.h>
 #include <errno.h>
 #include <sys/time.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 struct FrameCtrlSt {
   unsigned char *buf;
@@ -78,8 +80,16 @@ char *Timelapse(int fd, char *tokenPtr) {
   if(Busy) return "error :　Already in operation.";
 
   strncpy(File, p, 255);
-  strncpy(TmpFile, p, 255);
-  strncat(TmpFile, ".tmp", 255);
+  mkdir("/media/mmc/tmp", 0777);
+  char *q = strrchr(p, '/');
+  if(!q) {
+    q = p;
+  } else {
+    q++;
+  }
+  strcpy(TmpFile, "/media/mmc/tmp/");
+  strncat(TmpFile, q, 255);
+
   FILE *fp = fopen(TmpFile, "w");
   if(!fp) return strerror(errno);
   fclose(fp);
