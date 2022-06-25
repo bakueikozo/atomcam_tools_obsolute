@@ -120,15 +120,6 @@ do
     echo "$cmd OK" >> /var/run/webres
     cmd=""
   fi
-  if [ "$cmd" = "cifsaccess" ]; then
-    if [ "$params" = "disable" ]; then
-      touch /tmp/disable_cifs
-    else
-      rm -f /tmp/disable_cifs
-    fi
-    echo "$cmd $params OK" >> /var/run/webres
-    cmd=""
-  fi
   if [ "$cmd" != "" ]; then
     echo "$cmd $param : syntax error" >> /var/run/webres
   fi

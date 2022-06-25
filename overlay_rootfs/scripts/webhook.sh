@@ -13,6 +13,11 @@ BEGIN {
   logDisable = 0;
 }
 
+/\[webhook\] time_lapse_finish/ {
+  split($0, str, / \t*/);
+  system("/scripts/timelapse_finish.sh " str[3]);
+}
+
 {
   timestamp = systime();
   logLength += length($0);
@@ -47,10 +52,6 @@ BEGIN {
 /\[webhook\] time_lapse_event/ {
   gsub(/^.*time_lapse_event /, "");
   if(ENV["WEBHOOK_TIMELAPSE_EVENT"] == "on") Post("timelapseEvent", "\"" $0 "\"");
-}
-/\[webhook\] time_lapse_finish/ {
-  gsub(/^.*time_lapse_finish /, "");
-  if(ENV["WEBHOOK_TIMELAPSE_FINISH"] == "on") Post("timelapseFinish", "\"" $0 "\"");
 }
 
 function Post(event, data) {
