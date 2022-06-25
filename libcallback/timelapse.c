@@ -159,21 +159,19 @@ static void *TimelapseThread() {
     TimelapseFd = -1;
 
     writeTaskBusy = 1;
-    int idx = 0;
-    unsigned int dts = 0;
+    int idx = 100;
+    unsigned int dts = 1000 * 1000;
     struct timeval startTime;
     int firstFlag = 1;
     while(Busy) {
       int ret = video_get_frame(0, 0, 2, frameCtrl.buf, &frameCtrl);
       if(firstFlag) {
-        idx = frameCtrl.frameIndex;
-        dts = frameCtrl.dts;
-        firstFlag = 0;
         gettimeofday(&startTime, NULL);
+        firstFlag = 0;
       }
       frameCtrl.frameIndex = idx + Count;
       frameCtrl.nextIndex = idx + Count + 1;
-      frameCtrl.dts = dts + Count * 1000 * 1000 / videoConfig.fps;
+      frameCtrl.dts = dts + (unsigned long long)Count * 1000 * 1000 / videoConfig.fps;
       frameCtrl.pts = frameCtrl.dts;
 
       fprintf(stderr, "[timelapse] %d/%d idx:%d timestamp:%d.%06d dts:%d\n", Count + 1, NumOfTimes, frameCtrl.frameIndex, frameCtrl.tm.tv_sec, frameCtrl.tm.tv_usec, frameCtrl.dts);
