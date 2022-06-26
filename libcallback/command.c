@@ -43,6 +43,7 @@ struct CommandTableSt CommandTable[] = {
 
 void CommandResponse(int fd, const char *res) {
 
+  if(fd < 0) return;
   unsigned char buf[256];
   buf[0] = strlen(res) + 1;
   buf[1] = fd;
