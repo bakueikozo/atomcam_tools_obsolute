@@ -10,12 +10,12 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
-    "axios": "^0.26.1",
-    "compression-webpack-plugin": "^9.2.0",
+    "axios": "^0.27.2",
+    "compression-webpack-plugin": "^10.0.0",
     "css-loader": "^6.7.1",
     "element-ui": "^2.15.6",
-    "eslint": "8.12",
-    "eslint-plugin-vue": "8.6",
+    "eslint": "8.18",
+    "eslint-plugin-vue": "^9.1.1",
     "eslint-webpack-plugin": "^3.1.1",
     "html-webpack-plugin": "^5.5.0",
     "js-md5": "^0.7.3",
