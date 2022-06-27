@@ -17,4 +17,10 @@ BEGIN {
   gsub(/:/,",", $2);
   printf("%s /scripts/reboot.sh\n", $2);
 }
+
+/TIMELAPSE_SCHEDULE *=/ {
+  if($2 == "") next;
+  gsub(/:/,",", $2);
+  printf("%s /scripts/timelapse.sh start\n", $2);
+}
 ' $HACK_INI | crontab -

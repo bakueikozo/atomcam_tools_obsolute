@@ -79,7 +79,7 @@ if [ "$FMT" != "" ]; then
       OUTFILE="/mnt/$HOSTNAME/$CIFSFILE"
       DIR_PATH=${OUTFILE%/*}
       mkdir -p $DIR_PATH
-      cp $TMPFILE $OUTFILE
+      cp -f $TMPFILE $OUTFILE
       STORAGE=", \"cifsFile\":\"${CIFSFILE}\""
     fi
 

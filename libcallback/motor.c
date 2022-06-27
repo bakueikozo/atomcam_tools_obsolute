@@ -41,7 +41,7 @@ char *MotorMove(int fd, char *tokenPtr) {
     if(!ret) {
       sprintf(motorResBuf, "%f %f\n", pan, tilt);
     } else {
-      sprintf(motorResBuf, "- -\n");
+      return "error";
     }
     return motorResBuf;
   }

@@ -26,7 +26,7 @@ fi
 
 if [ "$STORAGE_CIFS_REMOVE" = "on" ] && [ "$STORAGE_CIFS_REMOVE_DAYS" != "" ]; then
   if /tmp/system/bin/mount_cifs ; then
-    if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "alarm" -o "$STORAGE_CIFS" = "record" ] ; then
+    if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "alarm" ] ; then
       find /atom/mnt/$HOSTNAME/alarm_record -depth -type f -mtime +$STORAGE_CIFS_REMOVE_DAYS -delete
       find /atom/mnt/$HOSTNAME/alarm_record -depth -type d -mmin +3 -empty -delete
     fi

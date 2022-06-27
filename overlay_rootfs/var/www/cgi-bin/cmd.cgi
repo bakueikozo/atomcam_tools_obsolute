@@ -12,11 +12,15 @@ if [ "$REQUEST_METHOD" = "GET" ]; then
     latest=`curl -w "%{redirect_url}" -s -o /dev/null https://github.com/mnakada/atomcam_tools/releases/latest`
     echo LATESTVER=${latest##*Ver.}
   fi
-  if [ "$NAME" = "" -o "$NAME" = "time" ] ; then
+  if [ "$NAME" = "" -o "$NAME" = "status" ] ; then
+    echo TIMELAPSE=`echo "timelapse" | nc localhost:4000`
+  fi
+  if [ "$NAME" = "" -o "$NAME" = "status" ] ; then
     echo TIMESTAMP=`date +"%Y/%m/%d %X"`
   fi
-  if [ "$NAME" = "" -o "$NAME" = "move" ] ; then
-    echo MOTORPOS=`echo move | nc localhost:4000`
+  if [ "$NAME" = "" -o "$NAME" = "status" ] ; then
+    res=`echo move | nc localhost:4000`
+    [ "$res" = "error" ] || echo MOTORPOS=$rees
   fi
 fi
 

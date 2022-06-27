@@ -44,6 +44,7 @@ case "$1" in
         break
       fi
     done
+    /scripts/cmd timelapse
   ;;
   stop)
     killall -SIGUSR2 iCamera_app

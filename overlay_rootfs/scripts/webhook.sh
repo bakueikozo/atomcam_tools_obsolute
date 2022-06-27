@@ -15,7 +15,7 @@ BEGIN {
 
 /\[webhook\] time_lapse_finish/ {
   split($0, str, / \t*/);
-  system("/scripts/timelapse_finish.sh " str[3]);
+  system("/scripts/timelapse.sh finish " str[3]);
 }
 
 {

@@ -2,7 +2,8 @@
   usage:
    timelapse <file> <interval> <count>   : start timelapse record
    timelapse mp4 <file>                  : reconvert to mp4
-   timelapse stop                        : stop timelapse record
+   timelapse close                       : close timelapse record (completely closed)
+   timelapse stop                        : stop timelapse record (possible to restart)
    timelapse                             : status or restart
 */
 
@@ -56,7 +57,7 @@ struct Mp4WriteAudioConfigSt {
 };
 
 static const unsigned char sei0[] = {
-  0x00, 0x00, 0x00, 0x01, 0x26, 0x05, 0x00, 0x1b,
+  0x00, 0x00, 0x00, 0x01, 0x06, 0x05, 0x00, 0x1b,
   0xaa, 0xdc, 0x45, 0xe9, 0xbd, 0xe6, 0xd9, 0x48,
   0xb7, 0x96, 0x2c, 0xd8, 0x20, 0xd9, 0x23, 0xee,
 };
@@ -88,6 +89,13 @@ char *Timelapse(int fd, char *tokenPtr) {
   if(p && !strcmp(p, "stop")) {
     if(!Busy) return "error";
     Stop = 1;
+    TimelapseFd = fd;
+    return NULL;
+  }
+
+  if(p && !strcmp(p, "close")) {
+    if(!Busy) return "error";
+    Stop = 2;
     TimelapseFd = fd;
     return NULL;
   }
@@ -238,6 +246,19 @@ static void *TimelapseThread() {
       int us = (startTime.tv_sec + TimeLapseInfo.interval * TimeLapseInfo.count - now.tv_sec) * 1000 * 1000 + ((int)startTime.tv_usec - (int)now.tv_usec);
       if(us < 0) us = 0;
       usleep(us);
+    }
+    if(Stop == 2) {
+      TimeLapseInfo.numOfTimes = TimeLapseInfo.count;
+      FILE *fp = fopen(TimelapseInfoFile, "w");
+      if(fp) {
+        fwrite(&TimeLapseInfo, sizeof(TimeLapseInfo), 1, fp);
+        fclose(fp);
+      }
+      fp = fopen("/proc/sys/vm/drop_caches", "w");
+      if(fp) {
+        fwrite("1", 2, 1, fp);
+        fclose(fp);
+      }
     }
     Stop = 0;
 

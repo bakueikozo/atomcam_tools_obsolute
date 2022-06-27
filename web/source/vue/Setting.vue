@@ -75,6 +75,20 @@
       <SettingSwitch v-if="storage_cifs" title="ファイルの自動削除" :titleOffset="2" tooltip="CIFS Serverに録画したファイルを自動的に削除します" v-model="config.STORAGE_CIFS_REMOVE" />
       <SettingInput v-if="storage_cifs && config.STORAGE_CIFS_REMOVE === 'on'" title="保存日数" :titleOffset="2" :span="3" tooltip="指定日数後に削除します" type="number" v-model="config.STORAGE_CIFS_REMOVE_DAYS" :min="1" />
 
+      <SettingSwitch title="timelapse録画" tooltip="timelapse録画をします。SD-Card/NAS録画で指定しているメディアに記録されます。" v-model="config.TIMELAPSE" />
+      <SettingInput v-if="config.TIMELAPSE === 'on'" title="保存するPATH" :titleOffset="2" :span="10" tooltip="録画するPATHをstrftimeの書式指定で記述します。最後に拡張子が付加されます。" type="text" v-model="config.TIMELAPSE_PATH" @input="FixPath('TIMELAPSE_PATH')" />
+      <SettingSchedule v-if="config.TIMELAPSE === 'on'" v-model="timelapse" :timelapse="true" />
+      <SettingComment v-if="config.TIMELAPSE === 'on'" title="">
+        録画の間は記録後の変換処理のため５分以上空けてください。<br>
+        時間が重なるとエラーで記録されない事があります。
+      </SettingComment>
+      <SettingProgress v-if="timelapseInfo.busy" title="timelapse動作" tooltip="timelapse動作中です。" :percentage="timelapseInfo.count * 100 / timelapseInfo.max" :label="timelapseInfo.count.toString() + '/' + timelapseInfo.max.toString()" :stop="true" @stop="TimelapseStop" />
+      <SettingDangerButton v-if="timelapseInfo.busy" title="timelapse中止" tooltip="timelapseを中止します。" icon="el-icon-refresh-left" label="中止" @click="TimelapseAbort">
+        <span v-if="timelapseInfo.abort">
+          停止処理：ファイル書き込み中
+        </span>
+      </SettingDangerButton>
+
       <h3>ストリーミング</h3>
       <SettingSwitch title="RTSP Main" tooltip="RTSP Main(1080p AVC)を開始します" v-model="config.RTSP_VIDEO0" />
       <SettingSwitch v-if="config.RTSP_VIDEO0 === 'on'" title="音声" :titleOffset="2" tooltip="RTSP Mainの音声を設定します" v-model="config.RTSP_AUDIO0" />
@@ -116,7 +130,7 @@
       <h3>メンテナンス</h3>
       <SettingButton v-if="isSwing" title="Swing座標初期化" :titleOffset="2" :span="4" tooltip="Swingの座標を両側の端点当てで修正します" label="初期化" @click="MoveInit" />
       <SettingSwitch title="定期リスタート" tooltip="定期的に再起動する設定をします" v-model="config.REBOOT" />
-      <SettingSchedule v-if="config.REBOOT === 'on'" v-model="reboot" @add="AddSchedule" @remove="DeleteSchedule(idx)" />
+      <SettingSchedule v-if="config.REBOOT === 'on'" v-model="reboot" />
       <SettingDangerButton title="リブート" tooltip="再起動します" icon="el-icon-refresh-left" label="Reboot" @click="DoReboot" />
       <SettingDangerButton title="SD-Card消去" tooltip="SD-Cardの録画フォルダを消去します" icon="el-icon-folder-delete" label="Erase" @click="DoErase" />
       <SettingDangerButton title="Update" tooltip="このtoolのupdateをします" icon="el-icon-refresh" :label="config.CUSTOM_ZIP === 'on' ? 'Custom Update' : 'Update'" :disabled="!updatable" @click="DoUpdate">
@@ -147,8 +161,10 @@
   import SettingSwitch from './SettingSwitch.vue';
   import SettingInput from './SettingInput.vue';
   import SettingButton from './SettingButton.vue';
+  import SettingComment from './SettingComment.vue';
   import SettingDangerButton from './SettingDangerButton.vue';
   import SettingSchedule from './SettingSchedule.vue';
+  import SettingProgress from './SettingProgress.vue';
   import SettingCruise from './SettingCruise.vue';
 
   import 'element-ui/lib/theme-chalk/tooltip.css';
@@ -166,8 +182,10 @@
       SettingSwitch,
       SettingInput,
       SettingButton,
+      SettingComment,
       SettingDangerButton,
       SettingSchedule,
+      SettingProgress,
       SettingCruise,
     },
     data() {
@@ -199,6 +217,11 @@
           STORAGE_CIFSSERVER: '',
           STORAGE_CIFSUSER: '',
           STORAGE_CIFSPASSWD: '',
+          TIMELAPSE: 'off',
+          TIMELAPSE_SCHEDULE: '0 4 * * 0:1:2:3:4:5:6', // -> /var/spool/crontabs/root
+          TIMELAPSE_PATH: '%Y%m%d%H%M',
+          TIMELAPSE_INTERVAL: 60,
+          TIMELAPSE_COUNT: 960,
           WEBHOOK: 'off',
           WEBHOOK_URL: '',
           WEBHOOK_ALARM_EVENT: 'off',
@@ -208,6 +231,7 @@
           WEBHOOK_ALARM_PICT_FINISH: 'off',
           WEBHOOK_ALERM_PICT: 'off',
           WEBHOOK_RECORD_EVENT: 'off',
+          WEBHOOK_TIMELAPSE_START: 'off',
           WEBHOOK_TIMELAPSE_EVENT: 'off',
           WEBHOOK_TIMELAPSE_FINISH: 'off',
           CRUISE: 'off',
@@ -232,6 +256,16 @@
         storage_cifs_record: false,
         storage_cifs_alarm: false,
         schedule: [],
+        timelapse: {
+          dayOfWeekSelect: ['月','火', '水', '木', '金', '土', '日'],
+          startTime: '04:00',
+          interval: 60,
+          count: 960,
+        },
+        timelapseInfo: {
+          busy: false,
+          abort: false,
+        },
         cruiseList: [],
         cruiseSelect: -1,
         reboot: {
@@ -364,6 +398,15 @@
         }, []);
       }
 
+      if(this.config.TIMELAPSE_SCHEDULE) {
+        const str = this.config.TIMELAPSE_SCHEDULE.split(' ');
+        const days = (str[4] || '').split(':');
+        this.timelapse.startTime = `${str[1].padStart(2, '0')}:${str[0].padStart(2, '0')}`;
+        this.timelapse.dayOfWeekSelect = days.map(d => this.weekDays[(parseInt(d) + 6) % 7]);
+        this.timelapse.interval = this.config.TIMELAPSE_INTERVAL;
+        this.timelapse.count = this.config.TIMELAPSE_COUNT;
+      }
+
       this.cruiseList = (this.config.CRUISE_LIST || '').split(';').reduce((array, cmd) => {
         const args = cmd.trim().split(' ');
         if(args[0] === 'move') {
@@ -397,9 +440,11 @@
       }, {});
 
       this.latestVer = status.LATESTVER;
-      const pos = status.MOTORPOS.split(' ');
-      this.pan = Math.round(parseFloat(pos[0]));
-      this.tilt = Math.round(parseFloat(pos[1]));
+      if(status.MOTORPOS) {
+        const pos = status.MOTORPOS.split(' ');
+        this.pan = Math.round(parseFloat(pos[0]));
+        this.tilt = Math.round(parseFloat(pos[1]));
+      }
       this.posValid = true;
 
       if(this.config.REBOOT_SCHEDULE) {
@@ -410,7 +455,7 @@
       }
 
       setInterval(async () => {
-        const res = await axios.get('./cgi-bin/cmd.cgi?name=time').catch(err => {
+        const res = await axios.get('./cgi-bin/cmd.cgi?name=status').catch(err => {
           // eslint-disable-next-line no-console
           console.log(err);
           return '';
@@ -426,9 +471,31 @@
           if(name) d[name] = l.replace(new RegExp(name + '[ \t=]*'), '').trim();
           return d;
         }, {});
+        if(this.intervalValue.MOTORPOS) {
+          const pos = this.intervalValue.MOTORPOS.split(' ');
+          const pan = Math.round(parseFloat(pos[0]));
+          const tilt = Math.round(parseFloat(pos[1]));
+          if(this.moved) {
+            this.moved = false;
+            if((pan !== this.pan) || (tilt !== this.tilt)) this.Move();
+          } else {
+            this.pan = pan;
+            this.tilt = tilt;
+          }
+        }
+        if(this.intervalValue.TIMELAPSE) {
+          const count = this.intervalValue.TIMELAPSE.replace(/^.*count:/, '').split(/\//);
+          if(count.length === 2) {
+            this.timelapseInfo.busy = true;
+            this.timelapseInfo.count = count[0];
+            this.timelapseInfo.max = count[1];
+          } else {
+            this.timelapseInfo.busy = false;
+            this.timelapseInfo.abort = false;
+          }
+        }
       }, 1000);
       this.StillImageInterval();
-      if(this.isSwing) this.GetPosInterval();
     },
     methods: {
       async Move() {
@@ -447,31 +514,10 @@
       IrLED(mode) {
         this.Exec(`irled ${mode}`, 'socket');
       },
-      async GetPosInterval() {
-        if(!this.moving) {
-          const status = (await axios.get('./cgi-bin/cmd.cgi?name=move').catch(err => {
-            // eslint-disable-next-line no-console
-            console.log(err);
-            return { data: '' };
-          })).data.split('\n').reduce((s, d) => {
-            s[d.replace(/=.*$/, '').trim()] = d.replace(/^.*=/, '').trim();
-            return s;
-          }, {});
-          if(status.MOTORPOS) {
-            const pos = status.MOTORPOS.split(' ');
-            const pan = Math.round(parseFloat(pos[0]));
-            const tilt = Math.round(parseFloat(pos[1]));
-            if(this.moved) {
-              this.moved = false;
-              if((pan !== this.pan) || (tilt !== this.tilt)) this.Move();
-            } else {
-              this.pan = pan;
-              this.tilt = tilt;
-            }
-          }
-        }
-        if(this.getposTimeout) clearTimeout(this.getposTimeout);
-        this.getposTimeout = setTimeout(this.GetPosInterval.bind(this), 1000);
+      async TimelapseAbort() {
+        this.timelapseInfo.abort = true;
+        await this.Exec('timelapse close', 'socket');
+        this.timelapseInfo.abort = false;
       },
       async StillImageInterval() {
         const image = await axios.get('./cgi-bin/get_jpeg.cgi', { responseType: 'arraybuffer' }).catch(err => {
@@ -591,6 +637,13 @@
           this.config.STORAGE_CIFS = 'off';
         }
 
+        this.config.TIMELAPSE_INTERVAL = this.timelapse.interval;
+        this.config.TIMELAPSE_COUNT = this.timelapse.count;
+        str = parseInt(this.timelapse.startTime.slice(-2)) + ' ';
+        str += parseInt(this.timelapse.startTime.slice(0, 2)) + ' * * ';
+        str += this.weekDays.flatMap((v, i) => this.timelapse.dayOfWeekSelect.indexOf(v) < 0 ? [] : [(i + 1) % 7]).sort((a, b) => a - b).reduce((s, d) => s += (s.length ? ':' : '') + d.toString() , '');
+        this.config.TIMELAPSE_SCHEDULE = str;
+
         this.config.CRUISE_LIST = this.cruiseList.reduce((str, cruise) => {
           str += `move ${cruise.pan} ${cruise.tilt};`;
           const waitMode = cruise.detect ? (cruise.follow ? 'follow' : 'detect') : 'sleep';
@@ -611,8 +664,8 @@
 
         const execCmds = [];
         let href = null;
-        if((this.config.REBOOT_SCHEDULE !== this.oldConfig.REBOOT_SCHEDULE) ||
-           (this.config.HEALTHCHECK !== this.oldConfig.HEALTHCHECK)) {
+        if((this.config.TIMELAPSE_SCHEDULE !== this.oldConfig.TIMELAPSE_SCHEDULE) ||
+           (this.config.REBOOT_SCHEDULE !== this.oldConfig.REBOOT_SCHEDULE)) {
           execCmds.push('setCron');
         }
         if(this.config.HOSTNAME !== this.oldConfig.HOSTNAME) {
