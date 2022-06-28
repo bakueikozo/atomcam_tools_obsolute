@@ -250,7 +250,7 @@ static uint32_t audio_pcm_capture(struct frames_st *frames) {
 
   for(int ch = 0; ch < 2; ch++) {
     if(!audio_capture[ch].pcm) {
-      audio_capture[ch].pcm = pcm_open(0, ch, PCM_OUT | PCM_MMAP, &config);
+      audio_capture[ch].pcm = pcm_open(ch, 1, PCM_OUT | PCM_MMAP, &config);
       if(audio_capture[ch].pcm == NULL) {
           fprintf(stderr, "failed to allocate memory for PCM%d\n", ch);
       } else if(!pcm_is_ready(audio_capture[ch].pcm)) {
