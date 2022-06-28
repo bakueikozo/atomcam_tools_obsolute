@@ -20,7 +20,7 @@ if [ "$REQUEST_METHOD" = "GET" ]; then
   fi
   if [ "$NAME" = "" -o "$NAME" = "status" ] ; then
     res=`echo move | nc localhost:4000`
-    [ "$res" = "error" ] || echo MOTORPOS=$rees
+    [ "$res" = "error" ] || echo MOTORPOS=$res
   fi
 fi
 

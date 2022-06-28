@@ -21,15 +21,15 @@
     <div class="well-transparent container">
       <div class="image-frame" :style="imageFrameStyle">
         <div class="image-frame-inner1">
-          <ElSlider v-if="isSwing" class="tilt-slider" v-model="tilt" :min="0" :max="180" vertical :show-input-controls="false" height="100%" @change="Move" @input="Move" />
-          <ElTooltip v-if="!rebooting && posValid" :tabindex="-1" placement="top" :content="stillFullView?'clickで縮小します':'clickで拡大します'" effect="light" :open-delay="500">
+          <ElSlider v-if="isSwing && posValid" class="tilt-slider" v-model="tilt" :min="0" :max="180" vertical :show-input-controls="false" height="100%" @change="Move" @input="Move" />
+          <ElTooltip v-if="!rebooting" :tabindex="-1" placement="top" :content="stillFullView?'clickで縮小します':'clickで拡大します'" effect="light" :open-delay="500">
             <img class="still-image" :src="stillImage" @click="stillFullView=!stillFullView">
           </ElTooltip>
         </div>
-        <div v-if="isSwing" class="image-frame-inner2">
+        <div v-if="isSwing && posValid" class="image-frame-inner2">
           <ElSlider class="pan-slider" v-model="pan" :min="0" :max="355" :show-input-controls="false" @change="Move" @input="Move" />
         </div>
-        <div v-if="!rebooting && posValid" class="image-frame-inner3">
+        <div v-if="!rebooting" class="image-frame-inner3">
           <i class="el-icon-moon ir-led" />
           <ElButtonGroup>
             <ElButton size="mini" type="primary" @click="IrLED('on')">
@@ -312,7 +312,7 @@
         return false;
       },
       isSwing() {
-        return !this.rebooting && this.posValid && (this.config.PRODUCT_MODEL === 'ATOM_CAKP1JZJP');
+        return !this.rebooting && (this.config.PRODUCT_MODEL === 'ATOM_CAKP1JZJP');
       },
       RtspUrl0() {
         const port = (this.config.RTSP_OVER_HTTP  === 'on') ? 8080 : 8554;
@@ -444,8 +444,8 @@
         const pos = status.MOTORPOS.split(' ');
         this.pan = Math.round(parseFloat(pos[0]));
         this.tilt = Math.round(parseFloat(pos[1]));
+        this.posValid = true;
       }
-      this.posValid = true;
 
       if(this.config.REBOOT_SCHEDULE) {
         const str = this.config.REBOOT_SCHEDULE.split(' ');
@@ -475,6 +475,7 @@
           const pos = this.intervalValue.MOTORPOS.split(' ');
           const pan = Math.round(parseFloat(pos[0]));
           const tilt = Math.round(parseFloat(pos[1]));
+          this.posValid = true;
           if(this.moved) {
             this.moved = false;
             if((pan !== this.pan) || (tilt !== this.tilt)) this.Move();
