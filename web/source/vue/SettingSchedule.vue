@@ -80,7 +80,8 @@
     },
     computed: {
       timelapseEndTime() {
-        let minutes = ((new Date(`2022-01-01 ${this.value.startTime}`) - new Date('2022-01-01 00:00')) / 1000 + this.value.count * this.value.interval) / 60;
+        const startTime = (this.innerValue.startTime || '').split(':');
+        let minutes = ((startTime.length === 2) ? parseInt(startTime[0]) * 60 + parseInt(startTime[1]) : 0) + (this.value.count * this.value.interval) / 60;
         let str = '';
         if(minutes >= 48 * 60) {
           str += `${ Math.floor(minutes / 24 / 60) }日後の`;
