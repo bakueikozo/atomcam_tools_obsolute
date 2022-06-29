@@ -17,7 +17,7 @@ if [ -f /atom/system/driver/mmc_detect_test.ko ]; then
   VENDERID=`cat /sys/bus/mmc/devices/mmc1\:0001/mmc1\:0001\:1/vendor`
 fi
 if [ "0x024c" = "$VENDERID" ]; then
-  insmod /atom/system/driver/rtl8189ftv.ko
+  insmod /atom/system/driver/rtl8189ftv.ko rtw_power_mgnt=0 rtw_enusbss=0
 elif [ "0x007a" = "$VENDERID" ]; then
   [ -f /atom/usr/share/atbm603x_conf/atbm_txpwer_dcxo_cfg.txt ] && cp /atom/usr/share/atbm603x_conf/atbm_txpwer_dcxo_cfg.txt /tmp
   [ -f /atom/usr/share/atbm603x_conf/set_rate_power.txt ] && cp /atom/usr/share/atbm603x_conf/set_rate_power.txt /tmp
