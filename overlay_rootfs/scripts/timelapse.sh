@@ -42,6 +42,8 @@ if [ "$1" = "start" ] ; then
   TIMELAPSE_COUNT=$(awk -F "=" '/TIMELAPSE_COUNT *=/ {print $2}' $HACK_INI)
   TIMELAPSE_PATH=$(awk -F "=" '/TIMELAPSE_PATH *=/ {print $2}' $HACK_INI)
   TIMELAPSE_FILE=`date +"/media/mmc/time_lapse/$TIMELAPSE_PATH.mp4"`
+  TIMELAPSE_DIR=${TIMELAPSE_FILE%/*}
+  mkdir -p $TIMELAPSE_DIR
 
   res=`/scripts/cmd timelapse $TIMELAPSE_FILE $TIMELAPSE_INTERVAL $TIMELAPSE_COUNT`
   [ "$res" = "ok" ] || exit 1
