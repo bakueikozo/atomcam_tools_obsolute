@@ -17,7 +17,7 @@ endef
 $(eval $(kernel-module))
 
 define ATBM_WIFI_KERNEL_MODULES_INSTALL
-	cp $(@D)/driver_install/*.ko $(TARGET_DIR)/lib/modules
+	cp $(@D)/driver_install/*.ko $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/extra
 endef
 
 $(eval $(generic-package))
