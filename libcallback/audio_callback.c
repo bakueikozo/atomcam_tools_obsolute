@@ -223,11 +223,13 @@ char *AudioCapture(int fd, char *tokenPtr) {
   }
   if(!strcmp(p, "on")) {
     audio_capture[ch].enable = 1;
+    if(audio_capture[ch].pcm) pcm_start(audio_capture[ch].pcm);
     printf("[command] audio %d capute on\n", ch);
     return "ok";
   }
   if(!strcmp(p, "off")) {
     audio_capture[ch].enable = 0;
+    if(audio_capture[ch].pcm) pcm_stop(audio_capture[ch].pcm);
     printf("[command] audio %d capute off\n", ch);
     return "ok";
   }
@@ -266,6 +268,7 @@ static uint32_t audio_pcm_capture(struct frames_st *frames) {
         if(err < 0) fprintf(stderr, "pcm_writei ch%d err=%d\n", ch, err);
       } else {
         fprintf(stderr, "[audio] drop packet: ch%d %d\n", ch, frames->length);
+        pcm_prepare(audio_capture[ch].pcm);
       }
     }
   }
