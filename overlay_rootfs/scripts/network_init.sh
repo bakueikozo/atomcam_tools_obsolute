@@ -21,7 +21,7 @@ if [ "0x024c" = "$VENDERID" ]; then
 elif [ "0x007a" = "$VENDERID" ]; then
   [ -f /atom/usr/share/atbm603x_conf/atbm_txpwer_dcxo_cfg.txt ] && cp /atom/usr/share/atbm603x_conf/atbm_txpwer_dcxo_cfg.txt /tmp
   [ -f /atom/usr/share/atbm603x_conf/set_rate_power.txt ] && cp /atom/usr/share/atbm603x_conf/set_rate_power.txt /tmp
-  [ -f /lib/modules/`uname -r`/extra/atbm603x_wifi_sdio.ko ] && insmod /lib/modules/`uname -r`/extra/atbm603x_wifi_sdio.ko
+  [ -f /lib/modules/atbm603x_wifi_sdio.ko ] && insmod /lib/modules/atbm603x_wifi_sdio.ko
   sleep 1
   if [ ! -f /sys/module/atbm603x_wifi_sdio/parameters/fw_ver ]; then
     sync
