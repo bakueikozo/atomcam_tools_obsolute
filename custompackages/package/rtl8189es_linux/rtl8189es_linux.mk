@@ -17,8 +17,7 @@ endef
 $(eval $(kernel-module))
 
 define RTL8189ES_LINUX_KERNEL_MODULES_INSTALL
-	set ;\
-	cp $(@D)/*.ko $(TARGET_DIR)/lib/modules
+	cp $(@D)/*.ko $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/extra
 endef
 
 $(eval $(generic-package))
