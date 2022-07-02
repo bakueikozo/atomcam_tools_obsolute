@@ -90,6 +90,7 @@ char *Timelapse(int fd, char *tokenPtr) {
     if(!Busy) return "error";
     Stop = 1;
     TimelapseFd = fd;
+    pthread_mutex_unlock(&TimelapseMutex);
     return NULL;
   }
 
@@ -97,6 +98,7 @@ char *Timelapse(int fd, char *tokenPtr) {
     if(!Busy) return "error";
     Stop = 2;
     TimelapseFd = fd;
+    pthread_mutex_unlock(&TimelapseMutex);
     return NULL;
   }
 
