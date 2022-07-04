@@ -28,8 +28,8 @@ fi
 if [ "$1" = "on" -o "$1" = "restart" -o "$1" = "watchdog" -o "$RTSP_VIDEO0" = "on" -o "$RTSP_VIDEO1" = "on" ]; then
   /scripts/cmd video 0 $RTSP_VIDEO0 > /dev/null
   /scripts/cmd video 1 $RTSP_VIDEO1 > /dev/null
-  /scripts/cmd audio 0 $RTSP_AUDIO0 > /dev/null
-  /scripts/cmd audio 1 $RTSP_AUDIO1 > /dev/null
+  /scripts/cmd audio 0 on > /dev/null
+  /scripts/cmd audio 1 on > /dev/null
   if ! pidof v4l2rtspserver > /dev/null ; then
     while netstat -ltn 2> /dev/null | egrep ":(8554|8080)"; do
       sleep 0.5
@@ -44,6 +44,8 @@ if [ "$1" = "on" -o "$1" = "restart" -o "$1" = "watchdog" -o "$RTSP_VIDEO0" = "o
   while [ "`pidof v4l2rtspserver`" = "" ]; do
     sleep 0.5
   done
+  /scripts/cmd audio 0 $RTSP_AUDIO0 > /dev/null
+  /scripts/cmd audio 1 $RTSP_AUDIO1 > /dev/null
 fi
 
 exit 0
