@@ -4,6 +4,7 @@
    timelapse mp4 <file>                  : reconvert to mp4
    timelapse close                       : close timelapse record (completely closed)
    timelapse stop                        : stop timelapse record (possible to restart)
+   timelapse restart                     : restart timelapse record
    timelapse                             : status or restart
 */
 
@@ -56,6 +57,21 @@ struct Mp4WriteAudioConfigSt {
   int mode; // 2
 };
 
+typedef enum {
+  State_Ready,
+  State_Recording,
+  State_ConvertToMP4,
+} StateSt;
+
+typedef enum {
+  Directive_Nop,
+  Directive_Start,
+  Directive_Restart,
+  Directive_ToMP4,
+  Directive_Stop,
+  Directive_Close,
+} DirectiveSt;
+
 static const unsigned char sei0[] = {
   0x00, 0x00, 0x00, 0x01, 0x06, 0x05, 0x00, 0x1b,
   0xaa, 0xdc, 0x45, 0xe9, 0xbd, 0xe6, 0xd9, 0x48,
@@ -77,71 +93,73 @@ static struct TimeLapseInfoSt TimeLapseInfo;
 static char ResBuf[256];
 static pthread_mutex_t TimelapseMutex = PTHREAD_MUTEX_INITIALIZER;
 static const int VideoBufSize = 0x50000;
-static int ConvToMP4 = 0;
 static int TimelapseFd = -1;
-static int Busy = 0;
-static int Restart = 0;
-static int Stop = 0;
+static DirectiveSt Directive = Directive_Nop;
+static StateSt State = State_Ready;
 
 char *Timelapse(int fd, char *tokenPtr) {
 
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
-  if(p && !strcmp(p, "stop")) {
-    if(!Busy) return "error";
-    Stop = 1;
-    TimelapseFd = fd;
-    pthread_mutex_unlock(&TimelapseMutex);
-    return NULL;
-  }
-
-  if(p && !strcmp(p, "close")) {
-    if(!Busy) return "error";
-    Stop = 2;
-    TimelapseFd = fd;
-    pthread_mutex_unlock(&TimelapseMutex);
-    return NULL;
-  }
-
-  ConvToMP4 = 0;
-  if(p && !strcmp(p, "mp4")) {
-    ConvToMP4 = 1;
-    p = strtok_r(NULL, " \t\r\n", &tokenPtr);
-  }
-
   if(!p) {
-    if(!Busy) {
-      FILE *fp = fopen(TimelapseInfoFile, "r");
-      if(fp) {
-        if(fread(&TimeLapseInfo, sizeof(TimeLapseInfo), 1, fp) != 1) {
-          memset(&TimeLapseInfo, 0, sizeof(TimeLapseInfo));
-        }
-        fclose(fp);
-      } else {
-        memset(&TimeLapseInfo, 0, sizeof(TimeLapseInfo));
-      }
-      if(TimeLapseInfo.count >= TimeLapseInfo.numOfTimes) return "not operating.";
-      Restart = 1;
-      Busy = 1;
-      TimelapseFd = fd;
-      pthread_mutex_unlock(&TimelapseMutex);
-      return NULL;
-    }
+    if(TimeLapseInfo.count >= TimeLapseInfo.numOfTimes) return "not operating.";
     snprintf(ResBuf, 255, "file: %s\ninterval: %dsec, count: %d/%d\n", TimeLapseInfo.mp4file, TimeLapseInfo.interval, TimeLapseInfo.count, TimeLapseInfo.numOfTimes);
-    TimelapseFd = -1;
     return ResBuf;
   }
-  if(Busy) return "error :　Already in operation.";
+
+  if(!strcmp(p, "stop")) {
+    if(State != State_Recording) return "error";
+    Directive = Directive_Stop;
+    TimelapseFd = fd;
+    return NULL;
+  }
+
+  if(!strcmp(p, "close")) {
+    if(!State != State_Recording) return "error";
+    Directive = Directive_Close;
+    TimelapseFd = fd;
+    return NULL;
+  }
+
+  if(!strcmp(p, "restart")) {
+    if(!State != State_Recording) return "error";
+    FILE *fp = fopen(TimelapseInfoFile, "r");
+    if(fp) {
+      if(fread(&TimeLapseInfo, sizeof(TimeLapseInfo), 1, fp) != 1) {
+        memset(&TimeLapseInfo, 0, sizeof(TimeLapseInfo));
+      }
+      fclose(fp);
+    } else {
+      memset(&TimeLapseInfo, 0, sizeof(TimeLapseInfo));
+    }
+    if(TimeLapseInfo.count >= TimeLapseInfo.numOfTimes) return "not operating.";
+    Directive = Directive_Restart;
+    TimelapseFd = fd;
+    pthread_mutex_unlock(&TimelapseMutex);
+    return NULL;
+  }
+
+  if(State != State_Ready) return "error :　Already in operation.";
+
+  int mp4Flag = 0;
+  if(p && !strcmp(p, "mp4")) {
+    mp4Flag = 1;
+    p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+  }
 
   strncpy(TimeLapseInfo.mp4file, p, 250);
   char *q = strrchr(TimeLapseInfo.mp4file, '.');
   if(!q) q = TimeLapseInfo.mp4file + strlen(TimeLapseInfo.mp4file);
   strcpy(q, ".mp4");
 
+  FILE *fp = fopen(TimeLapseInfo.mp4file, "w");
+  if(!fp) return strerror(errno);
+  fclose(fp);
+
   strncpy(TimeLapseInfo.h264file, TimeLapseInfo.mp4file, 250);
   q = strrchr(TimeLapseInfo.h264file, '.');
   strcpy(q, ".h264");
 
-  if(!ConvToMP4) {
+  if(!mp4Flag) {
     p = strtok_r(NULL, " \t\r\n", &tokenPtr);
     if(!p) return "error";
     TimeLapseInfo.interval = atoi(p);
@@ -152,17 +170,14 @@ char *Timelapse(int fd, char *tokenPtr) {
     TimeLapseInfo.numOfTimes = atoi(p);
     if(TimeLapseInfo.numOfTimes < 1) TimeLapseInfo.numOfTimes = 1;
 
-    FILE *fp = fopen(TimeLapseInfo.h264file, "w");
+    TimeLapseInfo.count = 0;
+
+    fp = fopen(TimeLapseInfo.h264file, "w");
     if(!fp) return strerror(errno);
     fclose(fp);
   }
 
-  FILE *fp = fopen(TimeLapseInfo.mp4file, "w");
-  if(!fp) return strerror(errno);
-  fclose(fp);
-
-  TimeLapseInfo.count = 0;
-  Busy = 1;
+  Directive = mp4Flag ? Directive_ToMP4 : Directive_Start;
   TimelapseFd = fd;
   pthread_mutex_unlock(&TimelapseMutex);
   return NULL;
@@ -177,34 +192,29 @@ static void *TimelapseThread() {
 
   while(1) {
     pthread_mutex_lock(&TimelapseMutex);
+
     struct FrameCtrlSt frameCtrl;
     memset(&frameCtrl, 0, sizeof(frameCtrl));
-
     frameCtrl.buf = malloc(VideoBufSize);
     if(!frameCtrl.buf) {
-      Busy = 0;
       CommandResponse(TimelapseFd, "error : not enough memory to video buffer");
-      TimelapseFd = -1;
-      continue;
+      goto error;
     }
 
-    if(!ConvToMP4) {
-      if(Restart) {
-        CommandResponse(TimelapseFd, "restart");
-      } else {
-        CommandResponse(TimelapseFd, "ok");
-      }
-      TimelapseFd = -1;
-    }
+    State = State_Recording;
     struct timeval startTime = { .tv_sec = 0, .tv_usec = 0 };
-    while(!ConvToMP4) {
+    while((Directive < Directive_ToMP4)) {
       int ret = video_get_frame(0, 0, 2, frameCtrl.buf, &frameCtrl);
       if(ret) fprintf(stderr, "[timelapse] error video_get_frame %d\n", ret);
       if(frameCtrl.stat) fprintf(stderr, "[timelapse] error video_get_frame frame.sstat %d\n", frameCtrl.stat);
       if(!startTime.tv_sec) {
         gettimeofday(&startTime, NULL);
-        if(Restart) startTime.tv_sec -= TimeLapseInfo.interval * TimeLapseInfo.count;
-        Restart = 0;
+        if((Directive == Directive_Start) || (Directive == Directive_Restart)) {
+          startTime.tv_sec -= TimeLapseInfo.interval * TimeLapseInfo.count;
+          CommandResponse(TimelapseFd, "ok");
+          TimelapseFd = -1;
+          Directive = Directive_Nop;
+        }
       }
 
       if(!ret && !frameCtrl.stat) {
@@ -241,15 +251,22 @@ static void *TimelapseThread() {
       fprintf(stdout, "[webhook] time_lapse_event %s %d/%d\n", TimeLapseInfo.mp4file, TimeLapseInfo.count, TimeLapseInfo.numOfTimes);
 
       if(TimeLapseInfo.count >= TimeLapseInfo.numOfTimes) break;
-      if(Stop) break;
+      if(Directive >= Directive_ToMP4) break;
 
-      struct timeval now;
-      gettimeofday(&now, NULL);
-      int us = (startTime.tv_sec + TimeLapseInfo.interval * TimeLapseInfo.count - now.tv_sec) * 1000 * 1000 + ((int)startTime.tv_usec - (int)now.tv_usec);
-      if(us < 0) us = 0;
-      usleep(us);
+      while(1) {
+        struct timeval now;
+        gettimeofday(&now, NULL);
+        int ms = (startTime.tv_sec + TimeLapseInfo.interval * TimeLapseInfo.count - now.tv_sec) * 1000  + ((int)startTime.tv_usec - (int)now.tv_usec) / 1000;
+        if(ms <= 0) break;
+        if(Directive >= Directive_ToMP4) break;
+        if(ms > 1000) ms = 1000;
+        usleep(ms * 1000);
+      }
     }
-    if(Stop == 2) {
+    State = State_ConvertToMP4;
+
+    if(Directive == Directive_Stop) goto finalize;
+    if(Directive == Directive_Close) {
       TimeLapseInfo.numOfTimes = TimeLapseInfo.count;
       FILE *fp = fopen(TimelapseInfoFile, "w");
       if(fp) {
@@ -262,7 +279,6 @@ static void *TimelapseThread() {
         fclose(fp);
       }
     }
-    Stop = 0;
 
     struct timeval start;
     gettimeofday(&start, NULL);
@@ -270,10 +286,8 @@ static void *TimelapseThread() {
     int fps_num;
     int fps_den;
     if(IMP_ISP_Tuning_GetSensorFPS(&fps_num, &fps_den)) {
-      Busy = 0;
       CommandResponse(TimelapseFd, "error : can't get frame rate");
-      TimelapseFd = -1;
-      continue;
+      goto error;
     }
 
     struct Mp4writeVideoConfigSt videoConfig = {
@@ -294,17 +308,13 @@ static void *TimelapseThread() {
     writeTaskBusy = 1;
     int mp4writeHandler = mp4write_request_handler(&videoConfig, &audioConfig);
     if(mp4writeHandler < 0) {
-      Busy = 0;
       CommandResponse(TimelapseFd, "error : can't get mp4 handler");
-      TimelapseFd = -1;
-      continue;
+      goto error;
     }
 
     if(mp4write_start_handler(mp4writeHandler, TimeLapseInfo.mp4file, &videoConfig)) {
-      Busy = 0;
       CommandResponse(TimelapseFd, "error : can't start mp4 handler");
-      TimelapseFd = -1;
-      continue;
+      goto error;
     }
 
     struct stat st;
@@ -330,7 +340,7 @@ static void *TimelapseThread() {
       frameCtrl.tm.tv_sec = time + count;
       frameCtrl.tm.tv_usec = 0;
       frameCtrl.reserve = 0;
-      // fprintf(stderr, "[timelapse] %d/%d idx:%d timestamp:%d.%06d dts:%d\n", count + 1, TimeLapseInfo.numOfTimes, frameCtrl.frameIndex, frameCtrl.tm.tv_sec, frameCtrl.tm.tv_usec, frameCtrl.dts);
+      fprintf(stderr, "[timelapse] %d/%d idx:%d timestamp:%d.%06d dts:%d\n", count + 1, TimeLapseInfo.numOfTimes, frameCtrl.frameIndex, frameCtrl.tm.tv_sec, frameCtrl.tm.tv_usec, frameCtrl.dts);
       if(mp4write_video_frame(mp4writeHandler, &frameCtrl)) {
         fprintf(stderr, "[timelapse] mp4write_video_frame error\n");
       }
@@ -359,10 +369,12 @@ static void *TimelapseThread() {
     struct timeval finish;
     gettimeofday(&finish, NULL);
     fprintf(stderr, "start : %d.%06d  finish : %d.%06d\n", start.tv_sec, start.tv_usec, finish.tv_sec, finish.tv_usec);
-
+finalize:
     CommandResponse(TimelapseFd, "ok");
-    Busy = 0;
+error:
     TimelapseFd = -1;
+    State = State_Ready;
+    Directive = Directive_Nop;
   }
 }
 
