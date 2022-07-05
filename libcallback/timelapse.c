@@ -305,7 +305,13 @@ static void *TimelapseThread() {
     };
 
     writeTaskBusy = 1;
-    int mp4writeHandler = mp4write_request_handler(&videoConfig, &audioConfig);
+    int mp4writeHandler = -1;
+    for(int i = 0; i < 20; i++) {
+      mp4writeHandler = mp4write_request_handler(&videoConfig, &audioConfig);
+      if(mp4writeHandler >= 0) break;
+      fprintf(stderr, "retry : can't get mp4 handler\n");
+      usleep(1000 * 1000);
+    }
     if(mp4writeHandler < 0) {
       CommandResponse(TimelapseFd, "error : can't get mp4 handler");
       goto error;
@@ -339,7 +345,7 @@ static void *TimelapseThread() {
       frameCtrl.tm.tv_sec = time + count;
       frameCtrl.tm.tv_usec = 0;
       frameCtrl.reserve = 0;
-      fprintf(stderr, "[timelapse] %d/%d idx:%d timestamp:%d.%06d dts:%d\n", count + 1, TimeLapseInfo.numOfTimes, frameCtrl.frameIndex, frameCtrl.tm.tv_sec, frameCtrl.tm.tv_usec, frameCtrl.dts);
+      //fprintf(stderr, "[timelapse] %d/%d idx:%d timestamp:%d.%06d dts:%d\n", count + 1, TimeLapseInfo.numOfTimes, frameCtrl.frameIndex, frameCtrl.tm.tv_sec, frameCtrl.tm.tv_usec, frameCtrl.dts);
       if(mp4write_video_frame(mp4writeHandler, &frameCtrl)) {
         fprintf(stderr, "[timelapse] mp4write_video_frame error\n");
       }
