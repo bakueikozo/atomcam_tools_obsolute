@@ -368,7 +368,6 @@ static int video_encode_capture(int ch, struct frames_st *frames) {
     int err;
     video_capture[ch].fd = open(video_capture[ch].device, O_WRONLY, 0777);
     if(video_capture[ch].fd < 0) fprintf(stderr, "Failed to open V4L2 device: %s\n", video_capture[ch].device);
-    fprintf(stderr, "Opening V4L2 device: %s %d\n", video_capture[ch].device, video_capture[ch].fd);
     struct v4l2_format vid_format;
     memset(&vid_format, 0, sizeof(vid_format));
     vid_format.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
