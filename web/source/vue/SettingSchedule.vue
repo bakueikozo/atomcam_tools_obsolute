@@ -89,7 +89,7 @@
           str += '翌日';
         }
         str += Math.floor((minutes % 1440) / 60).toString().padStart(2, '0') + ':';
-        str += (minutes % 60).toString().padStart(2, '0');
+        str += Math.floor(minutes % 60).toString().padStart(2, '0');
         return str;
       },
     },

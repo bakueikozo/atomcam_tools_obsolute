@@ -114,14 +114,15 @@ char *Timelapse(int fd, char *tokenPtr) {
   }
 
   if(!strcmp(p, "close")) {
-    if(!State != State_Recording) return "error";
+    if(State != State_Recording) return "error";
     Directive = Directive_Close;
     TimelapseFd = fd;
     return NULL;
   }
 
+  if(State != State_Ready) return "error :　Already in operation.";
+
   if(!strcmp(p, "restart")) {
-    if(!State != State_Recording) return "error";
     FILE *fp = fopen(TimelapseInfoFile, "r");
     if(fp) {
       if(fread(&TimeLapseInfo, sizeof(TimeLapseInfo), 1, fp) != 1) {
@@ -137,8 +138,6 @@ char *Timelapse(int fd, char *tokenPtr) {
     pthread_mutex_unlock(&TimelapseMutex);
     return NULL;
   }
-
-  if(State != State_Ready) return "error :　Already in operation.";
 
   int mp4Flag = 0;
   if(p && !strcmp(p, "mp4")) {
@@ -345,6 +344,7 @@ static void *TimelapseThread() {
         fprintf(stderr, "[timelapse] mp4write_video_frame error\n");
       }
       count++;
+      usleep(10 * 1000);
     }
     fclose(fp);
 

@@ -8,7 +8,7 @@
         <ElSwitch v-model="enable" inactive-text="Lock" :disabled="disabled" />
       </ElCol>
       <ElCol :span="4">
-        <ElButton @click="$emit('click', $event)" type="danger" :disabled="!enable" :icon="icon">
+        <ElButton @click="$emit('click', $event); enable=false;" type="danger" :disabled="!enable" :icon="icon">
           {{ label }}
         </ElButton>
       </ElCol>
