@@ -108,6 +108,7 @@
       <SettingSwitch v-if="config.WEBHOOK === 'on'" title="動体検知静止画保存" :titleOffset="2" tooltip="Alarm発生時に静止画保存を通知します" v-model="config.WEBHOOK_ALARM_PICT_FINISH" comment="type: uploadPictureFinish" />
       <SettingSwitch v-if="config.WEBHOOK === 'on'" title="動体検知静止画転送" :titleOffset="2" tooltip="Alarm発生時に静止画ファイルを転送します" v-model="config.WEBHOOK_ALERM_PICT" comment="mime: image/jpeg" />
       <SettingSwitch v-if="config.WEBHOOK === 'on'" title="定常録画保存" :titleOffset="2" tooltip="録画保存を通知します" v-model="config.WEBHOOK_RECORD_EVENT" comment="type: recordEvent" />
+      <SettingSwitch v-if="config.WEBHOOK === 'on'" title="タイムラプス開始" :titleOffset="2" tooltip="タイムラプス開始を通知します" v-model="config.WEBHOOK_TIMELAPSE_START" comment="type: timelapseStart" />
       <SettingSwitch v-if="config.WEBHOOK === 'on'" title="タイムラプス記録" :titleOffset="2" tooltip="タイムラプスイベントを通知します" v-model="config.WEBHOOK_TIMELAPSE_EVENT" comment="type: timelapseEvent" />
       <SettingSwitch v-if="config.WEBHOOK === 'on'" title="タイムラプス録画完了" :titleOffset="2" tooltip="タイムラプス録画完了を通知します" v-model="config.WEBHOOK_TIMELAPSE_FINISH" comment="type: timelapseFinish" />
 
