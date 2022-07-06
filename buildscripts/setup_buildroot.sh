@@ -28,4 +28,5 @@ fi
 cd /atomtools/build/buildroot-2016.02
 make clean
 make host-uboot-tools
+make dosfstools-init
 make `make show-targets`
