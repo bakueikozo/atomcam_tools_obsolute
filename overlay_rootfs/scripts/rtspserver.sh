@@ -36,9 +36,9 @@ if [ "$1" = "on" -o "$1" = "restart" -o "$1" = "watchdog" -o "$RTSP_VIDEO0" = "o
     done
     echo `date +"%Y/%m/%d %H:%M:%S"` ": v4l2rtspserever start"
     if [ "$RTSP_OVER_HTTP" = "on" ] ; then
-      /usr/bin/v4l2rtspserver -p 8080 -C 1 -a S16_LE -l 0 /dev/video0,hw:0,0 /dev/video1,hw:1,0 >> /tmp/log/rtspserver.log 2>&1 &
+      /usr/bin/v4l2rtspserver -p 8080 -C 1 -a S16_LE -l 0 /dev/video0,hw:0,0 /dev/video1,hw:2,0 >> /tmp/log/rtspserver.log 2>&1 &
     else
-      /usr/bin/v4l2rtspserver -C 1 -a S16_LE -l 0 /dev/video0,hw:0,0 /dev/video1,hw:1,0 >> /tmp/log/rtspserver.log 2>&1 &
+      /usr/bin/v4l2rtspserver -C 1 -a S16_LE -l 0 /dev/video0,hw:0,0 /dev/video1,hw:2,0 >> /tmp/log/rtspserver.log 2>&1 &
     fi
   fi
   while [ "`pidof v4l2rtspserver`" = "" ]; do

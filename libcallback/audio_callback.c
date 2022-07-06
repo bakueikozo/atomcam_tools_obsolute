@@ -64,15 +64,18 @@ static uint32_t (*real_local_sdk_audio_set_pcm_frame_callback)(int ch, void *cal
 static void *audio_pcm_cb = NULL;
 
 struct audio_capture_st {
+  int card;
   struct pcm *pcm;
   int enable;
 };
 struct audio_capture_st audio_capture[] = {
   {
+    .card = 0,
     .pcm = NULL,
     .enable = 0,
   },
   {
+    .card = 2,
     .pcm = NULL,
     .enable = 0,
   },
@@ -252,7 +255,7 @@ static uint32_t audio_pcm_capture(struct frames_st *frames) {
 
   for(int ch = 0; ch < 2; ch++) {
     if(!audio_capture[ch].pcm) {
-      audio_capture[ch].pcm = pcm_open(ch, 1, PCM_OUT | PCM_MMAP, &config);
+      audio_capture[ch].pcm = pcm_open(audio_capture[ch].card, 1, PCM_OUT | PCM_MMAP, &config);
       if(audio_capture[ch].pcm == NULL) {
           fprintf(stderr, "failed to allocate memory for PCM%d\n", ch);
       } else if(!pcm_is_ready(audio_capture[ch].pcm)) {
