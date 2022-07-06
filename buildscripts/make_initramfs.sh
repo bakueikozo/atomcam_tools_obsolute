@@ -11,6 +11,8 @@ then
     exit 1
 fi
 
+echo "=== build initramfs ==="
+
 ROOTFS_DIR=$1/initramfs_root
 rm -rf $ROOTFS_DIR
 mkdir -p $ROOTFS_DIR
@@ -19,6 +21,7 @@ cd $ROOTFS_DIR
 mkdir -p {bin,dev,etc,lib,mnt,proc,root,sbin,sys,tmp}
 
 cp -r /src/initramfs_skeleton/* $ROOTFS_DIR/
+cp $BASE_DIR/staging/sbin/fsck.fat $ROOTFS_DIR/sbin/
 
 # Save a few bytes by removing the readme
 rm -f $ROOTFS_DIR/README.md
