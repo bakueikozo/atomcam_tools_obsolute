@@ -46,7 +46,7 @@ struct Mp4writeVideoConfigSt {
   int width; // 1920
   int height; // 1080
   int bufSize; // 0x50000
-  int flag; // 1
+  int format; // 1:H264 / 2:H265
   void *callback; // callback func
 };
 
@@ -294,7 +294,7 @@ static void *TimelapseThread() {
       .width = 1920,
       .height = 1080,
       .bufSize = VideoBufSize,
-      .flag = 0,
+      .format = 1, // H264
       .callback = &mp4writeCallback,
     };
     struct Mp4WriteAudioConfigSt audioConfig = {
