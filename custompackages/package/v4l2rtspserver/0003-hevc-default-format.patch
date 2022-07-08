@@ -1,6 +1,6 @@
 --- a/main.cpp
 +++ b/main.cpp
-@@ -290,6 +291,7 @@
+@@ -279,6 +279,7 @@ int main(int argc, char** argv)
 
  	// default format tries
  	if ((videoformatList.empty()) && (format!=0)) {
@@ -8,4 +8,3 @@
  		videoformatList.push_back(V4L2_PIX_FMT_H264);
  		videoformatList.push_back(V4L2_PIX_FMT_MJPEG);
  		videoformatList.push_back(V4L2_PIX_FMT_JPEG);
-     

@@ -1,6 +1,6 @@
 --- a/Makefile	2021-03-07 23:30:35.225098650 +0000
 +++ b/Makefile	2021-04-21 01:32:30.033725972 +0000
-@@ -0,0 +1,66 @@
+@@ -0,0 +1,63 @@
 +ifneq ($(SRC),)
 +VPATH=$(SRC)
 +endif
@@ -20,7 +20,7 @@
 +RM = rm -rf
 +
 +RTSPSERVER_OBJS = \
-+	src/DeviceSource.o \
++	src/V4L2DeviceSource.o \
 +	src/H264_V4l2DeviceSource.o \
 +	src/HTTPServer.o \
 +	main.o \
@@ -30,10 +30,7 @@
 +	src/ServerMediaSubsession.o \
 +	src/TSServerMediaSubsession.o \
 +	src/UnicastServerMediaSubsession.o \
-+	src/V4l2RTSPServer.o \
-+	src/AudioCompressor.o \
-+	src/NullAudioCompressor.o \
-+	src/MP3AudioCompressor.o 
++	src/V4l2RTSPServer.o
 +
 +# v4l2wrapper
 +CXXFLAGS += -I$(PREFIX)/include/libv4l2cpp
