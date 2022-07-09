@@ -82,7 +82,7 @@
         録画の間は記録後の変換処理のため５分以上空けてください。<br>
         時間が重なるとエラーで記録されない事があります。
       </SettingComment>
-      <SettingProgress v-if="timelapseInfo.busy" title="timelapse動作" tooltip="timelapse動作中です。" :percentage="timelapseInfo.count * 100 / timelapseInfo.max" :label="timelapseInfo.count.toString() + '/' + timelapseInfo.max.toString()" :stop="true" @stop="TimelapseStop" />
+      <SettingProgress v-if="timelapseInfo.busy" title="timelapse動作" tooltip="timelapse動作中です。" :percentage="timelapseInfo.count * 100 / timelapseInfo.max" :label="timelapseInfo.count.toString() + '/' + timelapseInfo.max.toString()" />
       <SettingDangerButton v-if="timelapseInfo.busy" title="timelapse中止" tooltip="timelapseを中止します。" icon="el-icon-refresh-left" label="中止" @click="TimelapseAbort">
         <span v-if="timelapseInfo.abort">
           停止処理：ファイル書き込み中
