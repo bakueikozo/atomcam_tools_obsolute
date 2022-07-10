@@ -93,6 +93,7 @@
       <SettingSwitch title="RTSP Main" tooltip="RTSP Main(1080p AVC)を開始します" v-model="config.RTSP_VIDEO0" />
       <SettingSwitch v-if="config.RTSP_VIDEO0 === 'on'" title="音声" :titleOffset="2" tooltip="RTSP Mainの音声を設定します" v-model="config.RTSP_AUDIO0" />
       <SettingInput v-if="config.RTSP_VIDEO0 === 'on'" title="URL" :titleOffset="2" :span="10" tooltip="VLC playerなどにURLをcopy&pasteしてください" type="readonly" v-model="RtspUrl0" :min="1" />
+      <SettingSwitch v-if="config.RTSP_VIDEO0 === 'on'" title="フォーマット" :titleOffset="2" tooltip="ストリームのフォーマットを設定します" v-model="config.RTSP_MAIN_FORMAT_HEVC" :text="['HEVC ','AVC ']" comment="※ 変更すると設定ボタンで再起動します" />
       <SettingSwitch title="RTSP Sub" tooltip="RTSP Sub(360p HEVC)を開始します" v-model="config.RTSP_VIDEO1" />
       <SettingSwitch v-if="config.RTSP_VIDEO1 === 'on'" title="音声" :titleOffset="2" tooltip="RTSP Subの音声を設定します" v-model="config.RTSP_AUDIO1" />
       <SettingInput v-if="config.RTSP_VIDEO1 === 'on'" title="URL" :titleOffset="2" :span="10" tooltip="VLC playerなどにURLをcopy&pasteしてください" type="readonly" v-model="RtspUrl1" :min="1" />
@@ -203,6 +204,7 @@
           RECORDING_LOCAL_SCHEDULE_LIST: '', // -> /media/mmc/local_schedule
           RTSP_VIDEO0: 'off',
           RTSP_AUDIO0: 'off',
+          RTSP_MAIN_FORMAT_HEVC: 'off',
           RTSP_VIDEO1: 'off',
           RTSP_AUDIO1: 'off',
           RTSP_OVER_HTTP: 'off',
@@ -677,6 +679,7 @@
           }
         }
         if((this.config.MINIMIZE_ALARM_CYCLE !== this.oldConfig.MINIMIZE_ALARM_CYCLE) ||
+           (this.config.RTSP_MAIN_FORMAT_HEVC !== this.oldConfig.RTSP_MAIN_FORMAT_HEVC) ||
            (this.config.AWS_VIDEO_DISABLE !== this.oldConfig.AWS_VIDEO_DISABLE))  {
           execCmds.push(`reboot`);
           this.rebooting = true;
