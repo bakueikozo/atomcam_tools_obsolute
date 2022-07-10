@@ -12,9 +12,11 @@ import Vue from 'vue';
 import { Row, Col, Button } from 'element-ui';
 import lang from 'element-ui/lib/locale/lang/ja';
 import locale from 'element-ui/lib/locale';
+import VueI18n from 'vue-i18n';
 
 locale.use(lang);
 Vue.prototype.$ELEMENT = { size: 'mini' };
+Vue.use(VueI18n);
 Vue.use(Row);
 Vue.use(Col);
 Vue.use(Button);
@@ -31,6 +33,7 @@ import '../css/localStyle.css';
 class AtomSetting {
   constructor() {
     new Vue({
+      i18n: new VueI18n({ locale: 'ja', messages: { en: {}, ja: {} }}),
       el: '#app',
       template: '<setting/>',
       components: { 'setting': Setting },

@@ -24,6 +24,11 @@ module.exports = (env, argv) => {
           loader: 'vue-loader',
         },
         {
+          resourceQuery: /blockType=i18n/,
+          type: 'javascript/auto',
+          loader: '@intlify/vue-i18n-loader'
+        },
+        {
           test: /\.css$/,
           exclude: /css\/dirindex\.css/,
           use: [ 'style-loader', 'css-loader' ],

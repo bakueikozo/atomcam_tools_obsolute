@@ -45,7 +45,7 @@
         </div>
       </div>
 
-      <h3>基本設定</h3>
+      <h3>{{ $t('basic') }} 基本設定</h3>
       <SettingInput title="デバイス名" tooltip="NASの保存フォルダ名やリモートアクセスのための名前を設定します" type="text" v-model="config.HOSTNAME" />
       <SettingSwitch title="ログイン認証" tooltip="このページへのアクセスのためのログイン認証を有効にします" v-model="loginAuth" />
       <SettingInput v-if="loginAuth==='on'" title="アカウント" tooltip="ログインのためのユーザーアカウントを設定します" type="text" v-model="account" />
@@ -156,6 +156,13 @@
   </div>
 </template>
 
+<i18n lang="yaml">
+en:
+  basic: "basic setting"
+ja:
+  basic: "基本設定"
+</i18n>
+
 <script>
   import axios from 'axios';
   import md5 from 'js-md5';
@@ -191,6 +198,8 @@
       SettingCruise,
     },
     data() {
+    
+      this.$i18n.locale = 'ja';
       return {
         config: {
           appver: '', // ATOMCam app_ver (/atom/config/app.ver)
@@ -286,6 +295,7 @@
         pan: 0,
         tilt: 0,
         posValid: false,
+        locale: 'ja',
       };
     },
     computed: {
