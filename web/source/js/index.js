@@ -1,6 +1,6 @@
 /*
 
-  frontend/js/AtomSetting.js
+  frontend/js/index.js
 
   Copyright (C) 2021 Mitsuru Nakada
   This software is released under the MIT License, see license file.
@@ -9,14 +9,14 @@
 'use strict';
 
 import Vue from 'vue';
+import VueI18n from 'vue-i18n';
 import { Row, Col, Button } from 'element-ui';
 import lang from 'element-ui/lib/locale/lang/ja';
 import locale from 'element-ui/lib/locale';
-import VueI18n from 'vue-i18n';
 
 locale.use(lang);
-Vue.prototype.$ELEMENT = { size: 'mini' };
 Vue.use(VueI18n);
+Vue.prototype.$ELEMENT = { size: 'mini' };
 Vue.use(Row);
 Vue.use(Col);
 Vue.use(Button);
@@ -33,7 +33,7 @@ import '../css/localStyle.css';
 class AtomSetting {
   constructor() {
     new Vue({
-      i18n: new VueI18n({ locale: 'ja', messages: { en: {}, ja: {} }}),
+      i18n: new VueI18n({ locale: navigator.language, fallbackLocale: 'ja' }),
       el: '#app',
       template: '<setting/>',
       components: { 'setting': Setting },

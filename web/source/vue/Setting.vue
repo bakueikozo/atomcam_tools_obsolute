@@ -22,7 +22,7 @@
       <div class="image-frame" :style="imageFrameStyle">
         <div class="image-frame-inner1">
           <ElSlider v-if="isSwing && posValid" class="tilt-slider" v-model="tilt" :min="0" :max="180" vertical :show-input-controls="false" height="100%" @change="Move" @input="Move" />
-          <ElTooltip v-if="!rebooting" :tabindex="-1" placement="top" :content="stillFullView?'clickで縮小します':'clickで拡大します'" effect="light" :open-delay="500">
+          <ElTooltip v-if="!rebooting" :tabindex="-1" placement="top" :content="stillFullView?$t('imageFrame.clickToShrink'):$t('imageFrame.clickToExpand')" effect="light" :open-delay="500">
             <img class="still-image" :src="stillImage" @click="stillFullView=!stillFullView">
           </ElTooltip>
         </div>
@@ -45,24 +45,24 @@
         </div>
       </div>
 
-      <h3>{{ $t('basic') }} 基本設定</h3>
-      <SettingInput title="デバイス名" tooltip="NASの保存フォルダ名やリモートアクセスのための名前を設定します" type="text" v-model="config.HOSTNAME" />
-      <SettingSwitch title="ログイン認証" tooltip="このページへのアクセスのためのログイン認証を有効にします" v-model="loginAuth" />
-      <SettingInput v-if="loginAuth==='on'" title="アカウント" tooltip="ログインのためのユーザーアカウントを設定します" type="text" v-model="account" />
-      <SettingInput v-if="loginAuth==='on'" title="パスワード" tooltip="ログインのためのパスワードを設定します" type="password" v-model="password" />
+      <h3 v-t="'basicSettings'" />
+      <SettingInput :title="$t('basicSettings.deviceName')" :tooltip="$t('basicSettings.deviceName.tooltip')" type="text" v-model="config.HOSTNAME" />
+      <SettingSwitch :title="$t('basicSettings.loginAuthentication')" :tooltip="$t('basicSettings.loginAuthentication.tooltip')" v-model="loginAuth" />
+      <SettingInput v-if="loginAuth==='on'" :title="$t('basicSettings.account')" :tooltip="$t('basicSettings.account.tooltip')" type="text" v-model="account" />
+      <SettingInput v-if="loginAuth==='on'" :title="$t('basicSettings.password')" :tooltip="$t('basicSettings.password.tooltip')" type="password" v-model="password" />
 
-      <h3>録画</h3>
-      <SettingSwitch title="ローカル録画スケジュール" tooltip="SD-Card/NASに録画される時間帯を設定します" v-model="config.RECORDING_LOCAL_SCHEDULE" :text="['スケジュール ','常時録画 ']" @change="(config.RECORDING_LOCAL_SCHEDULE === 'on') && !schedule.length && AddSchedule()" />
+      <h3 v-t="'recording'" />
+      <SettingSwitch :title="$t('recording.localRecordingSchedule')" :tooltip="$t('recording.localRecordingSchedule.tooltip')" v-model="config.RECORDING_LOCAL_SCHEDULE" :text="[$t('recording.localRecordingSchedule.schedule'),$t('recording.localRecordingSchedule.constantRecording')]" @change="(config.RECORDING_LOCAL_SCHEDULE === 'on') && !schedule.length && AddSchedule()" />
       <div v-if="config.RECORDING_LOCAL_SCHEDULE === 'on'">
         <SettingSchedule v-for="(timeTable, idx) of schedule" :key="'timetable'+idx" :timeRange="true" v-model="schedule[idx]" @add="AddSchedule" @remove="DeleteSchedule(idx)" />
       </div>
-      <SettingSwitch title="SD-Card録画" tooltip="SD-Cardのrecordフォルダへの記録をします" v-model="storage_sdcard_record" :onOff="false" />
-      <SettingSwitch title="SD-Cardモーション検知録画" tooltip="SD-Cardのalarm_recordフォルダへの記録をします" v-model="storage_sdcard_alarm" :onOff="false" />
-      <SettingSwitch v-if="storage_sdcard" title="ネットワークアクセス" :titleOffset="2" tooltip="ATOMCamのSD-CardをCIFS(smb) serverとしてLAN内に公開します" v-model="config.STORAGE_SDCARD_PUBLISH" />
-      <SettingInput v-if="storage_sdcard" title="保存するPATH" :titleOffset="2" :span="10" tooltip="録画するPATHをstrftimeの書式指定で記述します。最後に拡張子が付加されます。alarm_recordのみに有効" type="text" v-model="config.STORAGE_SDCARD_PATH" @input="FixPath('STORAGE_SDCARD_PATH')" />
-      <SettingSwitch v-if="storage_sdcard" title="ファイルの自動削除" :titleOffset="2" tooltip="SD-Cardに録画したファイルを自動的に削除します" v-model="config.STORAGE_SDCARD_REMOVE" />
-      <SettingInput v-if="storage_sdcard && config.STORAGE_SDCARD_REMOVE === 'on'" title="保存日数" :titleOffset="2" :span="3" tooltip="指定日数後に削除します" type="number" v-model="config.STORAGE_SDCARD_REMOVE_DAYS" :min="1" />
-      <SettingButton v-if="storage_sdcard" title="ファイル一覧" :titleOffset="2" :span="3" tooltip="SD-Card内のファイルを表示します">
+      <SettingSwitch :title="$t('recording.SDCard')" :tooltip="$t('recording.SDCard.tooltip')" v-model="storage_sdcard_record" :onOff="false" />
+      <SettingSwitch :title="$t('recording.SDCard.motionRecording')" :tooltip="$t('recording.SDCard.motionRecording.tooltip')" v-model="storage_sdcard_alarm" :onOff="false" />
+      <SettingSwitch v-if="storage_sdcard" :title="$t('recording.SDCard.networkAccess')" :titleOffset="2" :tooltip="$t('recording.SDCard.networkAccess.tooltip')" v-model="config.STORAGE_SDCARD_PUBLISH" />
+      <SettingInput v-if="storage_sdcard" :title="$t('recording.SDCard.savePath')" :titleOffset="2" :span="10" :tooltip="$t('recording.SDCard.savePath.tooltip')" type="text" v-model="config.STORAGE_SDCARD_PATH" @input="FixPath('STORAGE_SDCARD_PATH')" />
+      <SettingSwitch v-if="storage_sdcard" :title="$t('recording.SDCard.automaticDeletion')" :titleOffset="2" :tooltip="$t('recording.SDCard.automaticDeletion.tooltip')" v-model="config.STORAGE_SDCARD_REMOVE" />
+      <SettingInput v-if="storage_sdcard && config.STORAGE_SDCARD_REMOVE === 'on'" :title="$t('recording.SDCard.daysToKeep')" :titleOffset="2" :span="3" :tooltip="$t('recording.SDCard.daysToKeep.tooltip')" type="number" v-model="config.STORAGE_SDCARD_REMOVE_DAYS" :min="1" />
+      <SettingButton v-if="storage_sdcard" :title="$t('recording.SDCard.seeAllFiles')" :titleOffset="2" :span="3" :tooltip="$t('recording.SDCard.seeAllFiles.tooltip')">
         <a href="/sdcard" target="_blank" class="el-button el-button--primary el-button--mini link-button">SD Card</a>
       </SettingButton>
 
@@ -156,11 +156,71 @@
   </div>
 </template>
 
-<i18n lang="yaml">
-en:
-  basic: "basic setting"
-ja:
-  basic: "基本設定"
+<i18n locale="ja" lang="yaml">
+  imageFrame.clickToShrink: "clickで縮小します"
+  imageFrame.clickToExpand: "clickで拡大します"
+  basicSettings: "基本設定"
+  basicSettings.deviceName: "デバイス名"
+  basicSettings.deviceName.tooltip: "NASの保存フォルダ名やリモートアクセスのための名前を設定します"
+  basicSettings.loginAuthentication: "ログイン認証"
+  basicSettings.loginAuthentication.tooltip: "このページへのアクセスのためのログイン認証を有効にします"
+  basicSettings.account: "アカウント"
+  basicSettings.account.tooltip: "ログインのためのユーザーアカウントを設定します"
+  basicSettings.password: "パスワード"
+  basicSettings.password.tooltip: "ログインのためのパスワードを設定します"
+  recording: "録画"
+  recording.localRecordingSchedule: "ローカル録画スケジュール"
+  recording.localRecordingSchedule.tooltip: "SD-Card/NASに録画される時間帯を設定します"
+  recording.localRecordingSchedule.schedule: "スケジュール "
+  recording.localRecordingSchedule.constantRecording: "常時録画 "
+  recording.SDCard: "SD-Card録画"
+  recording.SDCard.tooltip: "SD-Cardのrecordフォルダへの記録をします"
+  recording.SDCard.motionRecording: "SD-Cardモーション検知録画"
+  recording.SDCard.motionRecording.tooltip: "SD-Cardのalarm_recordフォルダへの記録をします"
+  recording.SDCard.networkAccess: "ネットワークアクセス"
+  recording.SDCard.networkAccess.tooltip: "ATOMCamのSD-CardをCIFS(smb) serverとしてLAN内に公開します"
+  recording.SDCard.savePath: "保存するPATH"
+  recording.SDCard.savePath.tooltip: "録画するPATHをstrftimeの書式指定で記述します。最後に拡張子が付加されます。alarm_recordのみに有効"
+  recording.SDCard.automaticDeletion: "ファイルの自動削除"
+  recording.SDCard.automaticDeletion.tooltip: "SD-Cardに録画したファイルを自動的に削除します"
+  recording.SDCard.daysToKeep: "保存日数"
+  recording.SDCard.daysToKeep.tooltip: "指定日数後に削除します"
+  recording.SDCard.seeAllFiles: "ファイル一覧"
+  recording.SDCard.seeAllFiles.tooltip: "SD-Card内のファイルを表示します"
+
+</i18n>
+
+<i18n locale="en" lang="yaml">
+  imageFrame.clickToShrink: "click to shrink"
+  imageFrame.clickToExpand: "click to expand"
+  basicSettings: "Basic Settings"
+  basicSettings.deviceName: "Display Name"
+  basicSettings.deviceName.tooltip: "NAS Folder Name and Hostname for remote access"
+  basicSettings.loginAuthentication: "Login Authentication"
+  basicSettings.loginAuthentication.tooltip: "Require Authentication to Login"
+  basicSettings.account: "Account"
+  basicSettings.account.tooltip: "set username for login"
+  basicSettings.password: "Password"
+  basicSettings.password.tooltip: "set password for login"
+  recording: "Recording"
+  recording.localRecordingSchedule: "Local Recording Schedule"
+  recording.localRecordingSchedule.tooltip: "SD-Card/NAS Recording Time Window"
+  recording.localRecordingSchedule.schedule: "Schedule "
+  recording.localRecordingSchedule.constantRecording: "Constant Recoring "
+  recording.SDCard: "SD-Card Recording"
+  recording.SDCard.tooltip: "Record to a directory on the SD-Card"
+  recording.SDCard.motionRecording: "SD-Card Motion Sensor Recording"
+  recording.SDCard.motionRecording.tooltip: "Record to SD-Card alarm_record directory"
+  recording.SDCard.networkAccess: "Network Access"
+  recording.SDCard.networkAccess.tooltip: "Broadcast ATOMCam SD-Card CIFS(smb) server on local network"
+  recording.SDCard.savePath: "Save PATH"
+  recording.SDCard.savePath.tooltip: "Describes the PATH to be recorded in the format specification of strftime. valid only for alarm_record"
+  recording.SDCard.automaticDeletion: "Automatic Recording Deletion"
+  recording.SDCard.automaticDeletion.tooltip: "Automatically delete recordings from SD card"
+  recording.SDCard.daysToKeep: "Number of Days to Keep"
+  recording.SDCard.daysToKeep.tooltip: "Specify how much to delete"
+  recording.SDCard.seeAllFiles: "See all files on SD card"
+  recording.SDCard.seeAllFiles.tooltip: "Show SD Card contents"
 </i18n>
 
 <script>
@@ -198,8 +258,6 @@ ja:
       SettingCruise,
     },
     data() {
-    
-      this.$i18n.locale = 'ja';
       return {
         config: {
           appver: '', // ATOMCam app_ver (/atom/config/app.ver)
@@ -295,7 +353,6 @@ ja:
         pan: 0,
         tilt: 0,
         posValid: false,
-        locale: 'ja',
       };
     },
     computed: {
@@ -312,9 +369,9 @@ ja:
         return this.storage_cifs_record || this.storage_cifs_alarm;
       },
       updatable() {
-        const ver = this.config.ATOMHACKVER.split('.');
+        const ver = (this.config.ATOMHACKVER || '').split('.');
         if(ver.length !== 3) return false;
-        const latest = this.latestVer.split('.');
+        const latest = (this.latestVer || '').split('.');
         if(this.config.CUSTOM_ZIP === 'on' && this.config.CUSTOM_ZIP_URL !== '') return true;
         if(latest.length !== 3) return false;
         if(parseInt(ver[0]) < parseInt(latest[0])) return true;
@@ -343,7 +400,7 @@ ja:
         return '';
       });
 
-      this.oldConfig = res.data.split('\n').reduce((d, l) => {
+      this.oldConfig = (res.data || '').split('\n').reduce((d, l) => {
         const name = l.split(/[ \t=]/)[0].trim();
         if(d[name] != null) d[name] = l.replace(new RegExp(name + '[ \t=]*'), '').trim();
         return d;
