@@ -14,9 +14,17 @@
       <span class="timestamp">
         {{ intervalValue.TIMESTAMP }}
       </span>
-      <a href="https://github.com/mnakada/atomcam_tools#atomcam_tools" target="_blank" rel="noopener">
-        <i class="el-icon-info help" />
-      </a>
+      <div class="title-right">
+        <div class="locale-selector">
+          <select v-model="$i18n.locale">
+            <option value="ja">日本語</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+        <a href="https://github.com/mnakada/atomcam_tools#atomcam_tools" target="_blank" rel="noopener">
+          <i class="el-icon-info help" />
+        </a>
+      </div>
     </div>
     <div class="well-transparent container">
       <div class="image-frame" :style="imageFrameStyle">
@@ -45,183 +53,111 @@
         </div>
       </div>
 
-      <h3 v-t="'basicSettings'" />
-      <SettingInput :title="$t('basicSettings.deviceName')" :tooltip="$t('basicSettings.deviceName.tooltip')" type="text" v-model="config.HOSTNAME" />
-      <SettingSwitch :title="$t('basicSettings.loginAuthentication')" :tooltip="$t('basicSettings.loginAuthentication.tooltip')" v-model="loginAuth" />
-      <SettingInput v-if="loginAuth==='on'" :title="$t('basicSettings.account')" :tooltip="$t('basicSettings.account.tooltip')" type="text" v-model="account" />
-      <SettingInput v-if="loginAuth==='on'" :title="$t('basicSettings.password')" :tooltip="$t('basicSettings.password.tooltip')" type="password" v-model="password" />
+      <h3 v-t="'basicSettings.title'" />
+      <SettingInput i18n="basicSettings.deviceName" type="text" v-model="config.HOSTNAME" />
+      <SettingSwitch i18n="basicSettings.loginAuthentication" v-model="loginAuth" />
+      <SettingInput v-if="loginAuth==='on'" i18n="basicSettings.account" type="text" v-model="account" />
+      <SettingInput v-if="loginAuth==='on'" i18n="basicSettings.password" type="password" v-model="password" />
 
-      <h3 v-t="'recording'" />
-      <SettingSwitch :title="$t('recording.localRecordingSchedule')" :tooltip="$t('recording.localRecordingSchedule.tooltip')" v-model="config.RECORDING_LOCAL_SCHEDULE" :text="[$t('recording.localRecordingSchedule.schedule'),$t('recording.localRecordingSchedule.constantRecording')]" @change="(config.RECORDING_LOCAL_SCHEDULE === 'on') && !schedule.length && AddSchedule()" />
+      <h3 v-t="'recording.title'" />
+      <SettingSwitch i18n="recording.localRecordingSchedule" v-model="config.RECORDING_LOCAL_SCHEDULE" @change="(config.RECORDING_LOCAL_SCHEDULE === 'on') && !schedule.length && AddSchedule()" />
       <div v-if="config.RECORDING_LOCAL_SCHEDULE === 'on'">
         <SettingSchedule v-for="(timeTable, idx) of schedule" :key="'timetable'+idx" :timeRange="true" v-model="schedule[idx]" @add="AddSchedule" @remove="DeleteSchedule(idx)" />
       </div>
-      <SettingSwitch :title="$t('recording.SDCard')" :tooltip="$t('recording.SDCard.tooltip')" v-model="storage_sdcard_record" :onOff="false" />
-      <SettingSwitch :title="$t('recording.SDCard.motionRecording')" :tooltip="$t('recording.SDCard.motionRecording.tooltip')" v-model="storage_sdcard_alarm" :onOff="false" />
-      <SettingSwitch v-if="storage_sdcard" :title="$t('recording.SDCard.networkAccess')" :titleOffset="2" :tooltip="$t('recording.SDCard.networkAccess.tooltip')" v-model="config.STORAGE_SDCARD_PUBLISH" />
-      <SettingInput v-if="storage_sdcard" :title="$t('recording.SDCard.savePath')" :titleOffset="2" :span="10" :tooltip="$t('recording.SDCard.savePath.tooltip')" type="text" v-model="config.STORAGE_SDCARD_PATH" @input="FixPath('STORAGE_SDCARD_PATH')" />
-      <SettingSwitch v-if="storage_sdcard" :title="$t('recording.SDCard.automaticDeletion')" :titleOffset="2" :tooltip="$t('recording.SDCard.automaticDeletion.tooltip')" v-model="config.STORAGE_SDCARD_REMOVE" />
-      <SettingInput v-if="storage_sdcard && config.STORAGE_SDCARD_REMOVE === 'on'" :title="$t('recording.SDCard.daysToKeep')" :titleOffset="2" :span="3" :tooltip="$t('recording.SDCard.daysToKeep.tooltip')" type="number" v-model="config.STORAGE_SDCARD_REMOVE_DAYS" :min="1" />
-      <SettingButton v-if="storage_sdcard" :title="$t('recording.SDCard.seeAllFiles')" :titleOffset="2" :span="3" :tooltip="$t('recording.SDCard.seeAllFiles.tooltip')">
+      <SettingSwitch i18n="recording.SDCard" v-model="storage_sdcard_record" :onOff="false" />
+      <SettingSwitch i18n="recording.SDCard.motionRecording" v-model="storage_sdcard_alarm" :onOff="false" />
+      <SettingSwitch v-if="storage_sdcard" i18n="recording.SDCard.networkAccess" :titleOffset="2" v-model="config.STORAGE_SDCARD_PUBLISH" />
+      <SettingInput v-if="storage_sdcard" i18n="recording.SDCard.savePath" :titleOffset="2" :span="10" type="text" v-model="config.STORAGE_SDCARD_PATH" @input="FixPath('STORAGE_SDCARD_PATH')" />
+      <SettingSwitch v-if="storage_sdcard" i18n="recording.SDCard.automaticDeletion" :titleOffset="2" v-model="config.STORAGE_SDCARD_REMOVE" />
+      <SettingInput v-if="storage_sdcard && config.STORAGE_SDCARD_REMOVE === 'on'" i18n="recording.SDCard.daysToKeep" :titleOffset="2" :span="3" type="number" v-model="config.STORAGE_SDCARD_REMOVE_DAYS" :min="1" />
+      <SettingButton v-if="storage_sdcard" i18n="recording.SDCard.seeAllFiles" :titleOffset="2" :span="3">
         <a href="/sdcard" target="_blank" class="el-button el-button--primary el-button--mini link-button">SD Card</a>
       </SettingButton>
 
-      <SettingSwitch title="NAS録画" tooltip="NAS(CIFS Server)のrecordフォルダへの記録をします" v-model="storage_cifs_record" :onOff="false" />
-      <SettingSwitch title="NASモーション検知録画" tooltip="NAS(CIFS Server)のalarm_recordフォルダへの記録をします" v-model="storage_cifs_alarm" :onOff="false" />
-      <SettingInput v-if="storage_cifs" title="ネットワークPATH" :titleOffset="2" :span="10" tooltip="NASのパスを設定。(//server/folder/の形式で指定)" type="text" v-model="config.STORAGE_CIFSSERVER" @input="FixPath('STORAGE_CIFSSERVER')" />
-      <SettingInput v-if="storage_cifs" title="アカウント" :titleOffset="2" tooltip="NASのユーザー名を設定します" type="text" v-model="config.STORAGE_CIFSUSER" />
-      <SettingInput v-if="storage_cifs" title="パスワード" :titleOffset="2" tooltip="NASのパスワードを設定します" type="password" v-model="config.STORAGE_CIFSPASSWD" show-password />
-      <SettingInput v-if="storage_cifs" title="保存するPATH" :titleOffset="2" :span="10" tooltip="ネットワークPATH以降の録画するPATHをstrftimeの書式指定で記述します。最後に拡張子が付加されます" type="text" v-model="config.STORAGE_CIFS_PATH" @input="FixPath('STORAGE_CIFS_PATH')" />
-      <SettingSwitch v-if="storage_cifs" title="ファイルの自動削除" :titleOffset="2" tooltip="CIFS Serverに録画したファイルを自動的に削除します" v-model="config.STORAGE_CIFS_REMOVE" />
-      <SettingInput v-if="storage_cifs && config.STORAGE_CIFS_REMOVE === 'on'" title="保存日数" :titleOffset="2" :span="3" tooltip="指定日数後に削除します" type="number" v-model="config.STORAGE_CIFS_REMOVE_DAYS" :min="1" />
+      <SettingSwitch i18n="recording.NAS" v-model="storage_cifs_record" :onOff="false" />
+      <SettingSwitch i18n="recording.NAS.motionRecording" v-model="storage_cifs_alarm" :onOff="false" />
+      <SettingInput v-if="storage_cifs" i18n="recording.NAS.networkPath" :titleOffset="2" :span="10" type="text" v-model="config.STORAGE_CIFSSERVER" @input="FixPath('STORAGE_CIFSSERVER')" />
+      <SettingInput v-if="storage_cifs" i18n="recording.NAS.account" :titleOffset="2" type="text" v-model="config.STORAGE_CIFSUSER" />
+      <SettingInput v-if="storage_cifs" i18n="recording.NAS.password" :titleOffset="2" type="password" v-model="config.STORAGE_CIFSPASSWD" show-password />
+      <SettingInput v-if="storage_cifs" i18n="recording.NAS.savePath" :titleOffset="2" :span="10" type="text" v-model="config.STORAGE_CIFS_PATH" @input="FixPath('STORAGE_CIFS_PATH')" />
+      <SettingSwitch v-if="storage_cifs" i18n="recording.NAS.automaticDeletion" :titleOffset="2" v-model="config.STORAGE_CIFS_REMOVE" />
+      <SettingInput v-if="storage_cifs && config.STORAGE_CIFS_REMOVE === 'on'" i18n="recording.NAS.daysToKeep" :titleOffset="2" :span="3" type="number" v-model="config.STORAGE_CIFS_REMOVE_DAYS" :min="1" />
 
-      <SettingSwitch title="timelapse録画" tooltip="timelapse録画をします。SD-Card/NAS録画で指定しているメディアに記録されます。" v-model="config.TIMELAPSE" />
-      <SettingInput v-if="config.TIMELAPSE === 'on'" title="保存するPATH" :titleOffset="2" :span="10" tooltip="録画するPATHをstrftimeの書式指定で記述します。最後に拡張子が付加されます。" type="text" v-model="config.TIMELAPSE_PATH" @input="FixPath('TIMELAPSE_PATH')" />
+      <SettingSwitch i18n="recording.timelapse" v-model="config.TIMELAPSE" />
+      <SettingInput v-if="config.TIMELAPSE === 'on'" i18n="recording.timelapse.savePath" :titleOffset="2" :span="10" type="text" v-model="config.TIMELAPSE_PATH" @input="FixPath('TIMELAPSE_PATH')" />
       <SettingSchedule v-if="config.TIMELAPSE === 'on'" v-model="timelapse" :timelapse="true" />
-      <SettingComment v-if="config.TIMELAPSE === 'on'" title="">
-        録画の間は記録後の変換処理のため５分以上空けてください。<br>
-        時間が重なるとエラーで記録されない事があります。
-      </SettingComment>
-      <SettingProgress v-if="timelapseInfo.busy" title="timelapse動作" tooltip="timelapse動作中です。" :percentage="timelapseInfo.count * 100 / timelapseInfo.max" :label="timelapseInfo.count.toString() + '/' + timelapseInfo.max.toString()" />
-      <SettingDangerButton v-if="timelapseInfo.busy" title="timelapse中止" tooltip="timelapseを中止します。" icon="el-icon-refresh-left" label="中止" @click="TimelapseAbort">
-        <span v-if="timelapseInfo.abort">
-          停止処理：ファイル書き込み中
-        </span>
+      <SettingComment v-if="config.TIMELAPSE === 'on'" i18n="recording.timelapse.note" />
+      <SettingProgress v-if="timelapseInfo.busy" i18n="recording.timelapse.start" :percentage="timelapseInfo.count * 100 / timelapseInfo.max" :label="timelapseInfo.count.toString() + '/' + timelapseInfo.max.toString()" />
+      <SettingDangerButton v-if="timelapseInfo.busy" i18n="recording.timelapse.stop" icon="el-icon-refresh-left" @click="TimelapseAbort">
+        <span v-if="timelapseInfo.abort" v-t="recording.timelapse.stop.comment" />
       </SettingDangerButton>
 
-      <h3>ストリーミング</h3>
-      <SettingSwitch title="RTSP Main" tooltip="RTSP Main(1080p AVC)を開始します" v-model="config.RTSP_VIDEO0" />
-      <SettingSwitch v-if="config.RTSP_VIDEO0 === 'on'" title="音声" :titleOffset="2" tooltip="RTSP Mainの音声を設定します" v-model="config.RTSP_AUDIO0" />
-      <SettingInput v-if="config.RTSP_VIDEO0 === 'on'" title="URL" :titleOffset="2" :span="10" tooltip="VLC playerなどにURLをcopy&pasteしてください" type="readonly" v-model="RtspUrl0" :min="1" />
-      <SettingSwitch v-if="config.RTSP_VIDEO0 === 'on'" title="フォーマット" :titleOffset="2" tooltip="ストリームのフォーマットを設定します" v-model="config.RTSP_MAIN_FORMAT_HEVC" :text="['HEVC ','AVC ']" comment="※ 変更すると設定ボタンで再起動します" />
-      <SettingSwitch title="RTSP Sub" tooltip="RTSP Sub(360p HEVC)を開始します" v-model="config.RTSP_VIDEO1" />
-      <SettingSwitch v-if="config.RTSP_VIDEO1 === 'on'" title="音声" :titleOffset="2" tooltip="RTSP Subの音声を設定します" v-model="config.RTSP_AUDIO1" />
-      <SettingInput v-if="config.RTSP_VIDEO1 === 'on'" title="URL" :titleOffset="2" :span="10" tooltip="VLC playerなどにURLをcopy&pasteしてください" type="readonly" v-model="RtspUrl1" :min="1" />
-      <SettingSwitch v-if="(config.RTSP_VIDEO0 === 'on') || (config.RTSP_VIDEO1 === 'on')" title="RTSP over HTTP" :titleOffset="2" tooltip="RTSPをHTTP経由で配信します" v-model="config.RTSP_OVER_HTTP" />
+      <h3 v-t="'RTSP.title'" />
+      <SettingSwitch i18n="RTSP.main" v-model="config.RTSP_VIDEO0" />
+      <SettingSwitch v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.audio" :titleOffset="2" v-model="config.RTSP_AUDIO0" />
+      <SettingInput v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl0" :min="1" />
+      <SettingSwitch v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.format" :titleOffset="2" v-model="config.RTSP_MAIN_FORMAT_HEVC" />
+      <SettingSwitch i18n="RTSP.sub" v-model="config.RTSP_VIDEO1" />
+      <SettingSwitch v-if="config.RTSP_VIDEO1 === 'on'" i18n="RTSP.sub.audio" :titleOffset="2" v-model="config.RTSP_AUDIO1" />
+      <SettingInput v-if="config.RTSP_VIDEO1 === 'on'" i18n="RTSP.sub.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl1" :min="1" />
+      <SettingSwitch v-if="(config.RTSP_VIDEO0 === 'on') || (config.RTSP_VIDEO1 === 'on')" i18n="RTSP.http" v-model="config.RTSP_OVER_HTTP" />
 
-      <h3>イベント通知</h3>
-      <SettingSwitch title="WebHook" tooltip="WebHookを設定します" v-model="config.WEBHOOK" />
-      <SettingInput v-if="config.WEBHOOK === 'on'" title="通知URL" :titleOffset="2" :span="10" tooltip="WebHookのイベント発生時にpostするURL" type="text" v-model="config.WEBHOOK_URL" />
-      <SettingSwitch v-if="config.WEBHOOK === 'on'" title="動体検知" :titleOffset="2" tooltip="Alarm発生を通知します" v-model="config.WEBHOOK_ALARM_EVENT" comment="type: alarmEvent" />
-      <SettingSwitch v-if="config.WEBHOOK === 'on'" title="動体認識情報" :titleOffset="2" tooltip="Alarm発生時に認識情報を通知します" v-model="config.WEBHOOK_ALARM_INFO" comment="type: recognitionNotify" />
-      <SettingSwitch v-if="config.WEBHOOK === 'on'" title="動体検知録画終了" :titleOffset="2" tooltip="Alarm発生時に録画保存を通知します" v-model="config.WEBHOOK_ALARM_VIDEO_FINISH" comment="type: uploadVideoFinish" />
-      <SettingSwitch v-if="config.WEBHOOK === 'on'" title="動体検知録画転送" :titleOffset="2" tooltip="Alarm発生時に録画ファイルを転送します" v-model="config.WEBHOOK_ALERM_VIDEO" comment="mime: video/mp4" />
-      <SettingSwitch v-if="config.WEBHOOK === 'on'" title="動体検知静止画保存" :titleOffset="2" tooltip="Alarm発生時に静止画保存を通知します" v-model="config.WEBHOOK_ALARM_PICT_FINISH" comment="type: uploadPictureFinish" />
-      <SettingSwitch v-if="config.WEBHOOK === 'on'" title="動体検知静止画転送" :titleOffset="2" tooltip="Alarm発生時に静止画ファイルを転送します" v-model="config.WEBHOOK_ALERM_PICT" comment="mime: image/jpeg" />
-      <SettingSwitch v-if="config.WEBHOOK === 'on'" title="定常録画保存" :titleOffset="2" tooltip="録画保存を通知します" v-model="config.WEBHOOK_RECORD_EVENT" comment="type: recordEvent" />
-      <SettingSwitch v-if="config.WEBHOOK === 'on'" title="タイムラプス開始" :titleOffset="2" tooltip="タイムラプス開始を通知します" v-model="config.WEBHOOK_TIMELAPSE_START" comment="type: timelapseStart" />
-      <SettingSwitch v-if="config.WEBHOOK === 'on'" title="タイムラプス記録" :titleOffset="2" tooltip="タイムラプスイベントを通知します" v-model="config.WEBHOOK_TIMELAPSE_EVENT" comment="type: timelapseEvent" />
-      <SettingSwitch v-if="config.WEBHOOK === 'on'" title="タイムラプス録画完了" :titleOffset="2" tooltip="タイムラプス録画完了を通知します" v-model="config.WEBHOOK_TIMELAPSE_FINISH" comment="type: timelapseFinish" />
+      <h3 v-t="'event.title'" />
+      <SettingSwitch i18n="event.webhook" v-model="config.WEBHOOK" />
+      <SettingInput v-if="config.WEBHOOK === 'on'" i18n="event.webhook.URL" :titleOffset="2" :span="10" type="text" v-model="config.WEBHOOK_URL" />
+      <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.alarm" :titleOffset="2" v-model="config.WEBHOOK_ALARM_EVENT" />
+      <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.information" :titleOffset="2" v-model="config.WEBHOOK_ALARM_INFO" />
+      <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.recordingEnd" :titleOffset="2" v-model="config.WEBHOOK_ALARM_VIDEO_FINISH" />
+      <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.recordingTransfer" :titleOffset="2" tooltip="" v-model="config.WEBHOOK_ALERM_VIDEO" />
+      <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.screenshotEnd" :titleOffset="2" v-model="config.WEBHOOK_ALARM_PICT_FINISH" />
+      <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.screenshotTransfer" :titleOffset="2" v-model="config.WEBHOOK_ALERM_PICT" />
+      <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.recordingSave" :titleOffset="2" v-model="config.WEBHOOK_RECORD_EVENT" />
+      <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.startTimelapse" :titleOffset="2" v-model="config.WEBHOOK_TIMELAPSE_START" />
+      <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.recordTimelapse" :titleOffset="2" v-model="config.WEBHOOK_TIMELAPSE_EVENT" />
+      <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.endTimeLapse" :titleOffset="2" v-model="config.WEBHOOK_TIMELAPSE_FINISH" />
 
-      <h3>動体検知</h3>
-      <SettingSwitch title="動体検知周期の短縮" tooltip="Alarmの無検知時間5分を30秒に短縮します" v-model="config.MINIMIZE_ALARM_CYCLE" comment="※ 変更すると設定ボタンで再起動します" />
-      <SettingSwitch title="動体検知録画upload停止" tooltip="AtomTechサーバーへの検知動画転送を停止します。アプリから確認できなくなります。サーバーへの転送が気になる場合は設定してください。" v-model="config.AWS_VIDEO_DISABLE" comment="※ 変更すると設定ボタンで再起動します" />
+      <h3 v-t="'motionDetect.title'" />
+      <SettingSwitch i18n="motionDetect.sensorPeriod" v-model="config.MINIMIZE_ALARM_CYCLE" />
+      <SettingSwitch i18n="motionDetect.uploadStop" v-model="config.AWS_VIDEO_DISABLE" />
 
       <div v-if="isSwing" @click="ClearCruiseSelect">
-        <h3>クルーズ</h3>
-        <SettingSwitch title="クルーズ動作" tooltip="クルーズ軌道を設定し、巡回動作をします" v-model="config.CRUISE" @change="(config.CRUISE === 'on') && !cruiseList.length && AddCruise()" @click.native.stop />
+        <h3 v-t="'cruise.title'" />
+        <SettingSwitch i18n="cruise.cameraMotion" v-model="config.CRUISE" @change="(config.CRUISE === 'on') && !cruiseList.length && AddCruise()" @click.native.stop />
         <div>
           <SettingCruise v-for="(cruise, idx) of cruiseList" :key="'timetable'+idx" v-model="cruiseList[idx]" :pan="pan" :tilt="tilt" :selected="cruiseSelect === idx" @add="AddCruise" @remove="DeleteCruise(idx)" @pan="pan=$event" @tilt="tilt=$event" @click="CruiseSelect(idx)" />
         </div>
       </div>
 
-      <h3>モニタリング</h3>
-      <SettingSwitch title="Ping" tooltip="指定されたURLで疎通確認できるようにする" v-model="config.HEALTHCHECK" />
-      <SettingInput v-if="config.HEALTHCHECK === 'on'" title="通知URL" :titleOffset="2" :span="10" tooltip="指定されたURLに１分毎にhttp getする" type="text" v-model="config.HEALTHCHECK_PING_URL" />
+      <h3 v-t="'monitoring.title'" />
+      <SettingSwitch i18n="monitoring.ping" v-model="config.HEALTHCHECK" />
+      <SettingInput v-if="config.HEALTHCHECK === 'on'" i18n="monitoring.URL" :titleOffset="2" :span="10" type="text" v-model="config.HEALTHCHECK_PING_URL" />
 
-      <h3>メンテナンス</h3>
-      <SettingButton v-if="isSwing" title="Swing座標初期化" :titleOffset="2" :span="4" tooltip="Swingの座標を両側の端点当てで修正します" label="初期化" @click="MoveInit" />
-      <SettingSwitch title="定期リスタート" tooltip="定期的に再起動する設定をします" v-model="config.REBOOT" />
+      <h3 v-t="'maintenance.title'" />
+      <SettingButton v-if="isSwing" i18n="maintenance.initialPosition" :span="4" @click="MoveInit" />
+      <SettingSwitch i18n="maintenance.periodicRestart" v-model="config.REBOOT" />
       <SettingSchedule v-if="config.REBOOT === 'on'" v-model="reboot" />
-      <SettingDangerButton title="リブート" tooltip="再起動します" icon="el-icon-refresh-left" label="Reboot" @click="DoReboot" />
-      <SettingDangerButton title="SD-Card消去" tooltip="SD-Cardの録画フォルダを消去します" icon="el-icon-folder-delete" label="Erase" @click="DoErase" />
-      <SettingDangerButton title="Update" tooltip="このtoolのupdateをします" icon="el-icon-refresh" :label="config.CUSTOM_ZIP === 'on' ? 'Custom Update' : 'Update'" :disabled="!updatable" @click="DoUpdate">
+      <SettingDangerButton i18n="maintenance.reboot" icon="el-icon-refresh-left" @click="DoReboot" />
+      <SettingDangerButton i18n="maintenance.eraseSDCard" icon="el-icon-folder-delete" @click="DoErase" />
+      <SettingDangerButton i18n="maintenance.update" icon="el-icon-refresh" :button="config.CUSTOM_ZIP === 'on' ? 'Custom Update' : 'Update'" :disabled="!updatable" @click="DoUpdate">
         <span class="latest" :class="{ 'latest-updatable': updatable }">
           Latest Version : Ver.{{ latestVer }}
         </span>
       </SettingDangerButton>
-      <SettingSwitch title="カスタム更新ZIPファイル" tooltip="localでカスタム更新ZIPを作成して運用できます" v-model="config.CUSTOM_ZIP" />
-      <SettingInput v-if="config.CUSTOM_ZIP === 'on'" title="URL" :titleOffset="2" :span="10" tooltip="カスタム更新ZIPファイルの読み込みURLを指定します" type="text" v-model="config.CUSTOM_ZIP_URL" placeholder="https://github.com/mnakada/atomcam_tools/releases/latest/download/atomcam_tools.zip" />
+      <SettingSwitch i18n="maintenance.customZip" v-model="config.CUSTOM_ZIP" />
+      <SettingInput v-if="config.CUSTOM_ZIP === 'on'" i18n="maintenance.customZip.URL" :titleOffset="2" :span="10" type="text" v-model="config.CUSTOM_ZIP_URL" placeholder="https://github.com/mnakada/atomcam_tools/releases/latest/download/atomcam_tools.zip" />
       <div class="bottom-padding" />
     </div>
     <div class="submit">
-      <ElButton @click="Submit" type="primary" :disabled="stillFullView">設定</ElButton>
+      <ElButton @click="Submit" type="primary" :disabled="stillFullView" v-t="'submit'" />
     </div>
-    <ElDrawer title="設定中" :visible.sync="executing" direction="btt" :show-close="false" :wrapperClosable="false">
-      <h4 class="comment">設定変更中。暫くお待ち下さい。</h4>
+    <ElDrawer :title="$t('updating.title')" :visible.sync="executing" direction="btt" :show-close="false" :wrapperClosable="false">
+      <h4 class="comment" v-t="'updating.comment'" />
     </ElDrawer>
-    <ElDrawer title="再起動中" :visible.sync="rebooting" direction="btt" :show-close="false" :wrapperClosable="false">
-      <h4 class="comment">起動するまで暫くお待ち下さい。(約{{ rebootTime }}秒)</h4>
+    <ElDrawer :title="$t('rebooting.title')" :visible.sync="rebooting" direction="btt" :show-close="false" :wrapperClosable="false">
+      <h4 class="comment" v-t="{ path: 'rebooting.comment', args: { rebootTime: rebootTime } }" />
     </ElDrawer>
   </div>
 </template>
-
-<i18n locale="ja" lang="yaml">
-  imageFrame.clickToShrink: "clickで縮小します"
-  imageFrame.clickToExpand: "clickで拡大します"
-  basicSettings: "基本設定"
-  basicSettings.deviceName: "デバイス名"
-  basicSettings.deviceName.tooltip: "NASの保存フォルダ名やリモートアクセスのための名前を設定します"
-  basicSettings.loginAuthentication: "ログイン認証"
-  basicSettings.loginAuthentication.tooltip: "このページへのアクセスのためのログイン認証を有効にします"
-  basicSettings.account: "アカウント"
-  basicSettings.account.tooltip: "ログインのためのユーザーアカウントを設定します"
-  basicSettings.password: "パスワード"
-  basicSettings.password.tooltip: "ログインのためのパスワードを設定します"
-  recording: "録画"
-  recording.localRecordingSchedule: "ローカル録画スケジュール"
-  recording.localRecordingSchedule.tooltip: "SD-Card/NASに録画される時間帯を設定します"
-  recording.localRecordingSchedule.schedule: "スケジュール "
-  recording.localRecordingSchedule.constantRecording: "常時録画 "
-  recording.SDCard: "SD-Card録画"
-  recording.SDCard.tooltip: "SD-Cardのrecordフォルダへの記録をします"
-  recording.SDCard.motionRecording: "SD-Cardモーション検知録画"
-  recording.SDCard.motionRecording.tooltip: "SD-Cardのalarm_recordフォルダへの記録をします"
-  recording.SDCard.networkAccess: "ネットワークアクセス"
-  recording.SDCard.networkAccess.tooltip: "ATOMCamのSD-CardをCIFS(smb) serverとしてLAN内に公開します"
-  recording.SDCard.savePath: "保存するPATH"
-  recording.SDCard.savePath.tooltip: "録画するPATHをstrftimeの書式指定で記述します。最後に拡張子が付加されます。alarm_recordのみに有効"
-  recording.SDCard.automaticDeletion: "ファイルの自動削除"
-  recording.SDCard.automaticDeletion.tooltip: "SD-Cardに録画したファイルを自動的に削除します"
-  recording.SDCard.daysToKeep: "保存日数"
-  recording.SDCard.daysToKeep.tooltip: "指定日数後に削除します"
-  recording.SDCard.seeAllFiles: "ファイル一覧"
-  recording.SDCard.seeAllFiles.tooltip: "SD-Card内のファイルを表示します"
-
-</i18n>
-
-<i18n locale="en" lang="yaml">
-  imageFrame.clickToShrink: "click to shrink"
-  imageFrame.clickToExpand: "click to expand"
-  basicSettings: "Basic Settings"
-  basicSettings.deviceName: "Display Name"
-  basicSettings.deviceName.tooltip: "NAS Folder Name and Hostname for remote access"
-  basicSettings.loginAuthentication: "Login Authentication"
-  basicSettings.loginAuthentication.tooltip: "Require Authentication to Login"
-  basicSettings.account: "Account"
-  basicSettings.account.tooltip: "set username for login"
-  basicSettings.password: "Password"
-  basicSettings.password.tooltip: "set password for login"
-  recording: "Recording"
-  recording.localRecordingSchedule: "Local Recording Schedule"
-  recording.localRecordingSchedule.tooltip: "SD-Card/NAS Recording Time Window"
-  recording.localRecordingSchedule.schedule: "Schedule "
-  recording.localRecordingSchedule.constantRecording: "Constant Recoring "
-  recording.SDCard: "SD-Card Recording"
-  recording.SDCard.tooltip: "Record to a directory on the SD-Card"
-  recording.SDCard.motionRecording: "SD-Card Motion Sensor Recording"
-  recording.SDCard.motionRecording.tooltip: "Record to SD-Card alarm_record directory"
-  recording.SDCard.networkAccess: "Network Access"
-  recording.SDCard.networkAccess.tooltip: "Broadcast ATOMCam SD-Card CIFS(smb) server on local network"
-  recording.SDCard.savePath: "Save PATH"
-  recording.SDCard.savePath.tooltip: "Describes the PATH to be recorded in the format specification of strftime. valid only for alarm_record"
-  recording.SDCard.automaticDeletion: "Automatic Recording Deletion"
-  recording.SDCard.automaticDeletion.tooltip: "Automatically delete recordings from SD card"
-  recording.SDCard.daysToKeep: "Number of Days to Keep"
-  recording.SDCard.daysToKeep.tooltip: "Specify how much to delete"
-  recording.SDCard.seeAllFiles: "See all files on SD card"
-  recording.SDCard.seeAllFiles.tooltip: "Show SD Card contents"
-</i18n>
 
 <script>
   import axios from 'axios';
@@ -312,6 +248,7 @@
           CUSTOM_ZIP_URL: '',
           HEALTHCHECK: 'off',
           HEALTHCHECK_PING_URL: '',
+          LOCALE: navigator.language,
         },
         loginAuth: 'off',
         loginAuth2: 'off',
@@ -327,7 +264,7 @@
         storage_cifs_alarm: false,
         schedule: [],
         timelapse: {
-          dayOfWeekSelect: ['月','火', '水', '木', '金', '土', '日'],
+          dayOfWeekSelect: [...this.$t('schedule.weekDays')],
           startTime: '04:00',
           interval: 60,
           count: 960,
@@ -341,7 +278,7 @@
         reboot: {
           startTime: '02:00',
           endTime: '02:00',
-          dayOfWeekSelect: ['日'],
+          dayOfWeekSelect: [this.$t('schedule.weekDays[6]')],
         },
         rebootTime: 80,
         latestVer: '',
@@ -349,7 +286,7 @@
         rebooting: false,
         stillImage: null,
         stillFullView: false,
-        weekDays: ['月','火', '水', '木', '金', '土', '日'],
+        weekDays: [...this.$t('schedule.weekDays')],
         pan: 0,
         tilt: 0,
         posValid: false,
@@ -408,6 +345,8 @@
       this.config = Object.assign({}, this.oldConfig);
       // eslint-disable-next-line no-console
       console.log(this.config);
+
+      if(this.config.LOCALE) this.$i18n.locale = this.config.LOCALE;
 
       if(this.config.DIGEST.length) {
         this.loginAuth = 'on';
@@ -817,7 +756,7 @@
     justify-content: space-between;
     align-items: flex-end;
     font-size: 2.5rem;
-    padding: 0 15px 5px 30px;
+    padding: 0px 0px 5px 30px;
     color: white;
     background-color: #bc423a;
     height:60px;
@@ -839,10 +778,30 @@
     flex-basis: 15rem;
   }
 
+  .locale-selector {
+    background-color: #0000;
+  }
+
+  .locale-selector select {
+    background-color: #0000;
+    color: white;
+    border: 0px;
+  }
+
+  .locale-selector select:focus-visible {
+    outline: 0px;
+  }
+
+  .locale-selector option {
+    background-color: #0000;
+    color: white;
+  }
+
   .help {
     font-size: 30px;
     float:right;
     color: snow;
+    padding-right: 15px;
   }
 
   .container {

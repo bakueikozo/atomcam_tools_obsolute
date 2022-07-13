@@ -2,14 +2,14 @@
   <ElRow>
     <ElCol :offset="9" :span="14" @click.native.stop="$emit('click')">
       <div class="well cruise" :class="{ selected: selected }">
-        <ElTooltip :tabindex="-1" placement="top" content="カメラの向きを設定。jpeg windowでも調整できます" effect="light" :open-delay="500">
+        <ElTooltip :tabindex="-1" placement="top" :content="$t('cruise.direction.tooltip')" effect="light" :open-delay="500">
           <ElRow>
             <ElCol :span="10">
-              pan
+              <span v-t="'cruise.direction.pan'" />
               <ElInputNumber v-model="innerValue.pan" :min="0" :max="355" :step="5" :precision="0" size="mini" @input="Pan" />
             </ElCol>
             <ElCol :span="10">
-              tilt
+              <span v-t="'cruise.direction.tilt'" />
               <ElInputNumber v-model="innerValue.tilt" :min="0" :max="180" :step="5" :precision="0" size="mini" @input="Tilt" />
             </ElCol>
             <ElCol :offset="3" :span="1">
@@ -18,19 +18,23 @@
           </ElRow>
         </ElTooltip>
         <ElRow>
-          <ElTooltip :tabindex="-1" placement="top" content="カメラ動作後の待機時間を設定します" effect="light" :open-delay="500">
+          <ElTooltip :tabindex="-1" placement="top" :content="$t('cruise.waitAfterMotion.tooltip')" effect="light" :open-delay="500">
             <ElCol :span="14">
-              動作後待機時間
+              <span v-t="'cruise.waitAfterMotion.title'" />
               <ElInputNumber v-model="innerValue.wait" :min="10" :step="5" :precision="0" size="mini" @input="Submit" />
-              秒
+              <span v-t="'cruise.waitAfterMotion.unit'" />
             </ElCol>
           </ElTooltip>
           <ElCol :span="9">
-            <ElTooltip :tabindex="-1" placement="top" content="待機中に動体検知すると待機時間を延長します" effect="light" :open-delay="500">
-              <ElCheckbox v-model="innerValue.detect" @change="Submit">検知</ElCheckbox>
+            <ElTooltip :tabindex="-1" placement="top" :content="$t('cruise.detect.tooltip')" effect="light" :open-delay="500">
+              <ElCheckbox v-model="innerValue.detect" @change="Submit">
+                <span v-t="'cruise.detect.title'" />
+              </ElCheckbox>
             </ElTooltip>
-            <ElTooltip :tabindex="-1" placement="top" content="待機中に動体検知すると追尾し、待機時間を延長します" effect="light" :open-delay="500">
-              <ElCheckbox v-model="innerValue.follow" :disabled="!innerValue.detect" @change="Submit">追尾</ElCheckbox>
+            <ElTooltip :tabindex="-1" placement="top" :content="$t('cruise.follow.tooltip')" effect="light" :open-delay="500">
+              <ElCheckbox v-model="innerValue.follow" :disabled="!innerValue.detect" @change="Submit">
+                <span v-t="'cruise.follow.title'" />
+              </ElCheckbox>
             </ElTooltip>
           </ElCol>
           <ElCol v-if="!innerValue.detect" :span="1">
@@ -38,11 +42,11 @@
           </ElCol>
         </ElRow>
         <ElRow v-if="innerValue.detect">
-          <ElTooltip :tabindex="-1" placement="top" content="動体検知終了後の待機時間を設定します" effect="light" :open-delay="500">
+          <ElTooltip :tabindex="-1" placement="top" :content="$t('cruise.waitAfterDetect.tooltip')" effect="light" :open-delay="500">
             <ElCol :span="14">
-              検知後待機時間
+              <span v-t="'cruise.waitAfterDetect.title'" />
               <ElInputNumber v-model="innerValue.timeout" :min="10" :step="5" :precision="0" size="mini" @input="Submit" />
-              秒
+              <span v-t="'cruise.waitAfterDetect.unit'" />
             </ElCol>
           </ElTooltip>
           <ElCol :offset="9" :span="1">

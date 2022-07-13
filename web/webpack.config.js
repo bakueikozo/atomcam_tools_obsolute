@@ -24,6 +24,10 @@ module.exports = (env, argv) => {
           loader: 'vue-loader',
         },
         {
+          test: /\.yaml$/,
+          loader: 'yaml-loader',
+        },
+        {
           resourceQuery: /blockType=i18n/,
           type: 'javascript/auto',
           loader:  '@intlify/vue-i18n-loader',

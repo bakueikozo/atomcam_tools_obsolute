@@ -12,30 +12,30 @@
         </div>
         <div v-if="timeRange" class="schedule-week">
           <div class="schedule-time">
-            <ElSwitch v-model="allDay" active-text="終日" @input="TimeSet" />
+            <ElSwitch v-model="allDay" :active-text="$t('schedule.allDay')" @input="TimeSet" />
             <div v-if="!allDay" class="schedule-timerange">
-              <ElTimePicker class="time-picker" v-model="innerValue.startTime" placeholder="開始時間" value-format="HH:mm" format="HH:mm" @change="TimeSet" />
+              <ElTimePicker class="time-picker" v-model="innerValue.startTime" :placeholder="$t('schedule.startTime')" value-format="HH:mm" format="HH:mm" @change="TimeSet" />
               -
-              <ElTimePicker class="time-picker" v-model="innerValue.endTime" placeholder="終了時間" value-format="HH:mm" format="HH:mm" @change="TimeSet" />
+              <ElTimePicker class="time-picker" v-model="innerValue.endTime" :placeholder="$t('schedule.endTime')" value-format="HH:mm" format="HH:mm" @change="TimeSet" />
             </div>
           </div>
           <ElButton v-if="timeRange" class="schedule-button" type="text" size="small" circle icon="el-icon-plus" @click="$emit('add', $event)" />
         </div>
         <div v-else-if="timelapse">
           <div class="schedule-time">
-            <ElTimePicker class="time-picker" v-model="innerValue.startTime" placeholder="開始時間" value-format="HH:mm" format="HH:mm" @change="TimeSet" />
-            <span class="strings"> 〜 {{ timelapseEndTime }}まで</span>
+            <ElTimePicker class="time-picker" v-model="innerValue.startTime" :placeholder="$t('schedule.timelapse.startTime')" value-format="HH:mm" format="HH:mm" @change="TimeSet" />
+            <span class="strings" v-t="{ path: 'schedule.timelapse.endTime', args: { endTime: timelapseEndTime }}" />
           </div>
           <div class="schedule-time">
-            <span class="strings">周期</span>
+            <span class="strings" v-t="'schedule.timelapse.interval.title'" />
             <ElInputNumber class="timelapse-number" v-model="innerValue.interval" @change="TimeSet" :min="1" :controls="false" :step-strictly="true" size="mini" />
-            <span class="strings">秒</span>
+            <span class="strings" v-t="'schedule.timelapse.interval.unit'" />
             <ElInputNumber class="timelapse-number" v-model="innerValue.count" @change="TimeSet" :min="1" :controls="false" :step-strictly="true" size="mini" />
-            <span class="strings">回</span>
+            <span class="strings" v-t="'schedule.timelapse.interval.count'" />
           </div>
         </div>
         <div v-else class="schedule-week schedule-time">
-          <ElTimePicker class="time-picker" v-model="innerValue.startTime" placeholder="設定時間" value-format="HH:mm" format="HH:mm" @change="TimeSet" />
+          <ElTimePicker class="time-picker" v-model="innerValue.startTime" :placeholder="$t('schedule.time')" value-format="HH:mm" format="HH:mm" @change="TimeSet" />
         </div>
       </div>
     </ElCol>
@@ -73,8 +73,8 @@
     },
     data() {
       return {
-        innerValue: this.value,
-        weekDays: ['月','火', '水', '木', '金', '土', '日'],
+        innerValue: { ...this.value },
+        weekDays: [...this.$t('schedule.weekDays')],
         allDay: (this.value.startTime === '00:00') && (this.value.endTime === '23:59'),
       };
     },
@@ -84,9 +84,9 @@
         let minutes = ((startTime.length === 2) ? parseInt(startTime[0]) * 60 + parseInt(startTime[1]) : 0) + (this.value.count * this.value.interval) / 60;
         let str = '';
         if(minutes >= 48 * 60) {
-          str += `${ Math.floor(minutes / 24 / 60) }日後の`;
+          str += this.$t({ path: 'schedlue.timelapse.daysLater', args: { days: Math.floor(minutes / 24 / 60).toString() }});
         } else if(minutes >= 24 * 60) {
-          str += '翌日';
+          str += this.$t('schedule.timelapse.tommorow');
         }
         str += Math.floor((minutes % 1440) / 60).toString().padStart(2, '0') + ':';
         str += Math.floor(minutes % 60).toString().padStart(2, '0');

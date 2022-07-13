@@ -1,14 +1,18 @@
 <template>
-  <ElTooltip :tabindex="-1" placement="top" :content="tooltip" effect="light" :open-delay="500">
+  <ElTooltip :tabindex="-1" placement="top" :content="($te(i18n + '.tooltip') ? $t(i18n + '.tooltip') : '') + tooltip" effect="light" :open-delay="500">
     <ElRow>
       <ElCol :offset="titleOffset" :span="9 - titleOffset">
-        <h4>{{ title }}</h4>
+        <h4 v-t="i18n+'.title'">
+          {{ title }}
+        </h4>
       </ElCol>
-      <ElCol :span="text?8:4">
-        <ElSwitch :value="value" @input="$emit('input', $event)" @change="$emit('change', $event)" :active-value="onOff ? 'on' : true" :inactive-value="onOff ? 'off' : false" :active-color="text?'#13ce66':'#409eff'" :active-text="text?text[0]:''" :inactive-color="text?'#409eff':'#c0ccda'" :inactive-text="text?text[1]:''" />
+      <ElCol :span="textLabel?8:4">
+        <ElSwitch :value="value" @input="$emit('input', $event)" @change="$emit('change', $event)" :active-value="onOff ? 'on' : true" :inactive-value="onOff ? 'off' : false" :active-color="textLabel?'#13ce66':'#409eff'" :active-text="textLabel?textLabel[0]:''" :inactive-color="textLabel?'#409eff':'#c0ccda'" :inactive-text="textLabel?textLabel[1]:''" />
       </ElCol>
-      <ElCol v-if="comment!==''" :span="text?7:11">
-        {{ comment }}
+      <ElCol v-if="commentValid" :span="textLabel?7:11">
+        <span v-t="i18n + '.comment'">
+          {{ comment }}
+        </span>
       </ElCol>
     </ElRow>
   </ElTooltip>
@@ -35,7 +39,11 @@
       },
       title: {
         type: String,
-        required: true,
+        default: '',
+      },
+      i18n: {
+        type: String,
+        default: '',
       },
       value: {
         type: [ String, Boolean ],
@@ -52,6 +60,18 @@
       comment: {
         type: String,
         default: '',
+      },
+    },
+    computed: {
+      textLabel() {
+        const textLabel = this.text || [];
+        if(this.$te(this.i18n + '.text[0]')) textLabel.push(this.$t(this.i18n + '.text[0]'));
+        if(this.$te(this.i18n + '.text[1]')) textLabel.push(this.$t(this.i18n + '.text[1]'));
+        return textLabel.length ? textLabel : null;
+      },
+      commentValid() {
+        if(this.comment.length) return true;
+        return this.$te(this.i18n + '.comment');
       },
     },
   };

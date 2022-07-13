@@ -1,9 +1,13 @@
 <template>
   <ElRow>
     <ElCol :offset="titleOffset" :span="9 - titleOffset">
-      <h4>{{ title }}</h4>
+      <h4 v-if="$te(i18n + '.title')" v-t="i18n+'.title'" />
+      <h4 v-else>
+        {{ title }}
+      </h4>
     </ElCol>
     <ElCol :span="span">
+      <span class="comment" v-t="i18n + '.comment'" />
       <span class="comment">
         <slot />
       </span>
@@ -20,7 +24,11 @@
       },
       title: {
         type: String,
-        required: true,
+        default: '',
+      },
+      i18n: {
+        type: String,
+        default: '',
       },
       span: {
         type: Number,
@@ -33,5 +41,6 @@
 <style scoped>
 .comment {
   font-size: 1em;
+  white-space: pre-line;
 }
 </style>
