@@ -647,6 +647,7 @@
           this.config.STORAGE_CIFS = 'off';
         }
 
+        this.config.LOCALE = this.$i18n.locale;
         this.config.TIMELAPSE_INTERVAL = this.timelapse.interval;
         this.config.TIMELAPSE_COUNT = this.timelapse.count;
         str = parseInt(this.timelapse.startTime.slice(-2)) + ' ';
