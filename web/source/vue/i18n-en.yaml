@@ -176,36 +176,36 @@ motionDetect:
   title: MotionDetect
   sensorPeriod:
     title: Motion Sensor Period
-    tooltip: Alarmの無検知時間5分を30秒に短縮します
-    comment: Note! If you change it, it will restart on Submit.
+    tooltip: Reduce new alarm window from 5 minutes to 30 seconds
+    comment: Note: If you change this, Atomcam will reboot on Submit.
   uploadStop:
     title: Motion Sensor Video Upload Stop
-    tooltip: AtomTechサーバーへの検知動画転送を停止します。アプリから確認できなくなります。サーバーへの転送が気になる場合は設定してください。
-    comment: Note! If you change it, it will restart on Submit.
+    tooltip: Prevent upload of detection videos to AtomTech servers. This will make it so they don't appear in the app. If you're concerned about sending stuff to their servers, check this option.
+    comment: Note: If you change this, Atomcam will reboot on Submit.
 
 cruise:
   title: Cruise
   cameraMotion:
     title: Camera Motion
-    tooltip: クルーズ軌道を設定し、巡回動作をします
+    tooltip: Make a full circuit cruise.
   direction:
-    tooltip: カメラの向きを設定。jpeg windowでも調整できます
+    tooltip: Set the camera direction. You can confirm it using the jpeg window.
     pan: pan
     tilt: tilt
   waitAfterMotion:
-    title: waiting after motion
+    title: waiting period after motion
     unit: sec
-    tooltip: カメラ動作後の待機時間を設定します
+    tooltip: Set the waiting period after camera motion.
   detect:
     title: detect
-    tooltip: 待機中に動体検知すると待機時間を延長します
+    tooltip: Have the camera stay in position longer when detecting motion.
   follow:
     title: follow
-    tooltip: 待機中に動体検知すると追尾し、待機時間を延長します
+    tooltip: Have the camera follow motion and extend the time it stays in position.
   waitAfterDetect:
     title: waiting after detect
     unit: sec
-    tooltip: 動体検知終了後の待機時間を設定します
+    tooltip: Set the amount of time to wait in position after motion is detected.
 
 
 monitoring:
@@ -215,34 +215,34 @@ monitoring:
     tooltip: Enable Confirmation of Status via URL
   URL:
     title: Notification URL
-    tooltip: 指定されたURLに１分毎にhttp getする
+    tooltip: Send an http get requiest at one minute intervals to this url
 
 maintenance:
   title: Maingtenance
   initialPosition:
     title: Swing Return to Original Position
-    tooltip: Swingの座標を両側の端点当てで修正します
+    tooltip: Return the Swing to the original position
     button: Home
   periodicRestart:
     title: Periodic Restart
-    tooltip: 定期的に再起動する設定をします
+    tooltip: Set the camera to restart on a schedule.
   reboot:
     title: Reboot
-    tooltip: 再起動します
+    tooltip: Reboot the AtomCam
     button: Reboot
   eraseSDCard:
     title: Erase SD-Card
-    tooltip: SD-Cardの録画フォルダを消去します
+    tooltip: Erase the video contents from the SD-Card
     button: Erase
   update:
     title: Update
-    tooltip: このtoolのupdateをします
+    tooltip: Update the atomcam tools
   customZip:
     title: Custom File URL
-    tooltip: localでカスタム更新ZIPを作成して運用できます
+    tooltip: use a custom zip to update the atomcam tool
     URL:
       title: URL
-      tooltip: カスタム更新ZIPファイルの読み込みURLを指定します
+      tooltip: the url of the custom zipfile
 
 schedule:
   allDay: AllDay
