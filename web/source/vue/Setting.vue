@@ -264,7 +264,7 @@
         storage_cifs_alarm: false,
         schedule: [],
         timelapse: {
-          dayOfWeekSelect: [...this.$t('schedule.weekDays')],
+          dayOfWeekSelect: [0, 1, 2, 3, 4, 5, 6],
           startTime: '04:00',
           interval: 60,
           count: 960,
@@ -278,7 +278,7 @@
         reboot: {
           startTime: '02:00',
           endTime: '02:00',
-          dayOfWeekSelect: [this.$t('schedule.weekDays[6]')],
+          dayOfWeekSelect: [6],
         },
         rebootTime: 80,
         latestVer: '',
@@ -286,7 +286,6 @@
         rebooting: false,
         stillImage: null,
         stillFullView: false,
-        weekDays: [...this.$t('schedule.weekDays')],
         pan: 0,
         tilt: 0,
         posValid: false,
@@ -392,7 +391,9 @@
           const ll = l.split(/=/);
           if(ll[0] === 'Rule') {
             d[index].dayOfWeekSelect = [];
-            this.weekDays.forEach((l, i) => (ll[1] & (2 << i)) && d[index].dayOfWeekSelect.push(l));
+            for(let i = 0; i < 7; i++) {
+              if(ll[1] & (2 << i)) d[index].dayOfWeekSelect.push(i);
+            }
           }
           if(ll[0] === 'ContinueTime') d[index].continueTimeNum = parseInt(ll[1]);
           if(ll[0] === 'StartTime') d[index].startTimeNum = parseInt(ll[1]);
@@ -411,7 +412,7 @@
         const str = this.config.TIMELAPSE_SCHEDULE.split(' ');
         const days = (str[4] || '').split(':');
         this.timelapse.startTime = `${str[1].padStart(2, '0')}:${str[0].padStart(2, '0')}`;
-        this.timelapse.dayOfWeekSelect = days.map(d => this.weekDays[(parseInt(d) + 6) % 7]);
+        this.timelapse.dayOfWeekSelect = days.map(d => (parseInt(d) + 6) % 7);
         this.timelapse.interval = this.config.TIMELAPSE_INTERVAL;
         this.timelapse.count = this.config.TIMELAPSE_COUNT;
       }
@@ -460,7 +461,7 @@
         const str = this.config.REBOOT_SCHEDULE.split(' ');
         const days = (str[4] || '').split(':');
         this.reboot.startTime = `${str[1].padStart(2, '0')}:${str[0].padStart(2, '0')}`;
-        this.reboot.dayOfWeekSelect = days.map(d => this.weekDays[(parseInt(d) + 6) % 7]);
+        this.reboot.dayOfWeekSelect = days.map(d => (parseInt(d) + 6) % 7);
       }
 
       setInterval(async () => {
@@ -543,7 +544,7 @@
           allDay: true,
           startTime: '00:00',
           endTime: '23:59',
-          dayOfWeekSelect: this.weekDays.concat(),
+          dayOfWeekSelect: [0, 1, 2, 3, 4, 5, 6],
         });
       },
       DeleteSchedule(i) {
@@ -615,7 +616,7 @@
         for(const i in this.schedule) {
           const timeTable = this.schedule[i];
           str += `[index_${(i - 0 + 1).toString().padStart(2, '0')}];`;
-          const val = this.weekDays.reduce((v, l, j) => v |= timeTable.dayOfWeekSelect.indexOf(l) >= 0 ? 2 << j : 0, 0);
+          const val = timeTable.dayOfWeekSelect.reduce((v, d) => v | (2 << d), 0);
           str += `Rule=${val};`;
           const stime = parseInt(timeTable.startTime.slice(0, 2)) * 60 + parseInt(timeTable.startTime.slice(-2));
           const etime = parseInt(timeTable.endTime.slice(0, 2)) * 60 + parseInt(timeTable.endTime.slice(-2)) + 1;
@@ -652,7 +653,7 @@
         this.config.TIMELAPSE_COUNT = this.timelapse.count;
         str = parseInt(this.timelapse.startTime.slice(-2)) + ' ';
         str += parseInt(this.timelapse.startTime.slice(0, 2)) + ' * * ';
-        str += this.weekDays.flatMap((v, i) => this.timelapse.dayOfWeekSelect.indexOf(v) < 0 ? [] : [(i + 1) % 7]).sort((a, b) => a - b).reduce((s, d) => s += (s.length ? ':' : '') + d.toString() , '');
+        str += this.timelapse.dayOfWeekSelect.sort((a, b) => a - b).reduce((v, d) => v + (v.length ? ':' : '') + d.toString(), '');
         this.config.TIMELAPSE_SCHEDULE = str;
 
         this.config.CRUISE_LIST = this.cruiseList.reduce((str, cruise) => {
@@ -665,7 +666,7 @@
 
         str = parseInt(this.reboot.startTime.slice(-2)) + ' ';
         str += parseInt(this.reboot.startTime.slice(0, 2)) + ' * * ';
-        str += this.weekDays.flatMap((v, i) => this.reboot.dayOfWeekSelect.indexOf(v) < 0 ? [] : [(i + 1) % 7]).sort((a, b) => a - b).reduce((s, d) => s += (s.length ? ':' : '') + d.toString() , '');
+        str += this.reboot.dayOfWeekSelect.sort((a, b) => a - b).reduce((v, d) => v + (v.length ? ':' : '') + d.toString(), '');
         this.config.REBOOT_SCHEDULE = str;
 
         await axios.post('./cgi-bin/hack_ini.cgi', this.config).catch(err => {

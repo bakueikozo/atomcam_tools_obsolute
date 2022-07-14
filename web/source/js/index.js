@@ -22,7 +22,8 @@ Vue.use(Col);
 Vue.use(Button);
 
 import Setting from '../vue/Setting.vue';
-import I18nMessages from '../vue/i18n.yaml';
+import I18nJa from '../vue/i18n-ja.yaml';
+import I18nEn from '../vue/i18n-en.yaml';
 
 // css
 import 'element-ui/lib/theme-chalk/base.css';
@@ -34,7 +35,7 @@ import '../css/localStyle.css';
 class AtomSetting {
   constructor() {
     new Vue({
-      i18n: new VueI18n({ locale: navigator.language, fallbackLocale: 'ja', messages: I18nMessages }),
+      i18n: new VueI18n({ locale: navigator.language, fallbackLocale: 'ja', messages: { ja: I18nJa, en: I18nEn }}),
       el: '#app',
       template: '<setting/>',
       components: { 'setting': Setting },

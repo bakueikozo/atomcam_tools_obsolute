@@ -1,0 +1,277 @@
+imageFrame:
+  clickToShrink: click to shrink
+  clickToExpand: click to expand
+
+basicSettings:
+  title: Basic Settings
+  deviceName:
+    title: Display Name
+    tooltip: NAS Folder Name and Hostname for remote access
+  loginAuthentication:
+    title: Login Authentication
+    tooltip: Require Authentication to Login
+  account:
+    title: Account
+    tooltip: set username for login
+  password:
+    title: Password
+    tooltip: set password for login
+
+recording:
+  title: Recording
+  localRecordingSchedule:
+    title: Local Recording Schedule
+    tooltip: SD-Card/NAS Recording Time Window
+    text:
+      - Schedule
+      - Constant Recoring
+
+  SDCard:
+    title: SD-Card Recording
+    tooltip: Record to a directory on the SD-Card
+    motionRecording:
+      title: SD-Card Motion Sensor Recording
+      tooltip: Record to SD-Card alarm_record directory
+    networkAccess:
+      title: Network Access
+      tooltip: Broadcast ATOMCam SD-Card CIFS(smb) server on local network
+    savePath:
+      title: Save PATH
+      tooltip: Describes the PATH to be recorded in the format specification of strftime. valid only for alarm_record
+    automaticDeletion:
+      title: Automatic Recording Deletion
+      tooltip: Automatically delete recordings from SD card
+    daysToKeep:
+      title: Number of Days to Keep
+      tooltip: Specify how much to delete
+    seeAllFiles:
+      title: See all files on SD card
+      tooltip: Show SD Card contents
+
+  NAS:
+    title: NAS Recording
+    tooltip: Record to NAS(CIFS Server)
+    motionRecording:
+      title: NAS Motion Sensor Recording
+      tooltip: Record to  alarm_record folder on NAS(CIFS Server)
+    networkPath:
+      title: Network PATH
+      tooltip: NASのパスを設定。(//server/folder/の形式で指定)
+    account:
+      title: Account
+      tooltip: NASのユーザー名を設定します
+    password:
+      title: Password
+      tooltip: NASのパスワードを設定します
+    savePath:
+      title: Save PATH
+      tooltip: ネットワークPATH以降の録画するPATHをstrftimeの書式指定で記述します。最後に拡張子が付加されます
+    automaticDeletion:
+      title: Automatic Recording Deletion
+      tooltip: CIFS Serverに録画したファイルを自動的に削除します
+    daysToKeep:
+      title: Number of Days to Keep
+      tooltip: 指定日数後に削除します
+
+  timelapse:
+    title: timelapse Recording
+    tooltip: timelapse録画をします。SD-Card/NAS録画で指定しているメディアに記録されます。
+    savePath:
+      title: Save PATH
+      tooltip: 録画するPATHをstrftimeの書式指定で記述します。最後に拡張子が付加されます。
+    note:
+      comment: |
+        Allow at least 5 minutes for processing between time lapse recordings.
+        If the time overlaps, errors will occur and the recordings will fail.
+    start:
+      title: timelapse start
+      tooltip: timelapse動作中です。
+    stop:
+      title: timelapse stop
+      tooltip: timelapseを中止します。
+      button: stop
+      comment: 'Processing aborted: presently writing file.'
+
+RTSP:
+  title: RTSP
+  main:
+    title: Main
+    tooltip: RTSP Main(1080p AVC or HEVC) Start
+    audio:
+      title: Audio
+      tooltip: RTSP Mainの音声を設定します
+    URL:
+      title: URL
+      tooltip: VLC playerなどにURLをcopy&pasteしてください
+    format:
+      title: Format
+      tooltip: ストリームのフォーマットを設定します
+      text:
+        - 'HEVC '
+        - 'AVC '
+      comment: ※ 変更すると設定ボタンで再起動します
+  sub:
+    title: Sub
+    tooltip: RTSP Sub(360 HEVC) Start
+    audio:
+      title: Audio
+      tooltip: RTSP Subの音声を設定します
+    URL:
+      title: URL
+      tooltip: VLC playerなどにURLをcopy&pasteしてください
+  http:
+    title: RTSP over HTTP
+    tooltip: RTSPをHTTP経由で配信します
+
+event:
+  title: Notification
+  webhook:
+    title: WebHook
+    tooltip: WebHookを設定します
+    URL:
+      title: Notification URL
+      tooltip: WebHookのイベント発生時にpostするURL
+    alarm:
+      title: Notification Alarm
+      tooltip: Alarm発生を通知します
+      comment: 'type: alarmEvent'
+    information:
+      title: Notification Information
+      tooltip: Alarm発生時に認識情報を通知します
+      comment: 'type: recognitionNotify'
+    recordingEnd:
+      title: Notification Recording End
+      tooltip: Alarm発生時に録画保存を通知します
+      comment: 'type: uploadVideoFinish'
+    recordingTransfer:
+      title: Notification Recording Transfer
+      tooltip: Alarm発生時に録画ファイルを転送します
+      comment: 'mime: video/mp4'
+    screenshotEnd:
+      title: Notification Screenshot End
+      tooltip: Alarm発生時に静止画保存を通知します
+      comment: 'type: uploadPictureFinish'
+    screenshotTransfer:
+      title: Notification Screenshot Transfer
+      tooltip: Alarm発生時に静止画ファイルを転送します
+      comment: 'mime: image/jpeg'
+    recordingSave:
+      title: Regular Recording Save
+      tooltip: 録画保存を通知します
+      comment: 'type: recordEvent'
+    startTimelapse:
+      title: Start Time lapse
+      tooltip: タイムラプス開始を通知します
+      comment: 'type: timelapseStart'
+    recordTimelapse:
+      title: Record Time lapse
+      tooltip: タイムラプスイベントを通知します
+      comment: 'type: timelapseEvent'
+    endTimeLapse:
+      title: End Time lapse
+      tooltip: タイムラプス録画完了を通知します
+      comment: 'type: timelapseFinish'
+
+motionDetect:
+  title: MotionDetect
+  sensorPeriod:
+    title: Motion Sensor Period
+    tooltip: Alarmの無検知時間5分を30秒に短縮します
+    comment: ※ 変更すると設定ボタンで再起動します
+  uploadStop:
+    title: Motion Sensor Video Upload Stop
+    tooltip: AtomTechサーバーへの検知動画転送を停止します。アプリから確認できなくなります。サーバーへの転送が気になる場合は設定してください。
+    comment: ※ 変更すると設定ボタンで再起動します
+
+cruise:
+  title: Cruise
+  cameraMotion:
+    title: Camera Motion
+    tooltip: クルーズ軌道を設定し、巡回動作をします
+  direction:
+    tooltip: カメラの向きを設定。jpeg windowでも調整できます
+    pan: pan
+    tilt: tilt
+  waitAfterMotion:
+    title: 動作後待機時間
+    unit: 秒
+    tooltip: カメラ動作後の待機時間を設定します
+  detect:
+    title: 検知
+    tooltip: 待機中に動体検知すると待機時間を延長します
+  follow:
+    title: 追尾
+    tooltip: 待機中に動体検知すると追尾し、待機時間を延長します
+  waitAfterDetect:
+    title: 検知後待機時間
+    unit: 秒
+    tooltip: 動体検知終了後の待機時間を設定します
+
+
+monitoring:
+  title: Monitoring
+  ping:
+    title: ping
+    tooltip: Enable Confirmation of Status via URL
+  URL:
+    title: Notification URL
+    tooltip: 指定されたURLに１分毎にhttp getする
+
+maintenance:
+  title: Maingtenance
+  initialPosition:
+    title: Swing Return to Original Position
+    tooltip: Swingの座標を両側の端点当てで修正します
+    button: 初期化
+  periodicRestart:
+    title: Periodic Restart
+    tooltip: 定期的に再起動する設定をします
+  reboot:
+    title: Reboot
+    tooltip: 再起動します
+    button: Reboot
+  eraseSDCard:
+    title: Erase SD-Card
+    tooltip: SD-Cardの録画フォルダを消去します
+    button: Erase
+  update:
+    title: Update
+    tooltip: このtoolのupdateをします
+  customZip:
+    title: Custom File URL
+    tooltip: localでカスタム更新ZIPを作成して運用できます
+    URL:
+      title: URL
+      tooltip: カスタム更新ZIPファイルの読み込みURLを指定します
+
+schedule:
+  allDay: 終日
+  startTime: 開始時間
+  endTime: 終了時間
+  time: 設定時間
+  timelapse:
+    startTime: 開始時間
+    endTime: ' 〜 {endTime}まで'
+    interval:
+      title: 周期
+      unit: 秒
+      count: 回
+    tommorow: 翌日
+    daysLater: '{days}日後の'
+  weekDays:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+    - sat
+    - sun
+
+submit: Submit
+updating:
+  title: Updating
+  comment: Updating. Please wait a bit.
+rebooting:
+  title: 再起動中
+  comment: Wait until reboot has completed (approximately{rebootTime}秒)
+

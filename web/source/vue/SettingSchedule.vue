@@ -4,7 +4,7 @@
       <div class="well schedule">
         <div class="schedule-week">
           <ElCheckboxGroup v-model="innerValue.dayOfWeekSelect" size="small" :min="1" @input="TimeSet">
-            <ElCheckboxButton v-for="day of weekDays" :label="day" :key="day">
+            <ElCheckboxButton v-for="(day, i) of $t('schedule.weekDays')" :label="i" :key="i">
               {{ day }}
             </ElCheckboxButton>
           </ElCheckboxGroup>
@@ -74,7 +74,6 @@
     data() {
       return {
         innerValue: { ...this.value },
-        weekDays: [...this.$t('schedule.weekDays')],
         allDay: (this.value.startTime === '00:00') && (this.value.endTime === '23:59'),
       };
     },
