@@ -12,10 +12,10 @@ basicSettings:
     tooltip: Require Authentication to Login
   account:
     title: Account
-    tooltip: set username for login
+    tooltip: set login username
   password:
     title: Password
-    tooltip: set password for login
+    tooltip: set login password
 
 recording:
   title: Recording
@@ -56,39 +56,39 @@ recording:
       tooltip: Record to  alarm_record folder on NAS(CIFS Server)
     networkPath:
       title: Network PATH
-      tooltip: NASのパスを設定。(//server/folder/の形式で指定)
+      tooltip: NASのパスを設定。(use //server/folder/ format)
     account:
       title: Account
-      tooltip: NASのユーザー名を設定します
+      tooltip: Set NAS username
     password:
       title: Password
-      tooltip: NASのパスワードを設定します
+      tooltip: set NAS password
     savePath:
       title: Save PATH
-      tooltip: ネットワークPATH以降の録画するPATHをstrftimeの書式指定で記述します。最後に拡張子が付加されます
+      tooltip: enter the storage PATH after the network name in strftime format ending with the file extension.
     automaticDeletion:
       title: Automatic Recording Deletion
-      tooltip: CIFS Serverに録画したファイルを自動的に削除します
+      tooltip: Automatically delete recordings from the CIFS Server
     daysToKeep:
       title: Number of Days to Keep
-      tooltip: 指定日数後に削除します
+      tooltip: Indicate the number of days to keep
 
   timelapse:
     title: timelapse Recording
-    tooltip: timelapse録画をします。SD-Card/NAS録画で指定しているメディアに記録されます。
+    tooltip: Record timelapses. Will record to directed location on SD-Card/NAS.
     savePath:
       title: Save PATH
-      tooltip: 録画するPATHをstrftimeの書式指定で記述します。最後に拡張子が付加されます。
+      tooltip: Enter the recording PATH in strftime format ending with the file extension.
     note:
       comment: |
         Allow at least 5 minutes for processing between time lapse recordings.
         If the time overlaps, errors will occur and the recordings will fail.
     start:
       title: progress
-      tooltip: timelapse動作中です。
+      tooltip: timelapse in progress.
     stop:
       title: stop
-      tooltip: timelapseを中止します。
+      tooltip: abort timelapse.
       button: stop
       comment: 'Processing aborted: presently writing file.'
 
@@ -96,116 +96,116 @@ RTSP:
   title: RTSP
   main:
     title: Main
-    tooltip: RTSP Main(1080p AVC or HEVC) Start
+    tooltip: Start Main RTSP(1080p AVC or HEVC)
     audio:
       title: Audio
-      tooltip: RTSP Mainの音声を設定します
+      tooltip: Activaet Audio on Main RTSP
     URL:
       title: URL
-      tooltip: VLC playerなどにURLをcopy&pasteしてください
+      tooltip: Copy and paste this URL into VLC etc.
     format:
       title: Format
-      tooltip: ストリームのフォーマットを設定します
+      tooltip: Select streaming format
       text:
         - 'HEVC '
         - 'AVC '
-      comment: Note! If you change it, it will restart on Submit.
+      comment: Note! If you change it, Atomcam will restart on submit.
   sub:
     title: Sub
-    tooltip: RTSP Sub(360 HEVC) Start
+    tooltip: Start Sub RTSP (360 HEVC)
     audio:
       title: Audio
-      tooltip: RTSP Subの音声を設定します
+      tooltip: Activate audio on Sub RTSP Sub
     URL:
       title: URL
-      tooltip: VLC playerなどにURLをcopy&pasteしてください
+      tooltip: Copy and paste this URL into VLC etc.
   http:
     title: RTSP over HTTP
-    tooltip: RTSPをHTTP経由で配信します
+    tooltip: Use HTTP for RTSP streaming 
 
 event:
   title: Notification
   webhook:
     title: WebHook
-    tooltip: WebHookを設定します
+    tooltip: Set a Webhook
     URL:
       title: Notification URL
-      tooltip: WebHookのイベント発生時にpostするURL
+      tooltip: Enter the URL WebHook for send post notifcations
     alarm:
       title: Notification Alarm
-      tooltip: Alarm発生を通知します
+      tooltip: Notify when an alarm triggers
       comment: 'type: alarmEvent'
     information:
       title: Notification Information
-      tooltip: Alarm発生時に認識情報を通知します
+      tooltip: Send recognition information when an alarm triggers
       comment: 'type: recognitionNotify'
     recordingEnd:
       title: Notification Recording End
-      tooltip: Alarm発生時に録画保存を通知します
+      tooltip: Notify when recording ends
       comment: 'type: uploadVideoFinish'
     recordingTransfer:
       title: Notification Recording Transfer
-      tooltip: Alarm発生時に録画ファイルを転送します
+      tooltip: Send a video file when alarm triggers
       comment: 'mime: video/mp4'
     screenshotEnd:
       title: Notification Screenshot End
-      tooltip: Alarm発生時に静止画保存を通知します
+      tooltip: Notify with a still image file when an alarm ends
       comment: 'type: uploadPictureFinish'
     screenshotTransfer:
       title: Notification Screenshot Transfer
-      tooltip: Alarm発生時に静止画ファイルを転送します
+      tooltip: Transmit a still image file when an alarm triggers
       comment: 'mime: image/jpeg'
     recordingSave:
       title: Regular Recording Save
-      tooltip: 録画保存を通知します
+      tooltip: Notify on regular recording
       comment: 'type: recordEvent'
     startTimelapse:
       title: Start Time lapse
-      tooltip: タイムラプス開始を通知します
+      tooltip: Notify on time lapse start
       comment: 'type: timelapseStart'
     recordTimelapse:
       title: Record Time lapse
-      tooltip: タイムラプスイベントを通知します
+      tooltip: Notify on time lapse event is occurring
       comment: 'type: timelapseEvent'
     endTimeLapse:
       title: End Time lapse
-      tooltip: タイムラプス録画完了を通知します
+      tooltip: Notify when time lapse event ends
       comment: 'type: timelapseFinish'
 
 motionDetect:
   title: MotionDetect
   sensorPeriod:
     title: Motion Sensor Period
-    tooltip: Alarmの無検知時間5分を30秒に短縮します
-    comment: Note! If you change it, it will restart on Submit.
+    tooltip: Reduce new alarm window from 5 minutes to 30 seconds
+    comment: Note: If you change this, Atomcam will reboot on Submit.
   uploadStop:
     title: Motion Sensor Video Upload Stop
-    tooltip: AtomTechサーバーへの検知動画転送を停止します。アプリから確認できなくなります。サーバーへの転送が気になる場合は設定してください。
-    comment: Note! If you change it, it will restart on Submit.
+    tooltip: Prevent upload of detection videos to AtomTech servers. This will make it so they don't appear in the app. If you're concerned about sending stuff to their servers, check this option.
+    comment: Note: If you change this, Atomcam will reboot on Submit.
 
 cruise:
   title: Cruise
   cameraMotion:
     title: Camera Motion
-    tooltip: クルーズ軌道を設定し、巡回動作をします
+    tooltip: Make a full circuit cruise.
   direction:
-    tooltip: カメラの向きを設定。jpeg windowでも調整できます
+    tooltip: Set the camera direction. You can confirm it using the jpeg window.
     pan: pan
     tilt: tilt
   waitAfterMotion:
-    title: waiting after motion
+    title: waiting period after motion
     unit: sec
-    tooltip: カメラ動作後の待機時間を設定します
+    tooltip: Set the waiting period after camera motion.
   detect:
     title: detect
-    tooltip: 待機中に動体検知すると待機時間を延長します
+    tooltip: Have the camera stay in position longer when detecting motion.
   follow:
     title: follow
-    tooltip: 待機中に動体検知すると追尾し、待機時間を延長します
+    tooltip: Have the camera follow motion and extend the time it stays in position.
   waitAfterDetect:
     title: waiting after detect
     unit: sec
-    tooltip: 動体検知終了後の待機時間を設定します
+    tooltip: Set the amount of time to wait in position after motion is detected.
 
 
 monitoring:
@@ -215,34 +215,34 @@ monitoring:
     tooltip: Enable Confirmation of Status via URL
   URL:
     title: Notification URL
-    tooltip: 指定されたURLに１分毎にhttp getする
+    tooltip: Send an http get requiest at one minute intervals to this url
 
 maintenance:
   title: Maintenance
   initialPosition:
     title: Swing Return to Original Position
-    tooltip: Swingの座標を両側の端点当てで修正します
+    tooltip: Return the Swing to the original position
     button: Home
   periodicRestart:
     title: Periodic Restart
-    tooltip: 定期的に再起動する設定をします
+    tooltip: Set the camera to restart on a schedule.
   reboot:
     title: Reboot
-    tooltip: 再起動します
+    tooltip: Reboot the AtomCam
     button: Reboot
   eraseSDCard:
     title: Erase SD-Card
-    tooltip: SD-Cardの録画フォルダを消去します
+    tooltip: Erase the video contents from the SD-Card
     button: Erase
   update:
     title: Update
-    tooltip: このtoolのupdateをします
+    tooltip: Update the atomcam tools
   customZip:
     title: Custom File URL
-    tooltip: localでカスタム更新ZIPを作成して運用できます
+    tooltip: use a custom zip to update the atomcam tool
     URL:
       title: URL
-      tooltip: カスタム更新ZIPファイルの読み込みURLを指定します
+      tooltip: the url of the custom zipfile
 
 schedule:
   allDay: AllDay
