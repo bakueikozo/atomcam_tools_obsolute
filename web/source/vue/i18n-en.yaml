@@ -1,0 +1,277 @@
+imageFrame:
+  clickToShrink: click to shrink
+  clickToExpand: click to expand
+
+basicSettings:
+  title: Basic Settings
+  deviceName:
+    title: Display Name
+    tooltip: NAS Folder Name and Hostname for remote access
+  loginAuthentication:
+    title: Login Authentication
+    tooltip: Require Authentication to Login
+  account:
+    title: Account
+    tooltip: set login username
+  password:
+    title: Password
+    tooltip: set login password
+
+recording:
+  title: Recording
+  localRecordingSchedule:
+    title: Local Recording Schedule
+    tooltip: SD-Card/NAS Recording Time Window
+    text:
+      - Schedule
+      - Constant Recoring
+
+  SDCard:
+    title: SD-Card Recording
+    tooltip: Record to a directory on the SD-Card
+    motionRecording:
+      title: SD-Card Motion Sensor Recording
+      tooltip: Record to SD-Card alarm_record directory
+    networkAccess:
+      title: Network Access
+      tooltip: Broadcast ATOMCam SD-Card CIFS(smb) server on local network
+    savePath:
+      title: Save PATH
+      tooltip: Describes the PATH to be recorded in the format specification of strftime. valid only for alarm_record
+    automaticDeletion:
+      title: Automatic Recording Deletion
+      tooltip: Automatically delete recordings from SD card
+    daysToKeep:
+      title: Number of Days to Keep
+      tooltip: Specify how much to delete
+    seeAllFiles:
+      title: See all files on SD card
+      tooltip: Show SD Card contents
+
+  NAS:
+    title: NAS Recording
+    tooltip: Record to NAS(CIFS Server)
+    motionRecording:
+      title: NAS Motion Sensor Recording
+      tooltip: Record to  alarm_record folder on NAS(CIFS Server)
+    networkPath:
+      title: Network PATH
+      tooltip: enter the path of NAS Server (use //server/folder/ format)
+    account:
+      title: Account
+      tooltip: Set NAS username
+    password:
+      title: Password
+      tooltip: set NAS password
+    savePath:
+      title: Save PATH
+      tooltip: enter the storage PATH after the network name in strftime format ending with the file extension.
+    automaticDeletion:
+      title: Automatic Recording Deletion
+      tooltip: Automatically delete recordings from the CIFS Server
+    daysToKeep:
+      title: Number of Days to Keep
+      tooltip: Indicate the number of days to keep
+
+  timelapse:
+    title: timelapse Recording
+    tooltip: Record timelapses. Will record to directed location on SD-Card/NAS.
+    savePath:
+      title: Save PATH
+      tooltip: Enter the recording PATH in strftime format ending with the file extension.
+    note:
+      comment: |
+        Allow at least 5 minutes for processing between time lapse recordings.
+        If the time overlaps, errors will occur and the recordings will fail.
+    start:
+      title: progress
+      tooltip: timelapse in progress.
+    stop:
+      title: stop
+      tooltip: abort timelapse.
+      button: stop
+      comment: 'Processing aborted: presently writing file.'
+
+RTSP:
+  title: RTSP
+  main:
+    title: Main
+    tooltip: Start Main RTSP(1080p AVC or HEVC)
+    audio:
+      title: Audio
+      tooltip: Activaet Audio on Main RTSP
+    URL:
+      title: URL
+      tooltip: Copy and paste this URL into VLC etc.
+    format:
+      title: Format
+      tooltip: Select streaming format
+      text:
+        - 'HEVC '
+        - 'AVC '
+      comment: Note! If you change it, Atomcam will restart on submit.
+  sub:
+    title: Sub
+    tooltip: Start Sub RTSP (360 HEVC)
+    audio:
+      title: Audio
+      tooltip: Activate audio on Sub RTSP Sub
+    URL:
+      title: URL
+      tooltip: Copy and paste this URL into VLC etc.
+  http:
+    title: RTSP over HTTP
+    tooltip: Use HTTP for RTSP streaming 
+
+event:
+  title: Notification
+  webhook:
+    title: WebHook
+    tooltip: Set a Webhook
+    URL:
+      title: Notification URL
+      tooltip: Enter the URL WebHook for send post notifcations
+    alarm:
+      title: Notification Alarm
+      tooltip: Notify when an alarm triggers
+      comment: 'type: alarmEvent'
+    information:
+      title: Notification Information
+      tooltip: Send recognition information when an alarm triggers
+      comment: 'type: recognitionNotify'
+    recordingEnd:
+      title: Notification Recording End
+      tooltip: Notify when recording ends
+      comment: 'type: uploadVideoFinish'
+    recordingTransfer:
+      title: Notification Recording Transfer
+      tooltip: Send a video file when alarm triggers
+      comment: 'mime: video/mp4'
+    screenshotEnd:
+      title: Notification Screenshot End
+      tooltip: Notify with a still image file when an alarm ends
+      comment: 'type: uploadPictureFinish'
+    screenshotTransfer:
+      title: Notification Screenshot Transfer
+      tooltip: Transmit a still image file when an alarm triggers
+      comment: 'mime: image/jpeg'
+    recordingSave:
+      title: Regular Recording Save
+      tooltip: Notify on regular recording
+      comment: 'type: recordEvent'
+    startTimelapse:
+      title: Start Time lapse
+      tooltip: Notify on time lapse start
+      comment: 'type: timelapseStart'
+    recordTimelapse:
+      title: Record Time lapse
+      tooltip: Notify on time lapse event is occurring
+      comment: 'type: timelapseEvent'
+    endTimeLapse:
+      title: End Time lapse
+      tooltip: Notify when time lapse event ends
+      comment: 'type: timelapseFinish'
+
+motionDetect:
+  title: MotionDetect
+  sensorPeriod:
+    title: Motion Sensor Period
+    tooltip: Reduce new alarm window from 5 minutes to 30 seconds
+    comment: Note: If you change this, Atomcam will reboot on Submit.
+  uploadStop:
+    title: Motion Sensor Video Upload Stop
+    tooltip: Prevent upload of detection videos to AtomTech servers. This will make it so they don't appear in the app. If you're concerned about sending stuff to their servers, check this option.
+    comment: Note: If you change this, Atomcam will reboot on Submit.
+
+cruise:
+  title: Cruise
+  cameraMotion:
+    title: Camera Motion
+    tooltip: Make a full circuit cruise.
+  direction:
+    tooltip: Set the camera direction. You can confirm it using the jpeg window.
+    pan: pan
+    tilt: tilt
+  waitAfterMotion:
+    title: waiting period after motion
+    unit: sec
+    tooltip: Set the waiting period after camera motion.
+  detect:
+    title: detect
+    tooltip: Have the camera stay in position longer when detecting motion.
+  follow:
+    title: follow
+    tooltip: Have the camera follow motion and extend the time it stays in position.
+  waitAfterDetect:
+    title: waiting after detect
+    unit: sec
+    tooltip: Set the amount of time to wait in position after motion is detected.
+
+
+monitoring:
+  title: Monitoring
+  ping:
+    title: ping
+    tooltip: Enable Confirmation of Status via URL
+  URL:
+    title: Notification URL
+    tooltip: Send an http get requiest at one minute intervals to this url
+
+maintenance:
+  title: Maintenance
+  initialPosition:
+    title: Swing Return to Original Position
+    tooltip: Return the Swing to the original position
+    button: Home
+  periodicRestart:
+    title: Periodic Restart
+    tooltip: Set the camera to restart on a schedule.
+  reboot:
+    title: Reboot
+    tooltip: Reboot the AtomCam
+    button: Reboot
+  eraseSDCard:
+    title: Erase SD-Card
+    tooltip: Erase the video contents from the SD-Card
+    button: Erase
+  update:
+    title: Update
+    tooltip: Update the atomcam tools
+  customZip:
+    title: Custom File URL
+    tooltip: use a custom zip to update the atomcam tool
+    URL:
+      title: URL
+      tooltip: the url of the custom zipfile
+
+schedule:
+  allDay: AllDay
+  startTime: start
+  endTime: end
+  time: time
+  timelapse:
+    startTime: start
+    endTime: ' to {endTime}'
+    interval:
+      title: interval
+      unit: sec
+      count: times
+    tommorow: tommorow
+    daysLater: 'after {days} days'
+  weekDays:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+    - sat
+    - sun
+
+submit: Submit
+updating:
+  title: Updating
+  comment: Updating. Please wait a bit.
+rebooting:
+  title: Rebooting
+  comment: Wait until reboot has completed (approximately{rebootTime}sec)
+

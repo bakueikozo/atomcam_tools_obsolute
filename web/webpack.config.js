@@ -24,6 +24,10 @@ module.exports = (env, argv) => {
           loader: 'vue-loader',
         },
         {
+          test: /\.yaml$/,
+          loader: 'yaml-loader',
+        },
+        {
           test: /\.css$/,
           exclude: /css\/dirindex\.css/,
           use: [ 'style-loader', 'css-loader' ],

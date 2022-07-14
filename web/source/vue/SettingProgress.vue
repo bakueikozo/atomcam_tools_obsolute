@@ -1,8 +1,11 @@
 <template>
-  <ElTooltip :tabindex="-1" placement="top" :content="tooltip" effect="light" :open-delay="500">
+  <ElTooltip :tabindex="-1" placement="top" :content="($te(i18n + '.tooltip') ? $t(i18n + '.tooltip') : '') + tooltip" effect="light" :open-delay="500">
     <ElRow>
       <ElCol :offset="titleOffset" :span="9 - titleOffset">
-        <h4>{{ title }}</h4>
+        <h4 v-if="$te(i18n + '.title')" v-t="i18n+'.title'" />
+        <h4 v-else>
+          {{ title }}
+        </h4>
       </ElCol>
       <ElCol :span="span - 2">
         <ElProgress class="progress-bar" :percentage="percentage" :show-text="false" />
@@ -35,7 +38,11 @@
       },
       title: {
         type: String,
-        required: true,
+        default: '',
+      },
+      i18n: {
+        type: String,
+        default: '',
       },
       percentage: {
         type: Number,
