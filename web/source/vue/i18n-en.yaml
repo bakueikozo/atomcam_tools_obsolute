@@ -109,7 +109,7 @@ RTSP:
       text:
         - 'HEVC '
         - 'AVC '
-      comment: ※ 変更すると設定ボタンで再起動します
+      comment: Note! If you change it, it will restart on Submit.
   sub:
     title: Sub
     tooltip: RTSP Sub(360 HEVC) Start
@@ -177,11 +177,11 @@ motionDetect:
   sensorPeriod:
     title: Motion Sensor Period
     tooltip: Alarmの無検知時間5分を30秒に短縮します
-    comment: ※ 変更すると設定ボタンで再起動します
+    comment: Note! If you change it, it will restart on Submit.
   uploadStop:
     title: Motion Sensor Video Upload Stop
     tooltip: AtomTechサーバーへの検知動画転送を停止します。アプリから確認できなくなります。サーバーへの転送が気になる場合は設定してください。
-    comment: ※ 変更すると設定ボタンで再起動します
+    comment: Note! If you change it, it will restart on Submit.
 
 cruise:
   title: Cruise
@@ -193,18 +193,18 @@ cruise:
     pan: pan
     tilt: tilt
   waitAfterMotion:
-    title: 動作後待機時間
-    unit: 秒
+    title: waiting after motion
+    unit: sec
     tooltip: カメラ動作後の待機時間を設定します
   detect:
-    title: 検知
+    title: detect
     tooltip: 待機中に動体検知すると待機時間を延長します
   follow:
-    title: 追尾
+    title: follow
     tooltip: 待機中に動体検知すると追尾し、待機時間を延長します
   waitAfterDetect:
-    title: 検知後待機時間
-    unit: 秒
+    title: waiting after detect
+    unit: sec
     tooltip: 動体検知終了後の待機時間を設定します
 
 
@@ -222,7 +222,7 @@ maintenance:
   initialPosition:
     title: Swing Return to Original Position
     tooltip: Swingの座標を両側の端点当てで修正します
-    button: 初期化
+    button: Home
   periodicRestart:
     title: Periodic Restart
     tooltip: 定期的に再起動する設定をします
@@ -245,19 +245,19 @@ maintenance:
       tooltip: カスタム更新ZIPファイルの読み込みURLを指定します
 
 schedule:
-  allDay: 終日
-  startTime: 開始時間
-  endTime: 終了時間
-  time: 設定時間
+  allDay: AllDay
+  startTime: start
+  endTime: end
+  time: time
   timelapse:
-    startTime: 開始時間
-    endTime: ' 〜 {endTime}まで'
+    startTime: start
+    endTime: ' to {endTime}'
     interval:
-      title: 周期
-      unit: 秒
-      count: 回
-    tommorow: 翌日
-    daysLater: '{days}日後の'
+      title: interval
+      unit: sec
+      count: times
+    tommorow: tommorow
+    daysLater: 'after {days} days'
   weekDays:
     - mon
     - tue
@@ -272,6 +272,6 @@ updating:
   title: Updating
   comment: Updating. Please wait a bit.
 rebooting:
-  title: 再起動中
-  comment: Wait until reboot has completed (approximately{rebootTime}秒)
+  title: Rebooting
+  comment: Wait until reboot has completed (approximately{rebootTime}sec)
 
