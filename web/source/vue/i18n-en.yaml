@@ -56,7 +56,7 @@ recording:
       tooltip: Record to  alarm_record folder on NAS(CIFS Server)
     networkPath:
       title: Network PATH
-      tooltip: NASのパスを設定。(use //server/folder/ format)
+      tooltip: enter the path of NAS Server (use //server/folder/ format)
     account:
       title: Account
       tooltip: Set NAS username
