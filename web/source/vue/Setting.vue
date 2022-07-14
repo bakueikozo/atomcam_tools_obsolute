@@ -87,8 +87,8 @@
       <SettingInput v-if="config.TIMELAPSE === 'on'" i18n="recording.timelapse.savePath" :titleOffset="2" :span="10" type="text" v-model="config.TIMELAPSE_PATH" @input="FixPath('TIMELAPSE_PATH')" />
       <SettingSchedule v-if="config.TIMELAPSE === 'on'" v-model="timelapse" :timelapse="true" />
       <SettingComment v-if="config.TIMELAPSE === 'on'" i18n="recording.timelapse.note" />
-      <SettingProgress v-if="timelapseInfo.busy" i18n="recording.timelapse.start" :percentage="timelapseInfo.count * 100 / timelapseInfo.max" :label="timelapseInfo.count.toString() + '/' + timelapseInfo.max.toString()" />
-      <SettingDangerButton v-if="timelapseInfo.busy" i18n="recording.timelapse.stop" icon="el-icon-refresh-left" @click="TimelapseAbort">
+      <SettingProgress v-if="timelapseInfo.busy" i18n="recording.timelapse.start" :titleOffset="2" :percentage="timelapseInfo.count * 100 / timelapseInfo.max" :label="timelapseInfo.count.toString() + '/' + timelapseInfo.max.toString()" />
+      <SettingDangerButton v-if="timelapseInfo.busy" i18n="recording.timelapse.stop" :titleOffset="2" icon="el-icon-refresh-left" @click="TimelapseAbort">
         <span v-if="timelapseInfo.abort" v-t="recording.timelapse.stop.comment" />
       </SettingDangerButton>
 
@@ -123,7 +123,7 @@
       <div v-if="isSwing" @click="ClearCruiseSelect">
         <h3 v-t="'cruise.title'" />
         <SettingSwitch i18n="cruise.cameraMotion" v-model="config.CRUISE" @change="(config.CRUISE === 'on') && !cruiseList.length && AddCruise()" @click.native.stop />
-        <div>
+        <div v-if="config.CRUISE === 'on'">
           <SettingCruise v-for="(cruise, idx) of cruiseList" :key="'timetable'+idx" v-model="cruiseList[idx]" :pan="pan" :tilt="tilt" :selected="cruiseSelect === idx" @add="AddCruise" @remove="DeleteCruise(idx)" @pan="pan=$event" @tilt="tilt=$event" @click="CruiseSelect(idx)" />
         </div>
       </div>

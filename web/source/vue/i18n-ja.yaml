@@ -84,10 +84,10 @@ recording:
         録画の間は記録後の変換処理のため５分以上空けてください。
         時間が重なるとエラーで記録されない事があります。
     start:
-      title: timelapse動作
+      title: 動作状態
       tooltip: timelapse動作中です。
     stop:
-      title: timelapse中止
+      title: 中止
       tooltip: timelapseを中止します。
       button: 中止
       comment: 停止処理：ファイル書き込み中

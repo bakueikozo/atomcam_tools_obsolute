@@ -84,10 +84,10 @@ recording:
         Allow at least 5 minutes for processing between time lapse recordings.
         If the time overlaps, errors will occur and the recordings will fail.
     start:
-      title: timelapse start
+      title: progress
       tooltip: timelapse動作中です。
     stop:
-      title: timelapse stop
+      title: stop
       tooltip: timelapseを中止します。
       button: stop
       comment: 'Processing aborted: presently writing file.'
