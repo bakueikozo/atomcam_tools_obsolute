@@ -218,7 +218,7 @@ monitoring:
     tooltip: 指定されたURLに１分毎にhttp getする
 
 maintenance:
-  title: Maingtenance
+  title: Maintenance
   initialPosition:
     title: Swing Return to Original Position
     tooltip: Swingの座標を両側の端点当てで修正します
