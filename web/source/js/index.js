@@ -1,11 +1,35 @@
 /*
 
-  frontend/js/index.js
+  js/index.js
 
   Copyright (C) 2021 Mitsuru Nakada
   This software is released under the MIT License, see license file.
 
+  // for main page
+  index.html // -> /var/www/index.html
+    |
+    + js/index.js  // -> /var/www/bundle_*.js
+      |
+      + css/localStyle.css
+      + vue/i18n-ja.yaml
+      + vue/i18n-en.yaml
+      + vue/Seting.vue
+        |
+        + vue/SettingSchedule.vue
+        + vue/SettingCruise.vue
+        |
+        + vue/SettingButton.vue
+        + vue/SettingDangerButton.vue
+        + vue/SettingComment.vue
+        + vue/SettingInput.vue
+        + vue/SettingProgress.vue
+        + vue/SettingSwitch.vue
+
+  // for SD-Card Directory page
+  css/dirindex.css -> dirindex.css  // -> /var/www/dirindex.css
+
 */
+
 'use strict';
 
 import Vue from 'vue';
