@@ -12,10 +12,10 @@ basicSettings:
     tooltip: Require Authentication to Login
   account:
     title: Account
-    tooltip: set username for login
+    tooltip: set login username
   password:
     title: Password
-    tooltip: set password for login
+    tooltip: set login password
 
 recording:
   title: Recording
@@ -56,39 +56,39 @@ recording:
       tooltip: Record to  alarm_record folder on NAS(CIFS Server)
     networkPath:
       title: Network PATH
-      tooltip: NASのパスを設定。(//server/folder/の形式で指定)
+      tooltip: NASのパスを設定。(use //server/folder/ format)
     account:
       title: Account
-      tooltip: NASのユーザー名を設定します
+      tooltip: Set NAS username
     password:
       title: Password
-      tooltip: NASのパスワードを設定します
+      tooltip: set NAS password
     savePath:
       title: Save PATH
-      tooltip: ネットワークPATH以降の録画するPATHをstrftimeの書式指定で記述します。最後に拡張子が付加されます
+      tooltip: enter the storage PATH after the network name in strftime format ending with the file extension.
     automaticDeletion:
       title: Automatic Recording Deletion
-      tooltip: CIFS Serverに録画したファイルを自動的に削除します
+      tooltip: Automatically delete recordings from the CIFS Server
     daysToKeep:
       title: Number of Days to Keep
-      tooltip: 指定日数後に削除します
+      tooltip: Indicate the number of days to keep
 
   timelapse:
     title: timelapse Recording
-    tooltip: timelapse録画をします。SD-Card/NAS録画で指定しているメディアに記録されます。
+    tooltip: Record timelapses. Will record to directed location on SD-Card/NAS.
     savePath:
       title: Save PATH
-      tooltip: 録画するPATHをstrftimeの書式指定で記述します。最後に拡張子が付加されます。
+      tooltip: Enter the recording PATH in strftime format ending with the file extension.
     note:
       comment: |
         Allow at least 5 minutes for processing between time lapse recordings.
         If the time overlaps, errors will occur and the recordings will fail.
     start:
       title: progress
-      tooltip: timelapse動作中です。
+      tooltip: timelapse in progress.
     stop:
       title: stop
-      tooltip: timelapseを中止します。
+      tooltip: abort timelapse.
       button: stop
       comment: 'Processing aborted: presently writing file.'
 
@@ -96,80 +96,80 @@ RTSP:
   title: RTSP
   main:
     title: Main
-    tooltip: RTSP Main(1080p AVC or HEVC) Start
+    tooltip: Start Main RTSP(1080p AVC or HEVC)
     audio:
       title: Audio
-      tooltip: RTSP Mainの音声を設定します
+      tooltip: Activaet Audio on Main RTSP
     URL:
       title: URL
-      tooltip: VLC playerなどにURLをcopy&pasteしてください
+      tooltip: Copy and paste this URL into VLC etc.
     format:
       title: Format
-      tooltip: ストリームのフォーマットを設定します
+      tooltip: Select streaming format
       text:
         - 'HEVC '
         - 'AVC '
-      comment: Note! If you change it, it will restart on Submit.
+      comment: Note! If you change it, Atomcam will restart on submit.
   sub:
     title: Sub
-    tooltip: RTSP Sub(360 HEVC) Start
+    tooltip: Start Sub RTSP (360 HEVC)
     audio:
       title: Audio
-      tooltip: RTSP Subの音声を設定します
+      tooltip: Activate audio on Sub RTSP Sub
     URL:
       title: URL
-      tooltip: VLC playerなどにURLをcopy&pasteしてください
+      tooltip: Copy and paste this URL into VLC etc.
   http:
     title: RTSP over HTTP
-    tooltip: RTSPをHTTP経由で配信します
+    tooltip: Use HTTP for RTSP streaming 
 
 event:
   title: Notification
   webhook:
     title: WebHook
-    tooltip: WebHookを設定します
+    tooltip: Set a Webhook
     URL:
       title: Notification URL
-      tooltip: WebHookのイベント発生時にpostするURL
+      tooltip: Enter the URL WebHook for send post notifcations
     alarm:
       title: Notification Alarm
-      tooltip: Alarm発生を通知します
+      tooltip: Notify when an alarm triggers
       comment: 'type: alarmEvent'
     information:
       title: Notification Information
-      tooltip: Alarm発生時に認識情報を通知します
+      tooltip: Send recognition information when an alarm triggers
       comment: 'type: recognitionNotify'
     recordingEnd:
       title: Notification Recording End
-      tooltip: Alarm発生時に録画保存を通知します
+      tooltip: Notify when recording ends
       comment: 'type: uploadVideoFinish'
     recordingTransfer:
       title: Notification Recording Transfer
-      tooltip: Alarm発生時に録画ファイルを転送します
+      tooltip: Send a video file when alarm triggers
       comment: 'mime: video/mp4'
     screenshotEnd:
       title: Notification Screenshot End
-      tooltip: Alarm発生時に静止画保存を通知します
+      tooltip: Notify with a still image file when an alarm ends
       comment: 'type: uploadPictureFinish'
     screenshotTransfer:
       title: Notification Screenshot Transfer
-      tooltip: Alarm発生時に静止画ファイルを転送します
+      tooltip: Transmit a still image file when an alarm triggers
       comment: 'mime: image/jpeg'
     recordingSave:
       title: Regular Recording Save
-      tooltip: 録画保存を通知します
+      tooltip: Notify on regular recording
       comment: 'type: recordEvent'
     startTimelapse:
       title: Start Time lapse
-      tooltip: タイムラプス開始を通知します
+      tooltip: Notify on time lapse start
       comment: 'type: timelapseStart'
     recordTimelapse:
       title: Record Time lapse
-      tooltip: タイムラプスイベントを通知します
+      tooltip: Notify on time lapse event is occurring
       comment: 'type: timelapseEvent'
     endTimeLapse:
       title: End Time lapse
-      tooltip: タイムラプス録画完了を通知します
+      tooltip: Notify when time lapse event ends
       comment: 'type: timelapseFinish'
 
 motionDetect:
