@@ -59,7 +59,7 @@ import '../css/localStyle.css';
 class AtomSetting {
   constructor() {
     new Vue({
-      i18n: new VueI18n({ locale: navigator.language, fallbackLocale: 'ja', messages: { ja: I18nJa, en: I18nEn }}),
+      i18n: new VueI18n({ locale: navigator.language.indexOf('en') === 0 ? 'en' : 'ja', fallbackLocale: 'ja', messages: { ja: I18nJa, en: I18nEn }}),
       el: '#app',
       template: '<setting/>',
       components: { 'setting': Setting },
