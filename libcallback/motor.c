@@ -6,6 +6,8 @@
 
 extern int local_sdk_motor_get_position(float *step,float *angle);
 extern int local_sdk_motor_move_abs_angle(float pan, float tilt, int speed, void (*done)(float a, float b), void (*canceled)(void), int mode);
+extern int IMP_ISP_Tuning_GetISPHflip(int *pmode);
+extern int IMP_ISP_Tuning_GetISPVflip(int *pmode);
 extern void CommandResponse(int fd, const char *res);
 
 int MotorFd = 0;
@@ -32,6 +34,10 @@ static void motor_move_canceled() {
 
 char *MotorMove(int fd, char *tokenPtr) {
 
+  int vflip, hflip;
+  IMP_ISP_Tuning_GetISPHflip(&hflip);
+  IMP_ISP_Tuning_GetISPVflip(&vflip);
+
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   if(!p) {
     float pan; // 0-355
@@ -39,6 +45,8 @@ char *MotorMove(int fd, char *tokenPtr) {
     int ret = local_sdk_motor_get_position(&pan, &tilt);
     static char motorResBuf[256];
     if(!ret) {
+      if(hflip) pan = 355.0 - pan;
+      if(vflip) tilt = 180.0 - tilt;
       sprintf(motorResBuf, "%f %f\n", pan, tilt);
     } else {
       return "error";
@@ -61,6 +69,9 @@ char *MotorMove(int fd, char *tokenPtr) {
 
   if(MotorFd) return "error";
   MotorFd = fd;
+
+  if(hflip) pan = 355.0 - pan;
+  if(vflip) tilt = 180.0 - tilt;
 
   int speed = 9;
   int res = local_sdk_motor_move_abs_angle(pan, tilt, speed, &motor_move_done, &motor_move_canceled, pri);
