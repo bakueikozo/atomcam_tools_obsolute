@@ -248,7 +248,7 @@
           CUSTOM_ZIP_URL: '',
           HEALTHCHECK: 'off',
           HEALTHCHECK_PING_URL: '',
-          LOCALE: navigator.language,
+          LOCALE: navigator.language.indexOf('en') === 0 ? 'en' : 'ja',
         },
         loginAuth: 'off',
         loginAuth2: 'off',
@@ -345,7 +345,11 @@
       // eslint-disable-next-line no-console
       console.log(this.config);
 
-      if(this.config.LOCALE) this.$i18n.locale = this.config.LOCALE;
+      if(this.config.LOCALE && (this.$i18n.availableLocales.indexOf(this.config.LOCALE) >= 0)) {
+        this.$i18n.locale = this.config.LOCALE;
+      } else {
+        this.$i18n.locale = navigator.language.indexOf('en') === 0 ? 'en' : 'ja';
+      }
 
       if(this.config.DIGEST.length) {
         this.loginAuth = 'on';
