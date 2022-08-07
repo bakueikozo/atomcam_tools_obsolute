@@ -95,15 +95,17 @@ do
     pos=`/scripts/cmd move`;
     awk '
     /slide_x/ {
-      pan=POS;
-      gsub(/ .*$/, "", pan);
-      printf("slide_x=%d\n", int(pan * 100 + 0.5));
+      split(POS, pos, " ");
+      x = int(pos[1] * 100 + 0.5);
+      if(pos[3] != 0) x = 35000 - x;
+      printf("slide_x=%d\n", x);
       next;
     }
     /slide_y/ {
-      tilt=POS;
-      gsub(/^.* /, "", tilt);
-      printf("slide_y=%d\n", int(tilt * 100 + 0.5));
+      split(POS, pos, " ");
+      y = int(pos[2] * 100 + 0.5);
+      if(pos[4] != 0) y = 18000 - y;
+      printf("slide_y=%d\n", y);
       next;
     }
     {

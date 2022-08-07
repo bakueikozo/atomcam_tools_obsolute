@@ -47,7 +47,7 @@ char *MotorMove(int fd, char *tokenPtr) {
     if(!ret) {
       if(hflip) pan = 355.0 - pan;
       if(vflip) tilt = 180.0 - tilt;
-      sprintf(motorResBuf, "%f %f\n", pan, tilt);
+      sprintf(motorResBuf, "%f %f %d %d\n", pan, tilt, hflip, vflip);
     } else {
       return "error";
     }
