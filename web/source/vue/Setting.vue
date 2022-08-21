@@ -415,10 +415,12 @@
       if(this.config.TIMELAPSE_SCHEDULE) {
         const str = this.config.TIMELAPSE_SCHEDULE.split(' ');
         const days = (str[4] || '').split(':');
-        this.timelapse.startTime = `${str[1].padStart(2, '0')}:${str[0].padStart(2, '0')}`;
-        this.timelapse.dayOfWeekSelect = days.map(d => (parseInt(d) + 6) % 7);
-        this.timelapse.interval = this.config.TIMELAPSE_INTERVAL;
-        this.timelapse.count = this.config.TIMELAPSE_COUNT;
+        this.timelapse = {
+          startTime: `${str[1].padStart(2, '0')}:${str[0].padStart(2, '0')}`,
+          dayOfWeekSelect: days.map(d => (parseInt(d) + 6) % 7),
+          interval: this.config.TIMELAPSE_INTERVAL,
+          count: this.config.TIMELAPSE_COUNT,
+        };
       }
 
       this.cruiseList = (this.config.CRUISE_LIST || '').split(';').reduce((array, cmd) => {
@@ -464,8 +466,10 @@
       if(this.config.REBOOT_SCHEDULE) {
         const str = this.config.REBOOT_SCHEDULE.split(' ');
         const days = (str[4] || '').split(':');
-        this.reboot.startTime = `${str[1].padStart(2, '0')}:${str[0].padStart(2, '0')}`;
-        this.reboot.dayOfWeekSelect = days.map(d => (parseInt(d) + 6) % 7);
+        this.reboot = {
+          startTime: `${str[1].padStart(2, '0')}:${str[0].padStart(2, '0')}`,
+          dayOfWeekSelect: days.map(d => (parseInt(d) + 6) % 7),
+        };
       }
 
       setInterval(async () => {
