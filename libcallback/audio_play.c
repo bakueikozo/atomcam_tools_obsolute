@@ -23,37 +23,50 @@ static int Volume = 0;
 
 int PlayPCM(char *file, int vol) {
 
-  static const int waveHeaderLength = 44;
+  static const int waveHeaderLength = 36;
   static const int bufLength = 640;
   unsigned char buf[bufLength];
-  const unsigned char cmp[] = {
+  const unsigned char cmpHeader[] = {
     0x52, 0x49, 0x46, 0x46, 0x00, 0x00, 0x00, 0x00, 0x57, 0x41, 0x56, 0x45, 0x66, 0x6d, 0x74, 0x20,
     0x10, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x40, 0x1f, 0x00, 0x00, 0x80, 0x3e, 0x00, 0x00,
-    0x02, 0x00, 0x10, 0x00, 0x64, 0x61, 0x74, 0x61
+    0x02, 0x00, 0x10, 0x00
   };
+  const unsigned char cmpData[] = { 0x64, 0x61, 0x74, 0x61 };
 
   printf("[command] aplay: file:%s\n", file);
   FILE *fp = fopen(file, "rb");
   if(fp == NULL) {
     fprintf(stderr, "[command] aplay err: fopen %s failed!\n", file);
     return -1;
-  } else {
-    size_t size = fread(buf, 1, waveHeaderLength, fp);
-    if(size != waveHeaderLength) {
-      fprintf(stderr, "[command] aplay err: header size error\n");
+  }
+  size_t size = fread(buf, 1, sizeof(cmpHeader), fp);
+  if(size != sizeof(cmpHeader)) {
+    fprintf(stderr, "[command] aplay err: header size error\n");
+    fclose(fp);
+    return -1;
+  }
+  buf[4] = buf[5] = buf[6] = buf[7] = 0;
+  if(memcmp(buf, cmpHeader, sizeof(cmpHeader))) {
+    fprintf(stderr, "[command] aplay err: header error\n");
+    fclose(fp);
+    return -1;
+  }
+  local_sdk_speaker_clean_buf_data();
+  local_sdk_speaker_set_volume(vol);
+  set_pa_mode(3);
+  while(!feof(fp)) {
+    size = fread(buf, 1, 8, fp);
+    if(size <= 0) break;
+    if(size != 8) {
+      fprintf(stderr, "[command] aplay err: chunk header size error %d %x\n", size, ftell(fp));
       fclose(fp);
       return -1;
     }
-    buf[4] = buf[5] = buf[6] = buf[7] = 0;
-    if(memcmp(buf, cmp, waveHeaderLength - 4)) {
-      fprintf(stderr, "[command] aplay err: header error\n");
-      fclose(fp);
-      return -1;
+    int chunkSize = (buf[7] << 24) | (buf[6] << 16) | (buf[5] << 8) | buf[4];
+    if(memcmp(buf, cmpData, sizeof(cmpData))) {
+      fseek(fp, chunkSize, SEEK_CUR);
+      continue;
     }
-    local_sdk_speaker_clean_buf_data();
-    local_sdk_speaker_set_volume(vol);
-    set_pa_mode(3);
-    int chunkSize = (buf[43] << 24) | (buf[42] << 16) | (buf[41] << 8) | buf[40];
     while(!feof(fp) && (chunkSize > 0)) {
       size = fread(buf, 1, bufLength, fp);
       if (size <= 0) break;
@@ -61,19 +74,19 @@ int PlayPCM(char *file, int vol) {
       chunkSize -= size;
       while(local_sdk_speaker_feed_pcm_data(buf, size)) usleep(100 * 1000);
     }
-    fclose(fp);
-    int *params = get_speaker_params();
-    while(1) {
-      int runState = get_speaker_params_run_state();
-      if(runState != 3) break;
-      int buf[3];
-      int stat = IMP_AO_QueryChnStat(params[7], params[8], buf);
-      if(stat || !buf[2]) break;
-      usleep(100 * 1000);
-    }
-    usleep(500 * 1000);
-    set_pa_mode(0);
   }
+  fclose(fp);
+  int *params = get_speaker_params();
+  while(1) {
+    int runState = get_speaker_params_run_state();
+    if(runState != 3) break;
+    int buf[3];
+    int stat = IMP_AO_QueryChnStat(params[7], params[8], buf);
+    if(stat || !buf[2]) break;
+    usleep(100 * 1000);
+  }
+  usleep(500 * 1000);
+  set_pa_mode(0);
   return 0;
 }
 
