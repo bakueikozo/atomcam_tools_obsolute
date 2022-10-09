@@ -20,6 +20,7 @@ flash_copy() {
 
 flash_update() {
   FWGRADEUP=`awk '/FWGRADEUP=/ { gsub(/^.*=/, ""); print $0; }' /dev/mtd7`
+  echo "flash_update: " ${FWGRADEUP} >> /media/mmc/update.log
 
   if [ "${FWGRADEUP}" = "kernel+app" ] ; then
     flash_copy /dev/mtd4 /dev/mtd1

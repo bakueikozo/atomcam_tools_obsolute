@@ -51,7 +51,6 @@ case "$1" in
     mkdir -p /media/mmc/update
     mkdir -p /media/mmc/tmp
     rm -f /media/mmc/tmp/*
-    insmod /atom/system/driver/exfat.ko
   ;;
   stop)
   ;;
