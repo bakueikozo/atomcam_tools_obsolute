@@ -661,7 +661,7 @@
         this.config.TIMELAPSE_COUNT = this.timelapse.count;
         str = parseInt(this.timelapse.startTime.slice(-2)) + ' ';
         str += parseInt(this.timelapse.startTime.slice(0, 2)) + ' * * ';
-        str += this.timelapse.dayOfWeekSelect.sort((a, b) => a - b).reduce((v, d) => v + (v.length ? ':' : '') + d.toString(), '');
+        str += this.timelapse.dayOfWeekSelect.sort((a, b) => a - b).reduce((v, d) => v + (v.length ? ':' : '') + ((d + 1) % 7).toString(), '');
         this.config.TIMELAPSE_SCHEDULE = str;
 
         this.config.CRUISE_LIST = this.cruiseList.reduce((str, cruise) => {
@@ -674,7 +674,7 @@
 
         str = parseInt(this.reboot.startTime.slice(-2)) + ' ';
         str += parseInt(this.reboot.startTime.slice(0, 2)) + ' * * ';
-        str += this.reboot.dayOfWeekSelect.sort((a, b) => a - b).reduce((v, d) => v + (v.length ? ':' : '') + d.toString(), '');
+        str += this.reboot.dayOfWeekSelect.sort((a, b) => a - b).reduce((v, d) => v + (v.length ? ':' : '') + ((d + 1) % 7).toString(), '');
         this.config.REBOOT_SCHEDULE = str;
 
         await axios.post('./cgi-bin/hack_ini.cgi', this.config).catch(err => {
