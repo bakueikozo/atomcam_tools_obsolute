@@ -19,10 +19,13 @@ if [ "$STORAGE_SDCARD_REMOVE" = "on" ] && [ "$STORAGE_SDCARD_REMOVE_DAYS" != "" 
   if [ "$STORAGE_SDCARD" = "on" -o "$STORAGE_SDCARD" = "record" ]; then
     find /media/mmc/record -depth -type f -mtime $STORAGE_SDCARD_REMOVE_DAYS -delete
     find /media/mmc/record -depth -type d -mmin +3 -empty -delete
+  fi
+  if [ "$STORAGE_SDCARD" = "on" -o "$STORAGE_SDCARD" = "record" -o "$STORAGE_SDCARD" = "alarm" ]; then
     find /media/mmc/time_lapse -depth -type f -mtime $STORAGE_SDCARD_REMOVE_DAYS -delete
     find /media/mmc/time_lapse -depth -type d -mmin +3 -empty -delete
   fi
 fi
+find /media/mmc/time_lapse -depth -type f -name '*.h264' -mtime +3 -delete
 
 if [ "$STORAGE_CIFS_REMOVE" = "on" ] && [ "$STORAGE_CIFS_REMOVE_DAYS" != "" ]; then
   if /tmp/system/bin/mount_cifs ; then
@@ -33,6 +36,8 @@ if [ "$STORAGE_CIFS_REMOVE" = "on" ] && [ "$STORAGE_CIFS_REMOVE_DAYS" != "" ]; t
     if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "record" ] ; then
       find /atom/mnt/$HOSTNAME/record -depth -type f -mtime +$STORAGE_CIFS_REMOVE_DAYS -delete
       find /atom/mnt/$HOSTNAME/record -depth -type d -mmin +3 -empty -delete
+    fi
+    if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "record" -o "$STORAGE_CIFS" = "alarm" ] ; then
       find /atom/mnt/$HOSTNAME/time_lapse -depth -type f -mtime +$STORAGE_CIFS_REMOVE_DAYS -delete
       find /atom/mnt/$HOSTNAME/time_lapse -depth -type d -mmin +3 -empty -delete
     fi

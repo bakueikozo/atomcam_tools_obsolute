@@ -11,7 +11,7 @@ if [ "$1" = "finish" ] ; then
   STORAGE_SDCARD=$(awk -F "=" '/STORAGE_SDCARD *=/ {print $2}' $HACK_INI)
   WEBHOOK_TIMELAPSE_FINISH=$(awk -F "=" '/WEBHOOK_TIMELAPSE_FINISH *=/ {print $2}' $HACK_INI)
   (
-    if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "record" ] && /scripts/mount_cifs.sh ; then
+    if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "record" -o "$STORAGE_CIFS" = "alarm" ] && /scripts/mount_cifs.sh ; then
       CIFSFILE="time_lapse/${2##*/}"
       OUTFILE="/atom/mnt/$HOSTNAME/$CIFSFILE"
       DIR_PATH=${OUTFILE%/*}
@@ -20,7 +20,7 @@ if [ "$1" = "finish" ] ; then
       STORAGE=", \"cifsFile\":\"${CIFSFILE}\""
     fi
 
-    if [ "$STORAGE_SDCARD" = "on" -o "$STORAGE_SDCARD" = "record" ]; then
+    if [ "$STORAGE_SDCARD" = "on" -o "$STORAGE_SDCARD" = "record" -o "$STORAGE_SDCARD" = "alarm" ]; then
       STORAGE="${STORAGE}, \"sdcardFile\":\"${2##*media/mmc/}\""
     else
       rm $2
