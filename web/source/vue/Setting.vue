@@ -70,7 +70,7 @@
       <SettingInput v-if="storage_sdcard" i18n="recording.SDCard.savePath" :titleOffset="2" :span="10" type="text" v-model="config.STORAGE_SDCARD_PATH" @input="FixPath('STORAGE_SDCARD_PATH')" />
       <SettingSwitch v-if="storage_sdcard" i18n="recording.SDCard.automaticDeletion" :titleOffset="2" v-model="config.STORAGE_SDCARD_REMOVE" />
       <SettingInput v-if="storage_sdcard && config.STORAGE_SDCARD_REMOVE === 'on'" i18n="recording.SDCard.daysToKeep" :titleOffset="2" :span="3" type="number" v-model="config.STORAGE_SDCARD_REMOVE_DAYS" :min="1" />
-      <SettingButton v-if="storage_sdcard" i18n="recording.SDCard.seeAllFiles" :titleOffset="2" :span="3">
+      <SettingButton v-if="storage_sdcard" i18n="recording.SDCard.seeAllFiles" :span="4">
         <a href="/sdcard" target="_blank" class="el-button el-button--primary el-button--mini link-button">SD Card</a>
       </SettingButton>
 

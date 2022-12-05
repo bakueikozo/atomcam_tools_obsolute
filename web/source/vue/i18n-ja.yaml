@@ -45,7 +45,7 @@ recording:
       title: 保存日数
       tooltip: 指定日数後に削除します
     seeAllFiles:
-      title: ファイル一覧
+      title: SD-Cardファイル表示
       tooltip: SD-Card内のファイルを表示します
 
   NAS:
