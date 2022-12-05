@@ -13,15 +13,15 @@ HOSTNAME=`hostname`
 
 if [ "$STORAGE_SDCARD_REMOVE" = "on" ] && [ "$STORAGE_SDCARD_REMOVE_DAYS" != "" ]; then
   if [ "$STORAGE_SDCARD" = "on" -o "$STORAGE_SDCARD" = "alarm" ]; then
-    find /media/mmc/alarm_record -depth -type f -mtime $STORAGE_SDCARD_REMOVE_DAYS -delete
+    find /media/mmc/alarm_record -depth -type f -mtime +$STORAGE_SDCARD_REMOVE_DAYS -delete
     find /media/mmc/alarm_record -depth -type d -mmin +3 -empty -delete
   fi
   if [ "$STORAGE_SDCARD" = "on" -o "$STORAGE_SDCARD" = "record" ]; then
-    find /media/mmc/record -depth -type f -mtime $STORAGE_SDCARD_REMOVE_DAYS -delete
+    find /media/mmc/record -depth -type f -mtime +$STORAGE_SDCARD_REMOVE_DAYS -delete
     find /media/mmc/record -depth -type d -mmin +3 -empty -delete
   fi
   if [ "$STORAGE_SDCARD" = "on" -o "$STORAGE_SDCARD" = "record" -o "$STORAGE_SDCARD" = "alarm" ]; then
-    find /media/mmc/time_lapse -depth -type f -mtime $STORAGE_SDCARD_REMOVE_DAYS -delete
+    find /media/mmc/time_lapse -depth -type f -mtime +$STORAGE_SDCARD_REMOVE_DAYS -delete
     find /media/mmc/time_lapse -depth -type d -mmin +3 -empty -delete
   fi
 fi
