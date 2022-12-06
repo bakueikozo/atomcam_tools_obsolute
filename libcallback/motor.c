@@ -67,7 +67,7 @@ char *MotorMove(int fd, char *tokenPtr) {
   if(pri < 0) pri = 0;
   if(pri > 3) pri = 3;
 
-  if(MotorFd) return "error";
+  if(MotorFd) CommandResponse(MotorFd, "error : multiple request error");
   MotorFd = fd;
 
   if(hflip) pan = 355.0 - pan;
