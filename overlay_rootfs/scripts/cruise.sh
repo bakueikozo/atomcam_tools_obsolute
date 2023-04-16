@@ -46,7 +46,7 @@ while : ; do
         fi
         set $motion
         if [ "$1" = "detect" ] ; then
-          echo "move $6 $7"
+          echo "detect move $6 $7"
           echo "move $6 $7" | /usr/bin/nc localhost 4000
         fi
         wait=${param##* }

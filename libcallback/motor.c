@@ -17,7 +17,12 @@ static void motor_move_done(float pan, float tilt) {
 
   if(MotorFd) {
     static char motorResBuf[256];
-    sprintf(motorResBuf, "%f %f\n", pan, tilt);
+    int vflip, hflip;
+    IMP_ISP_Tuning_GetISPHflip(&hflip);
+    IMP_ISP_Tuning_GetISPVflip(&vflip);
+    if(hflip) pan = 355.0 - pan;
+    if(vflip) tilt = 180.0 - tilt;
+    sprintf(motorResBuf, "%f %f %d %d\n", pan, tilt, hflip, vflip);
     CommandResponse(MotorFd, motorResBuf);
   }
   MotorFd = 0;

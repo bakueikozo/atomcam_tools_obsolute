@@ -494,13 +494,8 @@
           const pan = Math.round(parseFloat(pos[0]));
           const tilt = Math.round(parseFloat(pos[1]));
           this.posValid = true;
-          if(this.moved) {
-            this.moved = false;
-            if((pan !== this.pan) || (tilt !== this.tilt)) this.Move();
-          } else {
-            this.pan = pan;
-            this.tilt = tilt;
-          }
+          this.pan = pan;
+          this.tilt = tilt;
         }
         if(this.intervalValue.TIMELAPSE) {
           const count = this.intervalValue.TIMELAPSE.replace(/^.*count:/, '').split(/\//);
@@ -519,10 +514,7 @@
     methods: {
       async Move() {
         if(!this.posValid) return;
-        this.moving = true;
         await this.Exec(`move ${this.pan} ${this.tilt}`, 'socket');
-        this.moving = false;
-        this.moved = true;
         this.StillImageInterval();
         if(this.moveTimeout) clearTimeout(this.moveTimeout);
         this.moveTimeout = setTimeout(() => {

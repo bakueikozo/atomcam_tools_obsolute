@@ -41,7 +41,7 @@ else
   USER_CONFIG=/atom/configs/.user_config
   SSID=$(awk -F "=" '/\[NET\]/ { f = 1; } /ssid=/ {if(!f) next; gsub(/\/$/, "", $2); print $2}' $USER_CONFIG)
   PSK=$(awk -F "=" '/\[NET\]/ { f = 1; } /password=/ {if(!f) next; gsub(/\/$/, "", $2); print $2}' $USER_CONFIG)
-  cat > //tmp/system/etc/wpa_supplicant.conf << EOF
+  cat > /tmp/system/etc/wpa_supplicant.conf << EOF
 ctrl_interface=/var/run/wpa_supplicant
 update_config=1
 network={
