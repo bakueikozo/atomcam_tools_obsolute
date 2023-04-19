@@ -59,17 +59,17 @@ int local_sdk_video_osd_update_rect(int ch, int display, struct RectInfoSt *rect
         int ret = local_sdk_motor_get_position(&pan, &tilt);
         static char waitMotionResBuf[256];
         if(!ret) {
+          int vflip, hflip;
+          IMP_ISP_Tuning_GetISPHflip(&hflip);
+          IMP_ISP_Tuning_GetISPVflip(&vflip);
+          if(hflip) pan = 355.0 - pan;
+          if(vflip) tilt = 180.0 - tilt;
           pan += (rectInfo->left + rectInfo->right - 320 * 2) * 85 / (2 * 640);
           if(pan < 0.0) pan = 0.0;
           if(pan > 355.0) pan = 355;
           tilt -= (rectInfo->top + rectInfo->bottom - 180 * 2) * 55 / (2 * 360);
           if(tilt < 45.0) tilt = 45.0;
           if(tilt > 180.0) tilt = 180.0;
-          int vflip, hflip;
-          IMP_ISP_Tuning_GetISPHflip(&hflip);
-          IMP_ISP_Tuning_GetISPVflip(&vflip);
-          if(hflip) pan = 355.0 - pan;
-          if(vflip) tilt = 180.0 - tilt;
           sprintf(waitMotionResBuf, "detect %d %d %d %d %d %d\n",
             rectInfo->left, rectInfo->right, rectInfo->top, rectInfo->bottom, lroundf(pan), lroundf(tilt));
         } else {
