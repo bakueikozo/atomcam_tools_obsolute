@@ -2,9 +2,9 @@
 
 # ex.
 # CRUISE_LIST="move 180 90;detect 10 10;move 210 90;follow 10 10;move 240 90;sleep 10;"
-#    move <pan> <tilt> Point the camera.
+#    move <pan> <tilt> [<speed>] Point the camera.
 #    detect <wait> <timeout>  If an object is detected, wait.
-#    follow <wait> <timeout>  If an object is detected, follow it.
+#    follow <wait> <timeout> [<speed>] If an object is detected, follow it.
 #    sleep <wait>  Sleep.
 
 HACK_INI=/tmp/hack.ini
@@ -37,19 +37,23 @@ while : ; do
       done
     fi
     if [ "$cmd" = "follow" ] ; then
-      wait=${param%% *}
+      IFS=" "
+      set $param
+      wait=$1
+      wait2=$2
+      speed=$3
+      [ "$speed" = "" ] && speed=9
       while : ; do
-        IFS=" "
         motion=`echo "waitMotion $wait" | /usr/bin/nc localhost 4000`
         if [ "$motion" = "timeout" ] ; then
           break;
         fi
         set $motion
         if [ "$1" = "detect" ] ; then
-          echo "detect move $6 $7"
-          echo "move $6 $7" | /usr/bin/nc localhost 4000
+          echo "detect move $6 $7 $speed"
+          echo "move $6 $7 $speed" | /usr/bin/nc localhost 4000
         fi
-        wait=${param##* }
+        wait=$wait2
       done
       IFS=";"
     fi

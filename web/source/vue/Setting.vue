@@ -429,6 +429,7 @@
           array.push({
             pan: parseInt(args[1]),
             tilt: parseInt(args[2]),
+            speed: parseInt(args[3] ?? '9'),
           });
           return array;
         }
@@ -437,6 +438,7 @@
         if(['detect', 'follow', 'sleep'].indexOf(args[0]) < 0) return array;
         last.wait = parseInt(args[1]);
         last.timeout = parseInt(args[2]);
+        last.followingSpeed = parseInt(args[3] ?? '9');
         last.detect = true;
         last.follow = true;
         if(args[0] === 'follow') return array;
@@ -555,8 +557,10 @@
         this.cruiseList.push({
           pan: this.pan,
           tilt: this.tilt,
+          speed: 9,
           wait: 10,
           timeout: 10,
+          followingSpeed: 9,
           detect: false,
           follow: false,
         });
@@ -657,9 +661,12 @@
         this.config.TIMELAPSE_SCHEDULE = str;
 
         this.config.CRUISE_LIST = this.cruiseList.reduce((str, cruise) => {
-          str += `move ${cruise.pan} ${cruise.tilt};`;
+          str += `move ${cruise.pan} ${cruise.tilt} ${cruise.speed};`;
           const waitMode = cruise.detect ? (cruise.follow ? 'follow' : 'detect') : 'sleep';
-          str += `${waitMode} ${cruise.wait} ${cruise.timeout};`;
+          str += `${waitMode} ${cruise.wait}`;
+          if(waitMode !== 'sleep')  str += ` ${cruise.timeout}`;
+          if(waitMode === 'follow')  str += ` ${cruise.followingSpeed}`;
+          str += ';';
           return str;
         }, '');
         this.ClearCruiseSelect();

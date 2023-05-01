@@ -4,15 +4,19 @@
       <div class="well cruise" :class="{ selected: selected }">
         <ElTooltip :tabindex="-1" placement="top" :content="$t('cruise.direction.tooltip')" effect="light" :open-delay="500">
           <ElRow>
-            <ElCol :span="10">
+            <ElCol :span="7">
               <span v-t="'cruise.direction.pan'" />
               <ElInputNumber v-model="innerValue.pan" :min="0" :max="355" :step="5" :precision="0" size="mini" @input="Pan" />
             </ElCol>
-            <ElCol :span="10">
+            <ElCol :span="7">
               <span v-t="'cruise.direction.tilt'" />
               <ElInputNumber v-model="innerValue.tilt" :min="0" :max="180" :step="5" :precision="0" size="mini" @input="Tilt" />
             </ElCol>
-            <ElCol :offset="3" :span="1">
+            <ElCol :span="9">
+              <span v-t="'cruise.direction.speed'" />
+              <ElInputNumber v-model="innerValue.speed" :min="1" :max="9" :step="1" :precision="0" size="mini" @input="Submit" />
+            </ElCol>
+            <ElCol :span="1">
               <ElButton class="list-button" type="text" size="small" circle icon="el-icon-minus" @click="$emit('remove', $event)" />
             </ElCol>
           </ElRow>
@@ -49,7 +53,15 @@
               <span v-t="'cruise.waitAfterDetect.unit'" />
             </ElCol>
           </ElTooltip>
-          <ElCol :offset="9" :span="1">
+          <div v-if="innerValue.follow">
+            <ElTooltip :tabindex="-1" placement="top" :content="$t('cruise.followingSpeed.tooltip')" effect="light" :open-delay="500">
+              <ElCol :span="9">
+                <span v-t="'cruise.followingSpeed.title'" />
+                <ElInputNumber v-model="innerValue.followingSpeed" :min="1" :max="9" :step="1" :precision="0" size="mini" @input="Submit" />
+              </ElCol>
+            </ElTooltip>
+          </div>
+          <ElCol :offset="innerValue.follow ? 0 : 9" :span="1">
             <ElButton class="list-button" type="text" size="small" circle icon="el-icon-plus" @click.stop="$emit('add', $event)" />
           </ElCol>
         </ElRow>
@@ -134,5 +146,12 @@
     padding: 0;
     text-alin:right;
     float:right;
+  }
+  .speed-slider {
+    width: 100%;
+  }
+  .el-input-number.el-input-number--mini {
+    width: 100px;
+    line-height: 24px;
   }
 </style>

@@ -189,9 +189,10 @@ cruise:
     title: クルーズ動作
     tooltip: クルーズ軌道を設定し、巡回動作をします
   direction:
-    tooltip: カメラの向きを設定。jpeg windowでも調整できます
+    tooltip: カメラの向きと移動速度を設定。jpeg windowでも調整できます
     pan: pan
     tilt: tilt
+    speed: 速度
   waitAfterMotion:
     title: 動作後待機時間
     unit: 秒
@@ -206,7 +207,9 @@ cruise:
     title: 検知後待機時間
     unit: 秒
     tooltip: 動体検知終了後の待機時間を設定します
-
+  followingSpeed:
+    title: 追尾速度
+    tooltip: 追尾時の速度です。9が高速、1が低速です。
 
 monitoring:
   title: モニタリング

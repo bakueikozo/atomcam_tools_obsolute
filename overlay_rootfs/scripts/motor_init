@@ -1,8 +1,8 @@
 #!/bin/sh
 
-# move [<pan(0-355 deg)> <tilt(0-180 deg)> [<pri 0:top, 1:high, 2:normal, 3:weak>]]
+# move [<pan(0-355 deg)> <tilt(0-180 deg)> [<speed(low:1-high:9)> [<pri(0:top-3:weak)>]]]
 # move -> <pan(deg)> <tilt(deg)>
 pos=`/scripts/cmd move`
-/scripts/cmd move 0 0 1
-/scripts/cmd move 355 180 1
-/scripts/cmd move $pos 1
+/scripts/cmd move 0 0 9 1
+/scripts/cmd move 355 180 9 1
+/scripts/cmd move $pos 9 1

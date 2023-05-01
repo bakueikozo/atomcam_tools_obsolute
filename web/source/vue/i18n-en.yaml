@@ -189,9 +189,10 @@ cruise:
     title: Camera Motion
     tooltip: Make a full circuit cruise.
   direction:
-    tooltip: Set the camera direction. You can confirm it using the jpeg window.
+    tooltip: Set the camera direction and speed. You can confirm it using the jpeg window.
     pan: pan
     tilt: tilt
+    speed: speed
   waitAfterMotion:
     title: waiting period after motion
     unit: sec
@@ -206,6 +207,9 @@ cruise:
     title: waiting after detect
     unit: sec
     tooltip: Set the amount of time to wait in position after motion is detected.
+  followingSpeed:
+    title: speed
+    tooltip: 'Set the following speed.(1: low speed, 9: high speed)'
 
 
 monitoring:

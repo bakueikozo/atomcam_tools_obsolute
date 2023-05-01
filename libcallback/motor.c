@@ -60,11 +60,19 @@ char *MotorMove(int fd, char *tokenPtr) {
   }
   float pan = atof(p); // 0-355
   if((pan < 0.0) || (pan > 355.0)) return "error";
+  if(hflip) pan = 355.0 - pan;
 
   p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   if(!p) return "error";
   float tilt = atof(p); // 0-180
   if((tilt < 0.0) || (tilt > 180.0)) return "error";
+  if(vflip) tilt = 180.0 - tilt;
+
+  p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+  int speed = 9; // 1: low - 9: high speed
+  if(p) speed = atoi(p);
+  if(speed < 1) speed = 1;
+  if(speed > 9) speed = 9;
 
   p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   int pri = 2; // 0: high - 3: low
@@ -75,10 +83,6 @@ char *MotorMove(int fd, char *tokenPtr) {
   if(MotorFd) CommandResponse(MotorFd, "error : multiple request error");
   MotorFd = fd;
 
-  if(hflip) pan = 355.0 - pan;
-  if(vflip) tilt = 180.0 - tilt;
-
-  int speed = 9;
   int res = local_sdk_motor_move_abs_angle(pan, tilt, speed, &motor_move_done, &motor_move_canceled, pri);
   return NULL;
 }
