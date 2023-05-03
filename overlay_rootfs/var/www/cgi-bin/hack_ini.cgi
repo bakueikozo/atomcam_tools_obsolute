@@ -1,7 +1,7 @@
 #!/bin/sh
 
 echo "Cache-Control: no-cache"
-echo "Content-Type: plain/text"
+echo "Content-Type: text/plain"
 echo ""
 
 if [ "$REQUEST_METHOD" = "POST" ]; then
