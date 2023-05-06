@@ -10,6 +10,7 @@
 
 extern void CommandResponse(int fd, const char *res);
 extern int local_sdk_motor_get_position(float *step,float *angle);
+extern int IMP_ISP_Tuning_GetISPHflip(int *pmode);
 extern int MotorFd;
 extern struct timeval MotorLastMovedTime;
 
