@@ -40,6 +40,11 @@ BEGIN {
 /\[aiAlgo\] start/ {
   if(ENV["WEBHOOK_ALARM_EVENT"] == "on") Post("alarmEvent");
 }
+
+/alarm_event_handle.*timestamp/ {
+  if(ENV["WEBHOOK_ALARM_EVENT"] == "on") Post("alarmEvent");
+}
+
 /\[aiAlgo\] call_TD_Human_Pet_Predict/ {
   gsub(/^.*Predict \[off:[0-9]*\] /, "");
   gsub(/tm:/, "");
@@ -49,6 +54,12 @@ BEGIN {
   gsub(/\]/, "");
   if(ENV["WEBHOOK_ALARM_INFO"] == "on") Post("recognitionNotify", "\"" $0 "\"");
 }
+
+/alarm_event_handle.*alarmType/ {
+  gsub(/^.*alarmType:/, "");
+  if(ENV["WEBHOOK_ALARM_INFO"] == "on") Post("recognitionNotify", "\"" $0 "\"");
+}
+
 /\[webhook\] time_lapse_event/ {
   gsub(/^.*time_lapse_event /, "");
   if(ENV["WEBHOOK_TIMELAPSE_EVENT"] == "on") Post("timelapseEvent", "\"" $0 "\"");
