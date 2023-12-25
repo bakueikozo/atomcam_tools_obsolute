@@ -29,4 +29,13 @@ cd /atomtools/build/buildroot-2016.02
 make clean
 make host-uboot-tools
 make dosfstools-init
-make `make show-targets`
+for i in `make show-targets`
+do
+  echo "=== $i ==="
+  make $i || {
+    echo "XXXX $i XXXX"
+    break;
+  }
+done
+# toolchain-buildroot toolchain alsa-lib alsa-utils atbm_wifi avahi bash busybox cifs-utils dbus dosfstools-init e2fsprogs host-e2fsprogs expat ffmpeg file findutils freetype fnext2fs glibc h264bitstream htop ingenic_videocap initscripts jpeg lame libcurl libdaemon libevent libffi libjpeg libnl lighttpd linux-headers live555 log4cpp logrotate lsof micropython-lib micropython host-mke2img host-mtd nano ncurses nss-mdns openssh openssl host-patchelf pcre popt python readline rtl8189es_linux samba4 skeleton sudo host-uboot-tools util-linux v4l2cpp v4l2loopback v4l2rtspserver wpa_supplicant xz zlib linux host-mke2img host-fakeroot host-makedevs host-mkpasswd rootfs-ext2
+

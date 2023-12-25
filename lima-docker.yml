@@ -1,13 +1,21 @@
-arch: default
+
+vmType: "vz"
+
+rosetta:
+  # Enable Rosetta for Linux.
+  # Hint: try `softwareupdate --install-rosetta` if Lima gets stuck at `Installing rosetta...`
+  enabled: true
+  # Register rosetta to /proc/sys/fs/binfmt_misc
+  binfmt: true
 
 images:
-  - location: "https://cloud-images.ubuntu.com/releases/21.10/release/ubuntu-21.10-server-cloudimg-amd64.img"
-    arch: "x86_64"
-  - location: "https://cloud-images.ubuntu.com/releases/21.10/release/ubuntu-21.10-server-cloudimg-arm64.img"
-    arch: "aarch64"
+- location: "https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-amd64.img"
+  arch: "x86_64"
+- location: "https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-arm64.img"
+  arch: "aarch64"
 
 cpus: 4
-memory: "4GiB"
+memory: "8GiB"
 disk: "30GiB"
 
 mounts:
@@ -15,6 +23,7 @@ mounts:
     writable: true
   - location: "/tmp/lima"
     writable: true
+mountType: "virtiofs"
 
 containerd:
   system: false
@@ -32,32 +41,31 @@ provision:
       command -v docker >/dev/null 2>&1 && exit 0
       export DEBIAN_FRONTEND=noninteractive
       curl -fsSL https://get.docker.com | sh
-      apt install -y docker-compose qemu-system-x86 binfmt-support qemu-user qemu-user-static
-  - mode: system
-    script: |
-      #!/bin/bash
-      set -eux -o pipefail
-      mkdir -p /etc/systemd/system/docker.service.d/
-      cat <<EOF > /etc/systemd/system/docker.service.d/override.conf
-      [Service]
-      ExecStart=
-      ExecStart=/usr/bin/dockerd -H tcp://127.0.0.1:2375
+      apt install -y docker-compose
+      if [ ! -e /etc/systemd/system/docker.socket.d/override.conf ]; then
+        mkdir -p /etc/systemd/system/docker.service.d/
+        cat <<-EOF > /etc/systemd/system/docker.service.d/override.conf
+        [Service]
+        ExecStart=
+        ExecStart=/usr/bin/dockerd -H tcp://127.0.0.1:2375
       EOF
+      fi
       systemctl daemon-reload
       systemctl restart docker
 
 probes:
-  - mode: readiness
-    description: docker to be installed
-    script: |
-      #!/bin/bash
-      set -eux -o pipefail
-      if ! timeout 30s bash -c "until command -v docker >/dev/null 2>&1; do sleep 3; done"; then
-        echo >&2 "docker is not installed yet"
-        exit 1
-      fi
-    hint: See "/var/log/cloud-init-output.log". in the guest
-
+- script: |
+    #!/bin/bash
+    set -eux -o pipefail
+    if ! timeout 30s bash -c "until command -v docker >/dev/null 2>&1; do sleep 3; done"; then
+      echo >&2 "docker is not installed yet"
+      exit 1
+    fi
+    if ! timeout 30s bash -c "until pgrep dockerd; do sleep 3; done"; then
+      echo >&2 "dockerd is not running"
+      exit 1
+    fi
+  hint: See "/var/log/cloud-init-output.log". in the guest
 hostResolver:
   hosts:
     host.docker.internal: host.lima.internal
