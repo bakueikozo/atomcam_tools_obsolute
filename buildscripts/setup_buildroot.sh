@@ -27,12 +27,11 @@ fi
 # Start the build process
 cd /atomtools/build/buildroot-2016.02
 make clean
-make host-uboot-tools
-make dosfstools-init
-for i in `make show-targets`
+for i in host-uboot-tools dosfstools-init `make show-targets`
 do
   echo "=== $i ==="
-  make $i || {
+  make $i > make_$i.log 2>&1 || {
+    cat make_$i.log
     echo "XXXX $i XXXX"
     break;
   }

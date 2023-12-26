@@ -48,6 +48,7 @@ provision:
         [Service]
         ExecStart=
         ExecStart=/usr/bin/dockerd -H tcp://127.0.0.1:2375
+        Environment="BUILDKIT_STEP_LOG_MAX_SIZE=134217728"
       EOF
       fi
       systemctl daemon-reload
