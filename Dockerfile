@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM --platform=linux/x86_64 ubuntu:16.04
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -28,8 +28,8 @@ RUN \
 RUN locale-gen --no-purge en_US.UTF-8
 ENV LANG="en_US.UTF-8" LANGUAGE="en_US:en" LC_ALL="en_US.UTF-8" PATH="$PATH:/usr/local/node/bin"
 WORKDIR "/usr/local"
-RUN curl -o - https://nodejs.org/dist/v20.10.0/node-v20.10.0-linux-x64.tar.xz | tar Jxvf - && \
-  ln -s /usr/local/node-v20.10.0-linux-x64 /usr/local/node
+RUN curl -o - https://nodejs.org/dist/v16.20.2/node-v16.20.2-linux-x64.tar.xz | tar Jxvf - && \
+  ln -s /usr/local/node-v16.20.2-linux-x64 /usr/local/node
 
 RUN mkdir -p /atomtools/build
 WORKDIR "/atomtools/build"
