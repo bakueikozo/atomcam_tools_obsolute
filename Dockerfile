@@ -1,4 +1,4 @@
-FROM --platform=linux/x86_64 ubuntu:16.04
+FROM ubuntu:16.04
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -23,7 +23,14 @@ RUN \
   nfs-kernel-server \
   curl \
   python3 \
-  python-lzma
+  python-lzma \
+  flex \
+  texinfo \
+  help2man \
+  gawk \
+  libtool-bin \
+  sudo \
+  bison
 
 RUN locale-gen --no-purge en_US.UTF-8
 ENV LANG="en_US.UTF-8" LANGUAGE="en_US:en" LC_ALL="en_US.UTF-8" PATH="$PATH:/usr/local/node/bin"

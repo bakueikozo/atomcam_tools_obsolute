@@ -17,12 +17,26 @@ cp /src/configs/busybox.config package/busybox
 make atomcam_defconfig
 
 # mipsel-gcc for uLibc
-cd /atomtools/build
-if [ ! -d mips-gcc472-glibc216-64bit ] ; then
-  git clone https://github.com/Dafang-Hacks/mips-gcc472-glibc216-64bit.git --depth 1
-  cd mips-gcc472-glibc216-64bit
-  patch -p1 < /src/patches/linux_uclibc_hevc.patch
-fi
+CROSS_TOOLS=crosstool-ng-1.26.0
+useradd -m cross
+mkdir -p /atomtools/build/cross/mips-uclibc
+mkdir -p /atomtools/build/cross/src
+mkdir -p /atomtools/build/cross/src/work
+chown -R cross:cross /atomtools/build/cross
+cd /atomtools/build/cross/src
+curl http://crosstool-ng.org/download/crosstool-ng/${CROSS_TOOLS}.tar.xz | tar Jxvf -
+cd ${CROSS_TOOLS}
+./configure --prefix=/atomtools/build/cross/tools
+make
+make install
+
+cd /atomtools/build/cross/src/work
+cp /src/configs/crosstools_config .config
+chown cross:cross .config
+sudo -u cross /atomtools/build/cross/tools/bin/ct-ng build
+
+cd /atomtools/build/cross/mips-uclibc/mipsel-ingenic-linux-uclibc/sysroot
+patch -p1 < /src/patches/linux_uclibc_hevc.patch
 
 # Start the build process
 cd /atomtools/build/buildroot-2016.02

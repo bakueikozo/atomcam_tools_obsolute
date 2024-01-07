@@ -9,8 +9,9 @@ cd $BUILD_DIR
 git clone https://github.com/tinyalsa/tinyalsa.git -b v2.0.0 --depth 1
 cd tinyalsa
 patch -p1 -N < /src/patches/tinyalsa/tinyalsa.patch
-export CROSS_COMPILE="/atomtools/build/mips-gcc472-glibc216-64bit/bin/mips-linux-uclibc-gnu-"
-export DESTDIR=/atomtools/build/mips-gcc472-glibc216-64bit/mips-linux-gnu/libc/uclibc
+export CROSS_BASE=/atomtools/build/cross/mips-uclibc
+export CROSS_COMPILE=${CROSS_BASE}/bin/mipsel-ingenic-linux-uclibc-
+export DESTDIR=${CROSS_BASE}//mipsel-ingenic-linux-uclibc/sysroot
 export PREFIX=/usr
 export CFLAGS="-std=gnu99 -msoft-float"
 make install
