@@ -38,6 +38,20 @@ sudo -u cross /atomtools/build/cross/tools/bin/ct-ng build
 cd /atomtools/build/cross/mips-uclibc/mipsel-ingenic-linux-uclibc/sysroot
 patch -p1 < /src/patches/linux_uclibc_hevc.patch
 
+# nodejs
+NODEVER=v16.20.2
+NODEARCH=`uname -m` # x64 or arm64
+[ "$NODEARCH" = "aarch64" ] && NODEARCH="arm64"
+[ "$NODEARCH" = "x86_64" ] && NODEARCH="x64"
+locale-gen --no-purge en_US.UTF-8
+export LANG="en_US.UTF-8"
+export LANGUAGE="en_US:en"
+export LC_ALL="en_US.UTF-8"
+cd /usr/local
+
+curl https://nodejs.org/dist/${NODEVER}/node-${NODEVER}-linux-${NODEARCH}.tar.xz | tar Jxvf -
+ln -s /usr/local/node-${NODEVER}-linux-${NODEARCH} /usr/local/node
+
 # Start the build process
 cd /atomtools/build/buildroot-2016.02
 make clean
