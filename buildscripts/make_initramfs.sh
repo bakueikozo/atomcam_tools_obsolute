@@ -13,6 +13,9 @@ fi
 
 echo "=== build initramfs ==="
 
+[ -f $BASE_DIR/staging/sbin/fsck.fat ] || make dosfstools-init
+[ -f $BASE_DIR/host/usr/bin/mkimage ] || make host-uboot-tools
+
 ROOTFS_DIR=$1/initramfs_root
 rm -rf $ROOTFS_DIR
 mkdir -p $ROOTFS_DIR

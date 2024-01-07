@@ -17,3 +17,6 @@ docker-build:
 login:
 	docker-compose ls | grep atomcam_tools > /dev/null || docker-compose up -d
 	docker-compose exec builder bash
+
+lima:
+	[ `uname -s` = "Darwin" ] && limactl start lima-docker.yml

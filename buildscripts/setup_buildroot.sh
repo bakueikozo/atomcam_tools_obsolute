@@ -15,6 +15,7 @@ patch -p1 < /src/patches/linux_makefile.patch
 cp /src/configs/atomcam_defconfig configs/
 cp /src/configs/busybox.config package/busybox
 make atomcam_defconfig
+cp .config /src/configs/atomcam_defconfig
 
 # mipsel-gcc for uLibc
 CROSS_TOOLS=crosstool-ng-1.26.0
@@ -55,7 +56,7 @@ ln -s /usr/local/node-${NODEVER}-linux-${NODEARCH} /usr/local/node
 # Start the build process
 cd /atomtools/build/buildroot-2016.02
 make clean
-for i in host-uboot-tools dosfstools-init `make show-targets`
+for i in `make show-targets`
 do
   echo `date '+%H:%M:%S'` "=== $i ==="
   make $i > make_$i.log 2>&1 || {
