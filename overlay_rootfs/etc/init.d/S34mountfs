@@ -3,8 +3,8 @@
 # Start webhook for atomcam
 #
 #
-# /atom          : squashfs  /dev/mtdblock2  (SPI Flash)
-# /atom/system   : squashfs  /var/atom_root.squashfs (copy from /dev/mtdblock3 : SPI Flash)
+# /atom          : squashfs  /var/atom_root.squashfs (copy from /dev/mtdblock2 : SPI Flash)
+# /atom/system   : squashfs  /dev/mtdblock3  (SPI Flash)
 # /atom/configs  : ext2      /media/mmc/configs copy from /dev/mtdblock6(jffs2)
 # ---- The following are bind mounts ----
 # /atom/run -> /run
@@ -19,7 +19,6 @@
 
 case "$1" in
   start)
-    mkdir -p /atom
     ss=`ls -l /var/atom_root.squashfs | awk '{print $5}'`
     [ "$ss" = "3997696" ] || dd if=/dev/mtdblock2 of=/var/atom_root.squashfs bs=16k count=244
     mount -t squashfs /var/atom_root.squashfs /atom

@@ -4,6 +4,11 @@
 rm -f $TARGET_DIR/etc/init.d/S40network
 rm -f $TARGET_DIR/etc/init.d/S50sshd
 
+#add mount-point
+mkdir -p $TARGET_DIR/media/mmc
+mkdir -p $TARGET_DIR/atom
+mkdir -p $TARGET_DIR/configs
+
 # tinyalsa
 cd $BUILD_DIR
 git clone https://github.com/tinyalsa/tinyalsa.git -b v2.0.0 --depth 1

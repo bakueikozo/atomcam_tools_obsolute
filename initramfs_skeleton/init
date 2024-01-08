@@ -39,13 +39,9 @@ fi
 
 mkdir -p /newroot
 mount -t ext2 -o loop /sdcard/rootfs_hack.ext2 /newroot
-mkdir -p /newroot/dev
-mkdir -p /newroot/sys
-
 mount --move /dev /newroot/dev
 mount --move /sys /newroot/sys
 mount --move /proc /newroot/proc
-mkdir -p /newroot/media/mmc
 mount --move /sdcard /newroot/media/mmc
 
 exec busybox switch_root /newroot /sbin/init

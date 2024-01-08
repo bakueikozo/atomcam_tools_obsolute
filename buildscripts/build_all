@@ -1,10 +1,5 @@
 #!/bin/sh
 
-if ! cmp /src/configs/atomcam_defconfig .config > /dev/null ; then
-  cp /src/configs/atomcam_defconfig .config
-  make oldconfig
-fi
-
 # build kernel and rootfs
 cd /atomtools/build/buildroot-2016.02/output
 rm -rf target
