@@ -3,7 +3,7 @@
 # for continuous recording file
 #
 
-if [ "${1%/*.mp4}" != "/media/mmc/tmp" ] || [ "${2##/media/mmc/record/*.mp4}" != "" ] ; then
+if [ "${1%/*.mp4}" != "/tmp" ] || [ "${2##/media/mmc/record/*.mp4}" != "" ] ; then
   /bin/busybox ${0##*/} $*
   exit
 fi
@@ -70,7 +70,7 @@ else
 fi
 
 if [ "$FMT" != "" ]; then
-  TMPFILE="/media/mmc/tmp/mv_`cat /proc/sys/kernel/random/uuid`"
+  TMPFILE="/tmp/mv_`cat /proc/sys/kernel/random/uuid`"
   /bin/busybox mv $1 $TMPFILE
   (
     if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "record" ] && /tmp/system/bin/mount_cifs ; then
