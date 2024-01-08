@@ -2,6 +2,8 @@
 
 [ -f /etc/samba/smb.conf ] || exit 0
 mkdir -p /var/log/samba
+mkdir -p /tmp/samba/lib/private
+mount -o bind /tmp/samba/lib /var/lib/samba
 
 case "$1" in
   start)

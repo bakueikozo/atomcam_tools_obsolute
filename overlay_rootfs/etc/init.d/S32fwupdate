@@ -36,7 +36,7 @@ flash_update() {
     flash_copy /dev/mtd5 /dev/mtd2
     [ $? != 0 ] && return
     flash_eraseall /dev/mtd7
-    rm -f /var/atom_root.squashfs
+    rm -f /media/mmc/atom_root.squashfs
   fi
 
   if [ "${FWGRADEUP}" = "kernel" ] ; then

@@ -19,20 +19,42 @@
 
 case "$1" in
   start)
-    ss=`ls -l /var/atom_root.squashfs | awk '{print $5}'`
-    [ "$ss" = "3997696" ] || dd if=/dev/mtdblock2 of=/var/atom_root.squashfs bs=16k count=244
-    mount -t squashfs /var/atom_root.squashfs /atom
+    ss=`ls -l /media/mmc/atom_root.squashfs | awk '{print $5}'`
+    [ "$ss" = "3997696" ] || dd if=/dev/mtdblock2 of=/media/mmc/atom_root.squashfs bs=16k count=244
+    mount -t squashfs /media/mmc/atom_root.squashfs /atom
     mount -t squashfs /dev/mtdblock3 /atom/system
-    [ -f /media/mmc/configs ] || ( dd if=/dev/zero of=/media/mmc/configs bs=1M count=1 && mkfs.ext2 -F /media/mmc/configs )
-    mount -t ext2 -o loop /media/mmc/configs /atom/configs
+    [ -f /media/mmc/tools_configs ] || ( dd if=/dev/zero of=/media/mmc/tools_configs bs=1M count=1 && mkfs.ext2 -F /media/mmc/tools_configs )
+    mount -t ext2 -o loop /media/mmc/tools_configs /configs
+     mkdir -p /configs/atom_configs
+    mount -o bind /configs/atom_configs /atom/configs
     if [ ! -f /atom/configs/.product_config -o ! -f /atom/configs/.user_config ] ; then
       echo "rebuild configs" >> /media/mmc/atomhack.log
       mount -t jffs2 /dev/mtdblock6 /mnt
       cp -p /mnt/.* /mnt/* /atom/configs 2> /dev/null
-      echo 3 > /proc/sys/vm/drop_caches
       umount /mnt
-      sync
     fi
+    if [ ! -d /configs/etc/ssh ] ; then
+      mkdir -p /configs/etc/ssh
+      cp -pr /etc/ssh/* /configs/etc/ssh
+    fi
+    if [ ! -f /configs/etc/wpa_supplicant.conf ] ; then
+      cp -pr /etc/wpa_supplicant.conf /configs/etc
+    fi
+    if [ ! -d /configs/etc/lighttpd ] ; then
+      mkdir -p /configs/etc/lighttpd
+      cp -pr /etc/lighttpd/* /configs/etc/lighttpd
+    fi
+    if [ ! -d /configs/root ] ; then
+      mkdir -p /configs/root
+      cp -pr /root/.profile /configs/root
+    fi
+    if [ ! -d /configs/crontabs ] ; then
+      mkdir -p /configs/crontabs
+      cp -pr /var/spool/cron/crontabs/root /configs/crontabs
+    fi
+    echo 3 > /proc/sys/vm/drop_caches
+    sync
+
     mount -t proc proc /atom/proc
     mount -o rbind /dev /atom/dev
     mount -t sysfs sysfs /atom/sys
@@ -49,6 +71,11 @@ case "$1" in
     mount -o bind /tmp/system/etc /atom/etc
     cp -pr /atom/sbin /tmp/system
     mount -o bind /tmp/system/sbin /atom/sbin
+    mount -o rbind /configs/etc/ssh /etc/ssh
+    mount -o rbind /configs/etc/lighttpd /etc/lighttpd
+    mount -o rbind /configs/etc/wpa_supplicant.conf /etc/wpa_supplicant.conf
+    mount -o rbind /configs/root /root
+    mount -o rbind /configs/crontabs /var/spool/cron/crontabs
     mkdir -p /media/mmc/update
     mkdir -p /media/mmc/tmp
     rm -f /media/mmc/tmp/*

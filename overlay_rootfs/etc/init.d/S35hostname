@@ -6,9 +6,9 @@
 
 case "$1" in
   start)
-	[ -f /media/mmc/hostname ] && cp /media/mmc/hostname /etc/hostname
-	[ ! -f /etc/hostname ] && echo "atomcam" > /etc/hostname
-	hostname -F /etc/hostname
+	[ ! -f /media/mmc/hostname ] && echo "atomcam" > /media/mmc/hostname
+  mount -o bind /media/mmc/hostname /etc/hostname 
+	hostname -F /media/mmc/hostname
 	;;
   stop)
 	;;
