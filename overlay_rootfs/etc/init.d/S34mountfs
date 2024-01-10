@@ -6,6 +6,7 @@
 # /atom          : squashfs  /var/atom_root.squashfs (copy from /dev/mtdblock2 : SPI Flash)
 # /atom/system   : squashfs  /dev/mtdblock3  (SPI Flash)
 # /atom/configs  : ext2      /media/mmc/configs copy from /dev/mtdblock6(jffs2)
+# /configs       : ext2      /media/mmc/tools_configs
 # ---- The following are bind mounts ----
 # /atom/run -> /run
 # /atom/tmp -> /tmp
@@ -15,7 +16,11 @@
 # /atom/usr/lib -> /usr/lib
 # /atom/etc -> /tmp/system/etc
 # /atom/sbin -> /tmp/system/sbin
-#
+# /configs/etc/ssh -> /etc/ssh
+# /configs/etc/lighttpd -> /etc/lighttpd
+# /configs/etc/wpa_supplicant.conf -> /etc/wpa_supplicant.conf
+# /configs/root -> /root
+# /configs/crontabs -> /var/spool/cron/crontabs
 
 case "$1" in
   start)
@@ -23,16 +28,16 @@ case "$1" in
     [ "$ss" = "3997696" ] || dd if=/dev/mtdblock2 of=/media/mmc/atom_root.squashfs bs=16k count=244
     mount -t squashfs /media/mmc/atom_root.squashfs /atom
     mount -t squashfs /dev/mtdblock3 /atom/system
-    [ -f /media/mmc/tools_configs ] || ( dd if=/dev/zero of=/media/mmc/tools_configs bs=1M count=1 && mkfs.ext2 -F /media/mmc/tools_configs )
-    mount -t ext2 -o loop /media/mmc/tools_configs /configs
-     mkdir -p /configs/atom_configs
-    mount -o bind /configs/atom_configs /atom/configs
+    [ -f /media/mmc/configs ] || ( dd if=/dev/zero of=/media/mmc/configs bs=1M count=1 && mkfs.ext2 -F /media/mmc/configs )
+    mount -t ext2 -o loop /media/mmc/configs /atom/configs
     if [ ! -f /atom/configs/.product_config -o ! -f /atom/configs/.user_config ] ; then
       echo "rebuild configs" >> /media/mmc/atomhack.log
       mount -t jffs2 /dev/mtdblock6 /mnt
       cp -p /mnt/.* /mnt/* /atom/configs 2> /dev/null
       umount /mnt
     fi
+    [ -f /media/mmc/tools_configs ] || ( dd if=/dev/zero of=/media/mmc/tools_configs bs=1M count=1 && mkfs.ext2 -F /media/mmc/tools_configs )
+    mount -t ext2 -o loop /media/mmc/tools_configs /configs
     if [ ! -d /configs/etc/ssh ] ; then
       mkdir -p /configs/etc/ssh
       cp -pr /etc/ssh/* /configs/etc/ssh
