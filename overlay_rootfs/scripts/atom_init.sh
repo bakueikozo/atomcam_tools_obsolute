@@ -33,6 +33,8 @@ else
   grep '^alarmInterval=300$' /configs/.user_config || sed -i.old -e 's/^alarmInterval=.*$/alarmInterval=300/' /configs/.user_config
 fi
 
+[ -f /media/mmc/atom-debug ] && exit 0
+
 /system/bin/ver-comp
 /system/bin/assis >> /dev/null 2>&1 &
 /system/bin/hl_client >> /dev/null 2>&1 &
