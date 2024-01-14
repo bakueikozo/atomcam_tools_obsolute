@@ -350,18 +350,18 @@ static void *TimelapseThread() {
         fprintf(stderr, "[timelapse] mp4write_video_frame error\n");
       }
       count++;
-      usleep(10 * 1000);
+      usleep(100 * 1000);
     }
     fclose(fp);
 
     if(!mp4write_stop_handler(mp4writeHandler)) {
-      for(int i = 0; i < 100; i++) {
+      for(int i = 0; i < 600; i++) {
         if(!writeTaskBusy) break;
-        usleep(50000);
+        usleep(100000);
       }
       mp4write_release_handler(mp4writeHandler);
 
-      usleep(500000);
+      usleep(1000000);
       FILE *fp = fopen("/proc/sys/vm/drop_caches", "w");
       if(fp) {
         fwrite("1", 2, 1, fp);
