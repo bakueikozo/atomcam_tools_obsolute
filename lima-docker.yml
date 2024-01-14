@@ -13,7 +13,7 @@ images:
 
 cpus: 4
 memory: "8GiB"
-disk: "30GiB"
+disk: "60GiB"
 
 mountType: "virtiofs"
 
