@@ -305,16 +305,18 @@
         return this.storage_cifs_record || this.storage_cifs_alarm;
       },
       updatable() {
-        const ver = (this.config.ATOMHACKVER || '').split('.');
-        if(ver.length !== 3) return false;
-        const latest = (this.latestVer || '').split('.');
         if(this.config.CUSTOM_ZIP === 'on' && this.config.CUSTOM_ZIP_URL !== '') return true;
+        const ver = (this.config.ATOMHACKVER || '').replace('pre', '.').split('.');
+        if((ver.length !== 3) || (ver.length !== 4)) return false;
+        const latest = (this.latestVer || '').split('.');
         if(latest.length !== 3) return false;
         if(parseInt(ver[0]) < parseInt(latest[0])) return true;
         if(parseInt(ver[0]) > parseInt(latest[0])) return false;
         if(parseInt(ver[1]) < parseInt(latest[1])) return true;
         if(parseInt(ver[1]) > parseInt(latest[1])) return false;
         if(parseInt(ver[2]) < parseInt(latest[2])) return true;
+        if(parseInt(ver[2]) > parseInt(latest[2])) return false;
+        if(ver.length > 3) return true;
         return false;
       },
       isSwing() {
