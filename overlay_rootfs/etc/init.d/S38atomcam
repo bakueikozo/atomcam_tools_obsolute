@@ -47,8 +47,10 @@ case "$1" in
       fi
     done
     /scripts/cmd timelapse restart
+    [ -x /media/mmc/post_icamera.sh ] && /media/mmc/post_icamera.sh start
   ;;
   stop)
+    [ -x /media/mmc/post_icamera.sh ] && /media/mmc/post_icamera.sh stop
     killall -SIGUSR2 iCamera_app
   ;;
   restart|reload)
