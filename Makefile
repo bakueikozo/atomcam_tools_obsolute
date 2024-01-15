@@ -1,8 +1,10 @@
 # Makefile
 .SILENT:
 
+DOCKER_IMAGE=${shell awk '/image:/ { print $2 }' docker-compose.yml}
+
 build:
-	-docker pull atomtools/atomtools:Ver.2.0.0 | awk '{ print } /Downloaded newer image/ { system("docker-compose down"); }'
+	-docker pull ${DOCKER_IMAGE} | awk '{ print } /Downloaded newer image/ { system("docker-compose down"); }'
 	docker-compose ls | grep atomcam_tools > /dev/null || docker-compose up -d
 	docker-compose exec builder /src/buildscripts/build_all | tee rebuild_`date +"%Y%m%d_%H%M%S"`.log
 
@@ -12,7 +14,7 @@ build-local:
 
 docker-build:
 	# build container
-	docker build -t atomtools/atomtools . | tee docker-build_`date +"%Y%m%d_%H%M%S"`.log
+	docker build -t ${DOCKER_IMAGE} . | tee docker-build_`date +"%Y%m%d_%H%M%S"`.log
 
 login:
 	docker-compose ls | grep atomcam_tools > /dev/null || docker-compose up -d
