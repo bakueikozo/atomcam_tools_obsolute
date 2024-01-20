@@ -84,6 +84,7 @@ case "$1" in
     mkdir -p /media/mmc/update
     mkdir -p /media/mmc/tmp
     rm -f /media/mmc/tmp/*
+    rm -f /media/mmc/timelapse.info
   ;;
   stop)
   ;;
