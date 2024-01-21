@@ -83,7 +83,7 @@
         let minutes = ((startTime.length === 2) ? parseInt(startTime[0]) * 60 + parseInt(startTime[1]) : 0) + (this.value.count * this.value.interval) / 60;
         let str = '';
         if(minutes >= 48 * 60) {
-          str += this.$t({ path: 'schedlue.timelapse.daysLater', args: { days: Math.floor(minutes / 24 / 60).toString() }});
+          str += this.$t('schedule.timelapse.daysLater', { days: Math.floor(minutes / 24 / 60).toString() });
         } else if(minutes >= 24 * 60) {
           str += this.$t('schedule.timelapse.tommorow');
         }
