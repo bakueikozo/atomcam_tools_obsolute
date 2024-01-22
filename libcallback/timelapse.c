@@ -196,7 +196,13 @@ char *Timelapse(int fd, char *tokenPtr) {
     } else {
       memset(&TimeLapseInfo, 0, sizeof(TimeLapseInfo));
     }
-    if(TimeLapseInfo.count >= TimeLapseInfo.numOfTimes) return "not operating.";
+    if(strlen(TimeLapseInfo.stszfile)) {
+      fp = fopen(TimeLapseInfo.stszfile, "r");
+      if(fp) fclose(fp);
+    } else {
+      fp = NULL;
+    }
+    if((TimeLapseInfo.count >= TimeLapseInfo.numOfTimes) && (fp == NULL)) return "not operating.";
     Directive = Directive_Restart;
     TimelapseFd = fd;
     pthread_mutex_unlock(&TimelapseMutex);
@@ -269,6 +275,13 @@ static char *AppendMoov() {
 
   unsigned char *buf = malloc(sizeof(moov) + 2 + TimeLapseInfo.spsSize + 3 + TimeLapseInfo.ppsSize);
   if(!buf) return "error : can't allocate moov memory";
+
+  fseek(fp, sizeof(mp4Header) - 8, SEEK_SET);
+  buf[0] = TimeLapseInfo.mdatSize >> 24;
+  buf[1] = TimeLapseInfo.mdatSize >> 16;
+  buf[2] = TimeLapseInfo.mdatSize >> 8;
+  buf[3] = TimeLapseInfo.mdatSize;
+  fwrite(buf, 4, 1, fp);
 
   memcpy(buf, moov, sizeof(moov));
   fseek(fp, TimeLapseInfo.spsOffset, SEEK_SET);
@@ -471,6 +484,7 @@ static void *TimelapseThread() {
     State = State_Recording;
     struct timeval startTime = { .tv_sec = 0, .tv_usec = 0 };
     while((Directive < Directive_ToMP4)) {
+      if(TimeLapseInfo.count >= TimeLapseInfo.numOfTimes) break;
       int ret = video_get_frame(0, 0, 2, frameCtrl.buf, &frameCtrl);
       if(ret) fprintf(stderr, "[timelapse] error video_get_frame %d\n", ret);
       if(frameCtrl.stat) fprintf(stderr, "[timelapse] error video_get_frame frame.sstat %d\n", frameCtrl.stat);
@@ -525,12 +539,6 @@ static void *TimelapseThread() {
           fseek(fp, TimeLapseInfo.mdatSize + sizeof(mp4Header) - 8, SEEK_SET);
           fwrite(frameCtrl.buf, frameCtrl.size, 1, fp);
           TimeLapseInfo.mdatSize += frameCtrl.size; // sizeof(mp4Header) - 8 = mdat size offset
-          fseek(fp, sizeof(mp4Header) - 8, SEEK_SET);
-          buf[0] = TimeLapseInfo.mdatSize >> 24;
-          buf[1] = TimeLapseInfo.mdatSize >> 16;
-          buf[2] = TimeLapseInfo.mdatSize >> 8;
-          buf[3] = TimeLapseInfo.mdatSize;
-          fwrite(buf, 4, 1, fp);
           fclose(fp);
         }
         fp = fopen(TimeLapseInfo.stszfile, "a");
