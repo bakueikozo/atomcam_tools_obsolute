@@ -1,0 +1,36 @@
+config BR2_PACKAGE_BUSYBOX_INIT
+	bool "BusyBox-init"
+	default y
+	help
+	  The Swiss Army Knife of embedded Linux. It slices, it dices, it
+	  makes Julian Fries.
+
+	  http://busybox.net/
+
+	  Most people will answer Y.
+
+if BR2_PACKAGE_BUSYBOX_INIT
+
+config BR2_PACKAGE_BUSYBOX_INIT_CONFIG
+	string "BusyBox-init configuration file to use?"
+	default "/src/configs/busybox-init.config"
+	help
+	  Some people may wish to use their own modified BusyBox configuration
+	  file, and will specify their config file location with this option.
+
+	  Most people will just use the default BusyBox configuration file.
+
+config BR2_PACKAGE_BUSYBOX_INIT_SHOW_OTHERS
+	bool "Show packages that are also provided by busybox-init"
+	help
+	  Show packages in menuconfig that are potentially also provided
+	  by busybox.
+endif
+
+if !BR2_PACKAGE_BUSYBOX_INIT # kconfig doesn't support else
+
+# add dummy config so the stuff with busybox alternatives are shown
+# when busybox is disabled
+config BR2_PACKAGE_BUSYBOX_INIT_SHOW_OTHERS
+	default y
+endif

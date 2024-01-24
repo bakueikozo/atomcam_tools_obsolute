@@ -1,22 +1,23 @@
 #!/bin/sh
 # devtmpfs does not get automounted for initramfs
-/bin/mount -t devtmpfs devtmpfs /dev
+
+mount -t devtmpfs devtmpfs /dev
 mount -t proc proc /proc
 mount -t sysfs sysfs /sys
 sleep 1
 
 mkdir -p /sdcard
-/sbin/fsck.fat -a /dev/mmcblk0p1
+fsck.fat -a /dev/mmcblk0p1
 mount -t vfat /dev/mmcblk0p1 /sdcard -o rw,umask=0000,dmask=0000
 
 if [ -f /sdcard/update/atomcam_tools.zip ] ; then
-  (cd /sdcard/update; busybox unzip atomcam_tools.zip -o factory_t31_ZMC6tiIDQN rootfs_hack.ext2 rootfs_hack.squashfs)
+  (cd /sdcard/update; unzip atomcam_tools.zip -o factory_t31_ZMC6tiIDQN rootfs_hack.ext2 rootfs_hack.squashfs)
   rm -rf /sdcard/update/atomcam_tools.zip
 fi
 
 if [ -f /sdcard/update/rootfs_hack.ext2 ] ; then
   fsize=`ls -l /sdcard/update/rootfs_hack.ext2  | { read _ _ _ _ size _ && echo $size; }`
-  bsize=`busybox hexdump -s 0x404 -n 4 -e '1/4 "%d\n"' /sdcard/update/rootfs_hack.ext2`
+  bsize=`hexdump -s 0x404 -n 4 -e '1/4 "%d\n"' /sdcard/update/rootfs_hack.ext2`
   psize=$(($bsize * 1024))
   if [ "$fsize" = "$psize" ]; then
     mv -f /sdcard/update/rootfs_hack.ext2 /sdcard/rootfs_hack.ext2
@@ -26,7 +27,7 @@ if [ -f /sdcard/update/rootfs_hack.ext2 ] ; then
 fi
 if [ -f /sdcard/update/rootfs_hack.squashfs ] ; then
   fsize=`ls -l /sdcard/update/rootfs_hack.squashfs  | { read _ _ _ _ size _ && echo $size; }`
-  bsize=`busybox hexdump -s 0x28 -n 4 -e '1/4 "%d\n"' /sdcard/update/rootfs_hack.squashfs`
+  bsize=`hexdump -s 0x28 -n 4 -e '1/4 "%d\n"' /sdcard/update/rootfs_hack.squashfs`
   psize=$((($bsize + 4095) / 4096 * 4096))
   if [ "$fsize" = "$psize" ]; then
     mv -f /sdcard/update/rootfs_hack.squashfs /sdcard/rootfs_hack.squashfs
@@ -37,7 +38,7 @@ fi
 
 if [ -f /sdcard/update/factory_t31_ZMC6tiIDQN ] ; then
   fsize=`ls -l /sdcard/update/factory_t31_ZMC6tiIDQN | { read _ _ _ _ size _ && echo $size; }`
-  hsize=`busybox hexdump -s 0x0c -n 4 -e '"0x" 4/1 "%02x" "\n"' /sdcard/update/factory_t31_ZMC6tiIDQN`
+  hsize=`hexdump -s 0x0c -n 4 -e '"0x" 4/1 "%02x" "\n"' /sdcard/update/factory_t31_ZMC6tiIDQN`
   tsize=$(($hsize + 64))
   if [ "$fsize" = "$tsize" ] ; then
     mv -f /sdcard/update/factory_t31_ZMC6tiIDQN /sdcard/factory_t31_ZMC6tiIDQN
@@ -48,7 +49,7 @@ fi
 
 if [ -f /sdcard/rootfs_hack.squashfs -a -f /sdcard/rootfs_hack.ext2 ] ; then
   fsize=`ls -l /sdcard/update/rootfs_hack.squashfs  | { read _ _ _ _ size _ && echo $size; }`
-  bsize=`busybox hexdump -s 0x28 -n 4 -e '1/4 "%d\n"' /sdcard/update/rootfs_hack.squashfs`
+  bsize=`hexdump -s 0x28 -n 4 -e '1/4 "%d\n"' /sdcard/update/rootfs_hack.squashfs`
   psize=$((($bsize + 4095) / 4096 * 4096))
   if [ "$fsize" = "$psize" ]; then
     rm -rf /sdcard/rootfs_hack.ext2
@@ -66,4 +67,4 @@ mount --move /sys /newroot/sys
 mount --move /proc /newroot/proc
 mount --move /sdcard /newroot/media/mmc
 
-exec busybox switch_root /newroot /sbin/init
+exec switch_root /newroot /sbin/init

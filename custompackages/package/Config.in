@@ -1,6 +1,7 @@
 menu "Target packages"
 
 	source "package/busybox/Config.in"
+	source "package/busybox-init/Config.in"
 	source "package/skeleton/Config.in"
 
 menu "Audio and video applications"

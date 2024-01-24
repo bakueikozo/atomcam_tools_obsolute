@@ -1,4 +1,0 @@
-::askfirst:-/bin/sh
-#::respawn:/sbin/getty -L 115200 tty0 vt100
-::restart:/sbin/init
-::shutdown:/bin/umount -a -r

@@ -21,7 +21,7 @@ define DOSFSTOOLS_INIT_BUILD_CMDS
 endef
 
 define DOSFSTOOLS_INIT_INSTALL_STAGING_CMDS
-	$(INSTALL) -D -m 755 $(@D)/fsck.fat $(STAGING_DIR)/sbin/fsck.fat
+	$(INSTALL) -D -m 755 $(@D)/fsck.fat $(STAGING_DIR)/bin-init/fsck.fat
 endef
 
 $(eval $(generic-package))
