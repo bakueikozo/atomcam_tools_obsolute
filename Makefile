@@ -1,7 +1,7 @@
 # Makefile
 .SILENT:
 
-DOCKER_IMAGE=${shell awk '/image:/ { print $2 }' docker-compose.yml}
+DOCKER_IMAGE=${shell sed -ne 's/^.*image:[ \t]*//p' docker-compose.yml}
 
 build:
 	-docker pull ${DOCKER_IMAGE} | awk '{ print } /Downloaded newer image/ { system("docker-compose down"); }'
