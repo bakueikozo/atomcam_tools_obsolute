@@ -29,14 +29,16 @@ case "$1" in
     mount -t squashfs /media/mmc/atom_root.squashfs /atom
     mount -t squashfs /dev/mtdblock3 /atom/system
     [ -f /media/mmc/configs ] || ( dd if=/dev/zero of=/media/mmc/configs bs=1M count=1 && mkfs.ext2 -F /media/mmc/configs )
+    fsck -t ext2 -y /media/mmc/configs
     mount -t ext2 -o loop /media/mmc/configs /atom/configs
-    if [ ! -f /atom/configs/.product_config -o ! -f /atom/configs/.user_config ] ; then
+    if [ ! -f /atom/configs/.product_config -o ! -f /atom/configs/.user_config -o ! -f /atom/configs/.rtsp_config -o ! -f /atom/configs/.timezone_config -o ! -f /atom/configs/TZ -o ! -f /atom/configs/app.ver ] ; then
       echo "rebuild configs" >> /media/mmc/atomhack.log
       mount -t jffs2 /dev/mtdblock6 /mnt
       cp -p /mnt/.* /mnt/* /atom/configs 2> /dev/null
       umount /mnt
     fi
     [ -f /media/mmc/tools_configs ] || ( dd if=/dev/zero of=/media/mmc/tools_configs bs=1M count=1 && mkfs.ext2 -F /media/mmc/tools_configs )
+    fsck -t ext2 -y /media/mmc/tools_configs
     mount -t ext2 -o loop /media/mmc/tools_configs /configs
     if [ ! -d /configs/etc/ssh ] ; then
       mkdir -p /configs/etc/ssh
