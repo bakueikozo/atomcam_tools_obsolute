@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Start webhook for atomcam
+# mount tools environment
 #
 #
 # /atom          : squashfs  /var/atom_root.squashfs (copy from /dev/mtdblock2 : SPI Flash)
@@ -12,10 +12,7 @@
 # /atom/tmp -> /tmp
 # /atom/media -> /media
 # /atom/tmp/system/lib -> /lib
-# /atom/usr -> /tmp/system/usr
-# /atom/usr/lib -> /usr/lib
-# /atom/etc -> /tmp/system/etc
-# /atom/sbin -> /tmp/system/sbin
+# /atom/tmp/system/usr/lib -> /usr/lib
 # /configs/etc/ssh -> /etc/ssh
 # /configs/etc/lighttpd -> /etc/lighttpd
 # /configs/etc/wpa_supplicant.conf -> /etc/wpa_supplicant.conf
@@ -63,26 +60,17 @@ case "$1" in
     sync
 
     mount -t proc proc /atom/proc
-    mount -o rbind /dev /atom/dev
     mount -t sysfs sysfs /atom/sys
+    mount -o bind /dev /atom/dev
     mount -o bind /run /atom/run
     mount -o bind /tmp /atom/tmp
     mount -o rbind /media /atom/media
-    mkdir -p /tmp/system/lib
-    mount -o bind /lib /atom/tmp/system/lib
-    cp -pr /atom/usr /tmp/system
-    mkdir -p /tmp/system/usr/lib
-    mount -o bind /tmp/system/usr /atom/usr
-    mount -o bind /usr/lib /atom/usr/lib
-    cp -pr /atom/etc /tmp/system
-    mount -o bind /tmp/system/etc /atom/etc
-    cp -pr /atom/sbin /tmp/system
-    mount -o bind /tmp/system/sbin /atom/sbin
-    mount -o rbind /configs/etc/ssh /etc/ssh
-    mount -o rbind /configs/etc/lighttpd /etc/lighttpd
-    mount -o rbind /configs/etc/wpa_supplicant.conf /etc/wpa_supplicant.conf
-    mount -o rbind /configs/root /root
-    mount -o rbind /configs/crontabs /var/spool/cron/crontabs
+
+    mount -o bind /configs/etc/ssh /etc/ssh
+    mount -o bind /configs/etc/lighttpd /etc/lighttpd
+    mount -o bind /configs/etc/wpa_supplicant.conf /etc/wpa_supplicant.conf
+    mount -o bind /configs/root /root
+    mount -o bind /configs/crontabs /var/spool/cron/crontabs
     mkdir -p /media/mmc/update
     mkdir -p /media/mmc/tmp
     rm -f /media/mmc/tmp/*

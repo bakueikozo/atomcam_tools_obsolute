@@ -28,7 +28,7 @@ fi
 find /media/mmc/time_lapse -depth -type f -name '*.h264' -mtime +3 -delete
 
 if [ "$STORAGE_CIFS_REMOVE" = "on" ] && [ "$STORAGE_CIFS_REMOVE_DAYS" != "" ]; then
-  if /tmp/system/bin/mount_cifs ; then
+  if /atom_patch/system_bin/mount_cifs.sh ; then
     if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "alarm" ] ; then
       find /atom/mnt/$HOSTNAME/alarm_record -depth -type f -mtime +$STORAGE_CIFS_REMOVE_DAYS -delete
       find /atom/mnt/$HOSTNAME/alarm_record -depth -type d -mmin +3 -empty -delete

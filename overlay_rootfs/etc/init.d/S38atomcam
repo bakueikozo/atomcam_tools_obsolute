@@ -2,26 +2,38 @@
 #
 # build atomcam environment
 #
+#
+# ---- The following are bind mounts ----
+# /atom/tmp/system/bin -> /atom_patch/system_bin
+# /atom/tmp/system/lib -> /lib
+# /atom/tmp/system/usr/lib -> /usr/lib
+# /atom/bin -> /atom_patch/bin
+# /atom/sbin -> /atom_patch/sbin
 
 case "$1" in
   start)
     echo "setup atomcam environment"
+
     mkdir -p /tmp/system/bin
-    cp /scripts/atom_init.sh /tmp/system/bin
-    cp /scripts/mount_cifs.sh /tmp/system/bin/mount_cifs
-    cp /scripts/rm.sh /tmp/system/bin/rm
-    cp /scripts/mv.sh /tmp/system/bin/mv
-    cp /scripts/killall.sh /tmp/system/bin/killall
-    cp /scripts/null.sh /tmp/system/bin/wpa_supplicant
-    cp /scripts/wpa_cli.sh /tmp/system/bin/wpa_cli
-    cp /scripts/null.sh /tmp/system/bin/udhcpc
-    cp /scripts/null.sh /tmp/system/sbin/ifconfig
-    cp /usr/bin/curl /tmp/system/bin
-    cp /usr/bin/find /tmp/system/bin/find_libc
-    cp /scripts/null.sh /tmp/system/usr/boa/boa
-    cp /etc/nsswitch.conf /tmp/system/etc
-    cp /bin/busybox /tmp/system/bin
-    mount -o bind /scripts/null.sh /atom/system/bin/restart_wlan0.sh
+    mount -o bind /atom_patch/system_bin /atom/tmp/system/bin
+    mount -o bind /usr/bin/curl /atom/tmp/system/bin/curl
+    mount -o bind /usr/bin/find /atom/tmp/system/bin/find
+    mount -o bind /bin/busybox /atom/tmp/system/bin/busybox
+    mkdir -p /tmp/system/lib
+    mount -o bind /lib /atom/tmp/system/lib
+    mkdir -p /tmp/system/usr/lib
+    mount -o bind /usr/lib /atom/tmp/system/usr/lib
+
+    mount -o bind /atom/bin/busybox /atom_patch/bin/busybox
+    mount -o bind /atom/bin/hostapd /atom_patch/bin/hostapd
+    mount -o rbind /atom_patch/bin /atom/bin
+
+    mount -o bind /atom/sbin/flash_erase /atom_patch/sbin/flash_erase
+    mount -o rbind /atom_patch/sbin /atom/sbin
+
+    mount -o bind /atom_patch/bin/null.sh /atom/usr/boa/boa
+    mount -o bind /atom_patch/bin/null.sh /atom/system/bin/restart_wlan0.sh
+
     /scripts/set_crontab.sh
     touch /tmp/resolv.conf
 
@@ -29,7 +41,6 @@ case "$1" in
     chroot /atom /tmp/system/bin/atom_init.sh
     [ -f /media/mmc/atom-debug ] && exit 0
     
-    renice -10 `pidof iCamera_app`
     count=0
     while :
     do
