@@ -77,6 +77,8 @@ case "$1" in
     rm -f /media/mmc/timelapse.info
   ;;
   stop)
+    umount /configs
+    umount /atom/configs
   ;;
   restart|reload)
   ;;
