@@ -12,6 +12,7 @@ BEGIN {
   logDisable = 1;
   lastTimestamp = 0;
   logPause = 0;
+  if(ENV["ATOM_DEBUG_LOG"] == "on") logDisable = 0;
 }
 
 /\[webhook\] time_lapse_finish/ {

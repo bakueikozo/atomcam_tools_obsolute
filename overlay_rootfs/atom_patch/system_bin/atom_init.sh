@@ -10,6 +10,11 @@ APPVER=$(awk -F "=" '/appver *=/ {print $2}' $APPVER_FILE)
 HACK_INI=/tmp/hack.ini
 export MINIMIZE_ALARM_CYCLE=$(awk -F "=" '/MINIMIZE_ALARM_CYCLE *=/ {print $2}' $HACK_INI)
 export RTSP_MAIN_FORMAT_HEVC=$(awk -F "=" '/RTSP_MAIN_FORMAT_HEVC *=/ {print $2}' $HACK_INI)
+if [ "$(awk -F "=" '/ATOM_DEBUG_LOG *=/ {print $2}' $HACK_INI)" = "on" ]; then
+  export ASSIS_LOG="/tmp/log/assis.log"
+else
+  export ASSIS_LOG="/dev/null"
+fi
 AWS_VIDEO_DISABLE=$(awk -F "=" '/AWS_VIDEO_DISABLE *=/ {print $2}' $HACK_INI)
 [ "$AWS_VIDEO_DISABLE" = "on" ] && export ATOMTECH_AWS_ACCESS=disable_video
 
@@ -37,7 +42,7 @@ fi
 [ -f /media/mmc/atom-debug ] && exit 0
 
 /system/bin/ver-comp
-/system/bin/assis >> /dev/null 2>&1 &
+/system/bin/assis >> $ASSIS_LOG 2>&1 &
 /system/bin/hl_client >> /dev/null 2>&1 &
 LD_PRELOAD=/tmp/system/lib/modules/libcallback.so /system/bin/iCamera_app >> /var/run/atomapp &
 [ "AC1" = "$PRODUCT_MODEL" -o "ATOM_CamV3C" = "$PRODUCT_MODEL" ] && /system/bin/dongle_app >> /dev/null &
