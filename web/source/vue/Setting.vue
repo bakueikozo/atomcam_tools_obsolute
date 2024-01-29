@@ -105,6 +105,7 @@
       <h3 v-t="'event.title'" />
       <SettingSwitch i18n="event.webhook" v-model="config.WEBHOOK" />
       <SettingInput v-if="config.WEBHOOK === 'on'" i18n="event.webhook.URL" :titleOffset="2" :span="10" type="text" v-model="config.WEBHOOK_URL" />
+      <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.insecure" :titleOffset="3" v-model="config.WEBHOOK_INSECURE" />
       <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.alarm" :titleOffset="2" v-model="config.WEBHOOK_ALARM_EVENT" />
       <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.information" :titleOffset="2" v-model="config.WEBHOOK_ALARM_INFO" />
       <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.recordingEnd" :titleOffset="2" v-model="config.WEBHOOK_ALARM_VIDEO_FINISH" />
@@ -230,6 +231,7 @@
           TIMELAPSE_COUNT: 960,
           WEBHOOK: 'off',
           WEBHOOK_URL: '',
+          WEBHOOK_INSECURE: 'off',
           WEBHOOK_ALARM_EVENT: 'off',
           WEBHOOK_ALARM_INFO: 'off',
           WEBHOOK_ALARM_VIDEO_FINISH: 'off',

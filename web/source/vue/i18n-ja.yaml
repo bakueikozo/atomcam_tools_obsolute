@@ -131,6 +131,9 @@ event:
     URL:
       title: 通知URL
       tooltip: WebHookのイベント発生時にpostするURL
+    insecure:
+      title: 未認証接続許可
+      tooltip: TLS使用時に認証されていない証明書のサーバーへの接続を許可する
     alarm:
       title: 動体検知
       tooltip: Alarm発生を通知します

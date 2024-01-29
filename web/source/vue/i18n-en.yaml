@@ -131,6 +131,9 @@ event:
     URL:
       title: Notification URL
       tooltip: Enter the URL WebHook for send post notifcations
+    insecure:
+      title: Allow Insecure Access
+      tooltip: Allow insecure server connections when using TLS.
     alarm:
       title: Notification Alarm
       tooltip: Notify when an alarm triggers
