@@ -9,6 +9,7 @@
 # /atom/tmp/system/usr/lib -> /usr/lib
 # /atom/bin -> /atom_patch/bin
 # /atom/sbin -> /atom_patch/sbin
+# /atom/etc -> /atom_patch/etc
 
 case "$1" in
   start)
@@ -30,6 +31,8 @@ case "$1" in
 
     mount -o bind /atom/sbin/flash_erase /atom_patch/sbin/flash_erase
     mount -o rbind /atom_patch/sbin /atom/sbin
+
+    mount -o bind /atom_patch/etc /atom/etc
 
     mount -o bind /atom_patch/bin/null.sh /atom/usr/boa/boa
     mount -o bind /atom_patch/bin/null.sh /atom/system/bin/restart_wlan0.sh

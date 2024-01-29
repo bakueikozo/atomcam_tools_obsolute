@@ -77,7 +77,7 @@ else
 fi
 
 TMPFILE="${SPATH}/rm_`cat /proc/sys/kernel/random/uuid`"
-mv $FILE $TMPFILE
+/bin/busybox mv $FILE $TMPFILE
 (
   if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
     if [ "$WEBHOOK_ALERM_PICT" = "on" ] && [ "$FILE" = "$SPATH/alarm.jpg" ]; then
@@ -88,7 +88,7 @@ mv $FILE $TMPFILE
     fi
   fi
   if [ "$FMT" != "" ] ; then
-    if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "alarm" ] && /tmp/system/bin/mount_cifs ; then
+    if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "alarm" ] && /tmp/system/bin/mount_cifs.sh ; then
       CIFSFILE=`date +"alarm_record/$STORAGE_CIFS_PATH.${FILE##*.}"`
       OUTFILE="/mnt/$HOSTNAME/$CIFSFILE"
       DIR_PATH=${OUTFILE%/*}

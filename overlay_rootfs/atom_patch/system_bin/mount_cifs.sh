@@ -19,16 +19,16 @@ if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "alarm" -o "$STORAGE_CIFS" = "r
   do
     if [ -d /atom ] ; then
       if mount -t cifs -ousername=$STORAGE_CIFSUSER,password=$STORAGE_CIFSPASSWD,vers=$VER $STORAGE_CIFSSERVER /atom/mnt ; then
-        rm -f $LOCKFILE
+        /bin/busybox rm -f $LOCKFILE
         exit 0
       fi
     else
       if LD_LIBRARY_PATH=/tmp/system/lib:/tmp/system/usr/lib:/tmp/system/usr/lib/samba /tmp/system/lib/ld.so.1 /tmp/system/bin/busybox mount -t cifs -ousername=$STORAGE_CIFSUSER,password=$STORAGE_CIFSPASSWD,vers=$VER $STORAGE_CIFSSERVER /mnt ; then
-        rm -f $LOCKFILE
+        /bin/busybox rm -f $LOCKFILE
         exit 0
       fi
     fi
   done
-  rm -f $LOCKFILE
+  /bin/busybox rm -f $LOCKFILE
 fi
 exit -1
