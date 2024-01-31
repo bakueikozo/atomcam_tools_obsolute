@@ -1,7 +1,8 @@
 # Makefile
 .SILENT:
 
-DOCKER_IMAGE=${shell sed -ne 's/^.*image:[ \t]*//p' docker-compose.yml}
+DOCKER_IMAGE=$(shell sed -ne 's/^.*image:[ \t]*//p' docker-compose.yml)
+DOCKER_ARCH=-$(subst x86_64,amd64,$(subst aarch64,arm64,$(shell uname -m)))
 
 build:
 	-docker pull ${DOCKER_IMAGE} | awk '{ print } /Downloaded newer image/ { system("docker-compose down"); }'
@@ -14,7 +15,7 @@ build-local:
 
 docker-build:
 	# build container
-	docker build -t ${DOCKER_IMAGE} . | tee docker-build_`date +"%Y%m%d_%H%M%S"`.log
+	docker build -t ${DOCKER_IMAGE}${DOCKER_ARCH} . | tee docker-build_`date +"%Y%m%d_%H%M%S"`.log
 
 login:
 	docker-compose ls | grep atomcam_tools > /dev/null || docker-compose up -d
