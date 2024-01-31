@@ -77,8 +77,21 @@ case "$1" in
     rm -f /media/mmc/timelapse.info
   ;;
   stop)
+    umount /var/spool/cron/crontabs
+    umount /root
+    umount /etc/wpa_supplicant.conf
+    umount /etc/lighttpd
+    umount /etc/ssh
+    umount /atom/media
+    umount /atom/tmp
+    umount /atom/run
+    umount /atom/dev
+    umount /atom/sys
+    umount /atom/proc
     umount /configs
     umount /atom/configs
+    umount /atom/system
+    umount /atom
   ;;
   restart|reload)
   ;;

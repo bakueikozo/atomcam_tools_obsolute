@@ -6,15 +6,16 @@
 
 case "$1" in
   start)
-	[ ! -f /media/mmc/hostname ] && echo "atomcam" > /media/mmc/hostname
-  mount -o bind /media/mmc/hostname /etc/hostname 
-	hostname -F /media/mmc/hostname
+	  [ ! -f /media/mmc/hostname ] && echo "atomcam" > /media/mmc/hostname
+    mount -o bind /media/mmc/hostname /etc/hostname
+	  hostname -F /media/mmc/hostname
 	;;
   stop)
+    umount /etc/hostname
 	;;
   restart|reload)
-	"$0" stop
-	"$0" start
+	  "$0" stop
+	  "$0" start
 	;;
   *)
 	echo "Usage: $0 {start|stop|restart}"

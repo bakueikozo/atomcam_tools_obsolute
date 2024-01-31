@@ -66,6 +66,20 @@ case "$1" in
   stop)
     [ -x /media/mmc/post_icamera.sh ] && /media/mmc/post_icamera.sh stop
     killall -SIGUSR2 iCamera_app
+    umount /atom/system/bin/restart_wlan0.sh
+    umount /atom/usr/boa/boa
+    umount /atom_patch/sbin/flash_erase
+    umount /atom_patch/bin/hostapd
+    umount /atom_patch/bin/busybox
+    umount /atom/tmp/system/usr/lib
+    umount /atom/tmp/system/lib
+    umount /atom/tmp/system/bin/busybox
+    umount /atom/tmp/system/bin/find
+    umount /atom/tmp/system/bin/curl
+    umount /atom/tmp/system/bin
+    umount /atom/etc
+    umount /atom/sbin
+    umount /atom/bin
   ;;
   restart|reload)
     "$0" stop

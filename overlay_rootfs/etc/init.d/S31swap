@@ -6,22 +6,22 @@
 SWAPFILE=/media/mmc/swap
 case "$1" in
   start)
-  echo "Starting swap on sdcard using $SWAPFILE"
-  [ ! -f $SWAPFILE ] && dd if=/dev/zero of=$SWAPFILE bs=1M count=128
-  mkswap $SWAPFILE
-  swapon $SWAPFILE
-  echo 2048 > /proc/sys/vm/min_free_kbytes
+    echo "Starting swap on sdcard using $SWAPFILE"
+    [ ! -f $SWAPFILE ] && dd if=/dev/zero of=$SWAPFILE bs=1M count=128
+    mkswap $SWAPFILE
+    swapon $SWAPFILE
+    echo 2048 > /proc/sys/vm/min_free_kbytes
   ;;
   stop)
-  swapoff $SWAPFILE
+    swapoff $SWAPFILE
   ;;
   restart|reload)
-  "$0" stop
-  "$0" start
+    "$0" stop
+    "$0" start
   ;;
   *)
-  echo "Usage: $0 {start|stop|restart}"
-  exit 1
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
 esac
 
 exit $?

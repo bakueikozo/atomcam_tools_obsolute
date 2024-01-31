@@ -60,7 +60,7 @@ flash_update() {
 
 case "$1" in
   start)
-  flash_update
+    flash_update
   ;;
   stop)
 	;;

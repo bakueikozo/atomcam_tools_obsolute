@@ -1,5 +1,11 @@
 #!/bin/sh
 
+if [ "$1" = "stop" -o "$1" = "restart" ] ; then
+  kill `pidof wpa_supplicant`
+  kill `pidof udhcpc`
+  [ "$1" = "stop" ] && exit 0
+fi
+
 devmem 0x10011110 32 0x6e094800
 devmem 0x10011138 32 0x300
 devmem 0x10011134 32 0x300
@@ -71,7 +77,7 @@ done
 HWADDR=$(awk -F "=" '/(CONFIG_INFO|NETRELATED_MAC)=/ { print substr($2,1,2) ":" substr($2,3,2) ":" substr($2,5,2) ":" substr($2,7,2) ":" substr($2,9,2) ":" substr($2,11,2); exit;}' /atom/configs/.product_config)
 ifconfig wlan0 hw ether $HWADDR up
 wpa_supplicant -f /tmp/log/wpa_supplicant.log -D nl80211 -i wlan0 -c /etc/wpa_supplicant.conf -B
-udhcpc -i wlan0 -x hostname:ATOM -p /var/run/udhcpc.pid -b &
+udhcpc -i wlan0 -x hostname:atomcam -p /var/run/udhcpc.pid -b &
 
 count=0
 while ! ifconfig wlan0 | grep 'inet addr' > /dev/null

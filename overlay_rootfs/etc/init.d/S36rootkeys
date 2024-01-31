@@ -6,15 +6,15 @@
 
 case "$1" in
   start)
-	mkdir -p /root/.ssh
-	chmod 700 /root/.ssh
-	[ -f /media/mmc/authorized_keys ] && cp /media/mmc/authorized_keys /root/.ssh
+    mkdir -p /root/.ssh
+    chmod 700 /root/.ssh
+    [ -f /media/mmc/authorized_keys ] && cp /media/mmc/authorized_keys /root/.ssh
 	;;
   stop)
 	;;
   restart|reload)
-	"$0" stop
-	"$0" start
+    "$0" stop
+    "$0" start
 	;;
   *)
 	echo "Usage: $0 {start|stop|restart}"

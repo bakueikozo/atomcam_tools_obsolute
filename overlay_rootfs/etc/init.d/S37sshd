@@ -32,13 +32,13 @@ restart() {
 
 case "$1" in
   start)
-	start
+    start
 	;;
   stop)
-	stop
+    stop
 	;;
   restart|reload)
-	restart
+    restart
 	;;
   *)
 	echo "Usage: $0 {start|stop|restart}"

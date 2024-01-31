@@ -5,13 +5,13 @@
 
 case "$1" in
   start)
-    /scripts/network_init.sh
+    /scripts/network_init.sh start
 	;;
   stop)
+    /scripts/network_init.sh stop
 	;;
   restart|reload)
-	"$0" stop
-	"$0" start
+    /scripts/network_init.sh restart
 	;;
   *)
 	echo "Usage: $0 {start|stop|restart}"
