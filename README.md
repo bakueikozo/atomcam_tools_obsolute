@@ -27,8 +27,7 @@
   - 定期的に周期と回数を指定してTime Lapse録画を実行します。
   - SD-Card録画、NAS録画の設定がonになっているメディアに記録します。
   - SD-Cardのtime_lapse/フォルダに中間ファイルを生成し、最後にmp4に変換して指定メディアに記録します。
-  - 現状は実験的な機能なので中間ファイルは消さずに残していますが、ファイルの自動削除をonにしていると指定日数後に削除されます。
-
+  
 - RTSPServer(Port:8554)
   - RTSP streaming を送出します。
   - Main(video0)に1080p AVC、Sub(video1)に360p HEVCを出しています。
@@ -55,7 +54,7 @@
 - atomcam_toolsのupdate機能
   - GitHubのLatestイメージをダウンロードして更新する機能です。
   - 回線状況にもよりますが、３分程度かかります。
-  - AtomCamのFWのupdateはできません。アプリからupdateをしてください。
+  - AtomCamのFWのupdateはWebUIからはできません。アプリからupdateをしてください。
 
 - AtomCamのFW update対応
   - アプリからAtomCamのFW updateをするときにSD-Cardを抜かなくてもできるようになりました。
@@ -103,6 +102,8 @@ Qiitaに少し解説を書いています。
 [Qiita.com ATOMCam2を少し改造して導入してみた](https://qiita.com/mnakada/items/7d0fbcb6e629e1ddbd0c)
 
 [Qiita.com AtomSwingを少し改造して遊んでみた](https://qiita.com/mnakada/items/5da19a302b0f7521f225)
+
+[atomcam_toolsのtimelapseの負荷低減](https://qiita.com/mnakada/items/eddbf8b6f0095e279095)
 
 
 
@@ -223,6 +224,8 @@ SD-Cardに録画しているファイルを自動削除する機能です。
 SD Cardのボタンを押すとSD-Cardの録画ファイルのディレクトリ一覧が開きます。
 
 ファイルをクリックすることでmp4, jpegファイルを開くことができます。
+
+ネットワークアクセス(Samba)でSD-Cardを開くよりもファイル一覧で開く方が負荷が少ないです。
 
 #### NAS録画／NASモーション検知録画
 
@@ -345,6 +348,10 @@ AtomCamからPCまでの経路でのパケット伝送が保障されますが�
 WebHookを受け取るURLを指定します。今のところ実験的な実装なのでLAN内のnon-secureなpostを想定しています。
 
 { type: 'event名', data: あれば何か }の形式でpostします。
+
+##### - 未認証接続許可
+
+URLが自己証明書等の認証されていない証明書を提示しても接続を許可します。
 
 ##### - 動体検知
 
