@@ -620,7 +620,6 @@ finalize:
 
 static void __attribute ((constructor)) TimelapseInit(void) {
 
-  if(getppid() != 1) return;
   pthread_mutex_lock(&TimelapseMutex);
   pthread_t thread;
   if(pthread_create(&thread, NULL, TimelapseThread, NULL)) {

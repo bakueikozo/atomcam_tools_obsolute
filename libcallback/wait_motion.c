@@ -107,7 +107,6 @@ static void *WaitMotionThread() {
 
 static void __attribute ((constructor)) osd_rect_hook_init(void) {
 
-  if(getppid() != 1) return;
   original_local_sdk_video_osd_update_rect = dlsym(dlopen ("/system/lib/liblocalsdk.so", RTLD_LAZY), "local_sdk_video_osd_update_rect");
 
   pthread_mutex_lock(&WaitMotionMutex);

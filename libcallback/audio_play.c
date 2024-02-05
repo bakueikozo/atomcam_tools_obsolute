@@ -132,7 +132,6 @@ char *AudioPlay(int fd, char *tokenPtr) {
 
 static void __attribute ((constructor)) AudioPlayInit(void) {
 
-  if(getppid() != 1) return;
   set_pa_mode = local_sdk_speaker_set_ap_mode;
   if(!set_pa_mode) set_pa_mode = local_sdk_speaker_set_pa_mode;
   pthread_mutex_lock(&AudioPlayMutex);

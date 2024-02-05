@@ -183,7 +183,7 @@ static void *CommandThread(void *arg) {
 
 static void __attribute ((constructor)) command_init(void) {
 
-  if(getppid() != 1) return;
+  setenv("LD_PRELOAD", NULL, 1);
   if(pipe(SelfPipe)) {
     fprintf(stderr, "pipe error\n");
     return;
