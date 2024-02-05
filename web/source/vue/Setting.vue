@@ -308,7 +308,7 @@
       },
       updatable() {
         if(this.config.CUSTOM_ZIP === 'on' && this.config.CUSTOM_ZIP_URL !== '') return true;
-        const ver = (this.config.ATOMHACKVER || '').replace('pre', '.').split('.');
+        const ver = (this.config.ATOMHACKVER || '').replace(/[a-zA-Z]+/, '.').split('.');
         if((ver.length !== 3) || (ver.length !== 4)) return false;
         const latest = (this.latestVer || '').split('.');
         if(latest.length !== 3) return false;
@@ -319,6 +319,7 @@
         if(parseInt(ver[2]) < parseInt(latest[2])) return true;
         if(parseInt(ver[2]) > parseInt(latest[2])) return false;
         if(ver.length > 3) return true;
+        if(latest.length > 3) return true;
         return false;
       },
       isSwing() {
