@@ -407,12 +407,10 @@ static int video2_encode_capture(struct frames_st *frames) {
 
 int local_sdk_video_set_encode_frame_callback(int sch, void *callback) {
 
-  fprintf(stderr, "local_sdk_video_set_encode_frame_callback streamChId=%d, callback=0x%x\n", sch, callback);
   int ch = sch;
   if((ch == MainVideoCh) || (ch == 1)) {
     if(ch == MainVideoCh) ch = 0;
     video_capture[ch].callback = callback;
-    fprintf(stderr,"enc func injection save video_encode_cb=0x%x\n", video_capture[ch].callback);
     callback = video_capture[ch].capture;
   }
   return real_local_sdk_video_set_encode_frame_callback(sch, callback);

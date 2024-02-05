@@ -165,7 +165,7 @@ char *Timelapse(int fd, char *tokenPtr) {
 
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   if(!p) {
-    if(TimeLapseInfo.count >= TimeLapseInfo.numOfTimes) return "not operating.";
+    if(TimeLapseInfo.count >= TimeLapseInfo.numOfTimes) return "timelapse: not operating.";
     snprintf(ResBuf, 255, "file: %s\ninterval: %dsec, count: %d/%d\n", TimeLapseInfo.mp4file, TimeLapseInfo.interval, TimeLapseInfo.count, TimeLapseInfo.numOfTimes);
     return ResBuf;
   }
@@ -202,7 +202,7 @@ char *Timelapse(int fd, char *tokenPtr) {
     } else {
       fp = NULL;
     }
-    if((TimeLapseInfo.count >= TimeLapseInfo.numOfTimes) && (fp == NULL)) return "not operating.";
+    if((TimeLapseInfo.count >= TimeLapseInfo.numOfTimes) && (fp == NULL)) return "timelapse: not operating.";
     Directive = Directive_Restart;
     TimelapseFd = fd;
     pthread_mutex_unlock(&TimelapseMutex);
@@ -477,7 +477,7 @@ static void *TimelapseThread() {
     memset(&frameCtrl, 0, sizeof(frameCtrl));
     frameCtrl.buf = malloc(VideoBufSize);
     if(!frameCtrl.buf) {
-      CommandResponse(TimelapseFd, "error : not enough memory to video buffer");
+      CommandResponse(TimelapseFd, "timelapse: error : not enough memory to video buffer");
       goto finalize;
     }
 

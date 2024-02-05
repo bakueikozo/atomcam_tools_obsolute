@@ -280,10 +280,8 @@ static uint32_t audio_pcm_capture(struct frames_st *frames) {
 
 uint32_t local_sdk_audio_set_pcm_frame_callback(int ch, void *callback) {
 
-  fprintf(stderr, "local_sdk_audio_set_pcm_frame_callback streamChId=%d, callback=0x%x\n", ch, callback);
   if(ch == 0) {
     audio_pcm_cb = callback;
-    fprintf(stderr,"enc func injection save audio_pcm_cb=0x%x\n", audio_pcm_cb);
     callback = audio_pcm_capture;
   }
   return real_local_sdk_audio_set_pcm_frame_callback(ch, callback);
