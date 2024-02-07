@@ -6,6 +6,7 @@
 case "$1" in
   start)
     logger -s "Starting ntpd: "
+    /usr/sbin/ntpd -qn -p ntp.nict.jp
     /usr/sbin/ntpd -p ntp.nict.jp
     [ $? == 0 ] && logger -s "OK" || logger -s "FAIL"
   ;;
