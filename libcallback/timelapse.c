@@ -264,24 +264,44 @@ static char *AppendMoov() {
 
   unsigned int fps = 20;
   unsigned int timeScale = 1000;
-
-  if(!TimeLapseInfo.count || !TimeLapseInfo.spsSize || !TimeLapseInfo.ppsSize) return "error : no timelapse data";
+  unsigned char sizeBuf[5];
 
   FILE *fp = fopen(TimeLapseInfo.mp4xfile, "r+"); // Do not open in append mode when seeking and writing.
   if(!fp) return "error : can't open mp4 file";
+  TimeLapseInfo.spsOffset = 0;
+  TimeLapseInfo.spsSize = 0;
+  TimeLapseInfo.ppsOffset = 0;
+  TimeLapseInfo.ppsSize = 0;
+  fseek(fp, sizeof(mp4Header) - 8, SEEK_SET);
+  fread(sizeBuf, 4, 1, fp);
+  int mdatSize = (sizeBuf[0] << 24) | (sizeBuf[1] << 16) | (sizeBuf[2] << 8) | sizeBuf[3];
+  if(mdatSize != 8) TimeLapseInfo.mdatSize = mdatSize;
+
+  int offset = sizeof(mp4Header);
+  for(int i = 0; i < 10; i++) {
+    if(TimeLapseInfo.spsSize && TimeLapseInfo.ppsSize) break;
+    if(fseek(fp, offset, SEEK_SET)) break;
+    if(fread(sizeBuf, 1, 5, fp) != 5) break;
+    int size = (sizeBuf[0] << 24) | (sizeBuf[1] << 16) | (sizeBuf[2] << 8) | sizeBuf[3];
+    if(!TimeLapseInfo.spsSize && (sizeBuf[4] == 0x27)) { // SPS
+      TimeLapseInfo.spsOffset = offset + 4;
+      TimeLapseInfo.spsSize = size;
+    }
+    if(!TimeLapseInfo.ppsSize && (sizeBuf[4] == 0x28)) { // PPS
+      TimeLapseInfo.ppsOffset = offset + 4;
+      TimeLapseInfo.ppsSize = size;
+    }
+    offset += 4 + size;
+  }
+  if(!TimeLapseInfo.spsSize || !TimeLapseInfo.ppsSize) return "error : _mp4 format error";
 
   FILE *fp2 = fopen(TimeLapseInfo.stszfile, "r");
   if(!fp2) return "error : can't open stsz file";
+  fseek(fp2, 0, SEEK_END);
+  TimeLapseInfo.count = TimeLapseInfo.numOfTimes = ftell(fp2) / 8;
 
   unsigned char *buf = malloc(sizeof(moov) + 2 + TimeLapseInfo.spsSize + 3 + TimeLapseInfo.ppsSize);
   if(!buf) return "error : can't allocate moov memory";
-
-  fseek(fp, sizeof(mp4Header) - 8, SEEK_SET);
-  buf[0] = TimeLapseInfo.mdatSize >> 24;
-  buf[1] = TimeLapseInfo.mdatSize >> 16;
-  buf[2] = TimeLapseInfo.mdatSize >> 8;
-  buf[3] = TimeLapseInfo.mdatSize;
-  fwrite(buf, 4, 1, fp);
 
   memcpy(buf, moov, sizeof(moov));
   fseek(fp, TimeLapseInfo.spsOffset, SEEK_SET);
@@ -429,6 +449,7 @@ static char *AppendMoov() {
   buf[18] = TimeLapseInfo.count >> 8;
   buf[19] = TimeLapseInfo.count;
   fwrite(buf, 20, 1, fp);
+  fseek(fp2, 0, SEEK_SET);
   for(int i = 0; i < TimeLapseInfo.count; i++) {
     fread(buf, 8, 1, fp2);
     fwrite(buf + 4, 4, 1, fp);
@@ -535,10 +556,16 @@ static void *TimelapseThread() {
         unsigned int mdatOffset = TimeLapseInfo.mdatSize + sizeof(mp4Header) - 8;
         FILE *fp = fopen(TimeLapseInfo.mp4xfile, "r+"); // Do not open in append mode when seeking and writing.
         if(fp) {
-          unsigned char buf[4];
           fseek(fp, TimeLapseInfo.mdatSize + sizeof(mp4Header) - 8, SEEK_SET);
           fwrite(frameCtrl.buf, frameCtrl.size, 1, fp);
           TimeLapseInfo.mdatSize += frameCtrl.size; // sizeof(mp4Header) - 8 = mdat size offset
+          unsigned char buf[4];
+          buf[0] = TimeLapseInfo.mdatSize >> 24;
+          buf[1] = TimeLapseInfo.mdatSize >> 16;
+          buf[2] = TimeLapseInfo.mdatSize >> 8;
+          buf[3] = TimeLapseInfo.mdatSize;
+          fseek(fp, sizeof(mp4Header) - 8, SEEK_SET);
+          fwrite(buf, 4, 1, fp);
           fclose(fp);
         }
         fp = fopen(TimeLapseInfo.stszfile, "a");
