@@ -76,9 +76,12 @@ struct frames_st {
 };
 typedef int (* framecb)(struct frames_st *);
 static int (*real_local_sdk_video_set_encode_frame_callback)(int ch, void *callback);
+static int (*real_local_sdk_video_set_kbps)(int ch, int kbps);
 static int video0_encode_capture(struct frames_st *frames);
 static int video1_encode_capture(struct frames_st *frames);
 static int video2_encode_capture(struct frames_st *frames);
+static int userBitrate[4] = { 0, 0, 0, 0 };
+static int appBitrate[4] = { 240, 180, 0, 160 };
 
 struct video_capture_st {
   framecb capture;
@@ -313,6 +316,35 @@ static char *DGain(char *tokenPtr) {
   return res ? "error": "ok";
 }
 
+static char *Bitrate(char *tokenPtr) {
+
+  char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+  if(!p) return "error";
+  int ch = atoi(p);
+  if((ch != 0) && (ch != 1) && (ch != 3)) return "error";
+  p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+  if(!p) {
+    if(userBitrate[ch]) {
+      sprintf(videoResBuf, "%d\n", userBitrate[ch]);
+    } else {
+      sprintf(videoResBuf, "auto %d\n", appBitrate[ch]);
+    }
+    return videoResBuf;
+  }
+  if(!strcmp(p, "auto")) {
+    userBitrate[ch] = 0;
+    fprintf(stderr, "video_set_kbps ch%d: %d\n", ch, appBitrate[ch]);
+    real_local_sdk_video_set_kbps(ch, appBitrate[ch]);
+  } else {
+    int kbps = atoi(p);
+    if((kbps < 10) || (kbps > 3000)) return "error";
+    userBitrate[ch] = kbps;
+    fprintf(stderr, "video_set_kbps ch%d: %d\n", ch, userBitrate[ch]);
+    real_local_sdk_video_set_kbps(ch, userBitrate[ch]);
+  }
+  return "ok";
+}
+
 struct CommandTableSt {
   const char *cmd;
   char * (*func)(char *);
@@ -333,6 +365,7 @@ static struct CommandTableSt VideoCommandTable[] = {
   { "hilight",   &HiLight }, // hilight 0 - 10
   { "again",     &AGain }, // again 0 -
   { "dgain",     &DGain }, // dgain 0 -
+  { "bitrate",   &Bitrate }, // bitrate <ch> 10-3000(kbps)|auto
 };
 
 char *VideoCapture(int fd, char *tokenPtr) {
@@ -416,6 +449,18 @@ int local_sdk_video_set_encode_frame_callback(int sch, void *callback) {
   return real_local_sdk_video_set_encode_frame_callback(sch, callback);
 }
 
+int local_sdk_video_set_kbps(int ch, int kbps) {
+
+  if((ch == 0) || (ch == 1) || (ch == 3)) {
+    appBitrate[ch] = kbps;
+    if(userBitrate[ch]) {
+      kbps = userBitrate[ch];
+      fprintf(stderr, "video_set_kbps ch%d: %d -> %d\n", ch, appBitrate[ch], kbps);
+    }
+  }
+  return real_local_sdk_video_set_kbps(ch, kbps);
+}
+
 static void __attribute ((constructor)) video_callback_init(void) {
 
   char *p = getenv("RTSP_MAIN_FORMAT_HEVC");
@@ -425,4 +470,5 @@ static void __attribute ((constructor)) video_callback_init(void) {
   }
 
   real_local_sdk_video_set_encode_frame_callback = dlsym(dlopen("/system/lib/liblocalsdk.so", RTLD_LAZY), "local_sdk_video_set_encode_frame_callback");
+  real_local_sdk_video_set_kbps = dlsym(dlopen ("/system/lib/liblocalsdk.so", RTLD_LAZY), "local_sdk_video_set_kbps");
 }
