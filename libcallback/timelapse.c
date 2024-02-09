@@ -19,20 +19,21 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-static const char *TimelapseInfoFile = "/media/mmc/time_lapse.info";
-
-struct TimeLapseInfoSt {
+struct StszHeaderSt {
+  unsigned int magic;
   int interval;
-  int count;
   int numOfTimes;
-  unsigned int mdatSize;
-  unsigned int spsOffset;
-  unsigned int spsSize;
-  unsigned int ppsOffset;
-  unsigned int ppsSize;
-  char mp4file[256];
-  char mp4xfile[256];
-  char stszfile[256];
+  time_t endTime;
+};
+
+struct ProcessingInfoSt {
+  char stszFile[256];
+  char mp4File[256];
+  char mpxFile[256];
+  int count;
+  int interval;
+  int numOfTimes;
+  time_t endTime;
 };
 
 struct FrameCtrlSt {
@@ -57,10 +58,26 @@ typedef enum {
   Directive_Nop,
   Directive_Start,
   Directive_Restart,
+  Directive_CloseAndStart,
   Directive_ToMP4,
   Directive_Stop,
   Directive_Close,
 } DirectiveSt;
+
+extern int video_get_frame(int ch, int lockId, int mode, unsigned char *buf, struct FrameCtrlSt *frameCtrl);
+extern void CommandResponse(int fd, const char *res);
+
+static struct ProcessingInfoSt ProcessingInfo;
+static char ResBuf[256];
+static char Filename[256];
+static pthread_mutex_t TimelapseMutex = PTHREAD_MUTEX_INITIALIZER;
+static int TimelapseFd = -1;
+static DirectiveSt Directive = Directive_Nop;
+static StateSt State = State_Ready;
+
+static const int VideoBufSize = 0x50000;
+static const unsigned int STSZMagic = 0x7a737473;
+static const char *TimelapseInfoFile = "/media/mmc/.time_lapse.info";
 
 static const unsigned char mp4Header[] = {
   0x00, 0x00, 0x00, 0x20, 0x66, 0x74, 0x79, 0x70, // ftyp
@@ -150,23 +167,26 @@ static const unsigned char moov[] = {
   //       stco entry:frameCount
 };
 
-extern int video_get_frame(int ch, int lockId, int mode, unsigned char *buf, struct FrameCtrlSt *frameCtrl);
-extern void CommandResponse(int fd, const char *res);
+static char *AppendMoov();
+static void *TimelapseThread();
 
-static struct TimeLapseInfoSt TimeLapseInfo;
-static char ResBuf[256];
-static pthread_mutex_t TimelapseMutex = PTHREAD_MUTEX_INITIALIZER;
-static const int VideoBufSize = 0x50000;
-static int TimelapseFd = -1;
-static DirectiveSt Directive = Directive_Nop;
-static StateSt State = State_Ready;
+static void __attribute ((constructor)) TimelapseInit(void) {
+
+  pthread_mutex_lock(&TimelapseMutex);
+  pthread_t thread;
+  if(pthread_create(&thread, NULL, TimelapseThread, NULL)) {
+    fprintf(stderr, "pthread_create error\n");
+    pthread_mutex_unlock(&TimelapseMutex);
+    return;
+  }
+}
 
 char *Timelapse(int fd, char *tokenPtr) {
 
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   if(!p) {
-    if(TimeLapseInfo.count >= TimeLapseInfo.numOfTimes) return "timelapse: not operating.";
-    snprintf(ResBuf, 255, "file: %s\ninterval: %dsec, count: %d/%d\n", TimeLapseInfo.mp4file, TimeLapseInfo.interval, TimeLapseInfo.count, TimeLapseInfo.numOfTimes);
+    if(ProcessingInfo.count >= ProcessingInfo.numOfTimes) return "timelapse: not operating.";
+    snprintf(ResBuf, 255, "file: %s\ninterval: %dsec, count: %d/%d\n", ProcessingInfo.mp4File, ProcessingInfo.interval, ProcessingInfo.count, ProcessingInfo.numOfTimes);
     return ResBuf;
   }
 
@@ -187,77 +207,259 @@ char *Timelapse(int fd, char *tokenPtr) {
   if(State != State_Ready) return "error :　Already in operation.";
 
   if(!strcmp(p, "restart")) {
-    FILE *fp = fopen(TimelapseInfoFile, "r");
-    if(fp) {
-      if(fread(&TimeLapseInfo, sizeof(TimeLapseInfo), 1, fp) != 1) {
-        memset(&TimeLapseInfo, 0, sizeof(TimeLapseInfo));
-      }
-      fclose(fp);
-    } else {
-      memset(&TimeLapseInfo, 0, sizeof(TimeLapseInfo));
-    }
-    if(strlen(TimeLapseInfo.stszfile)) {
-      fp = fopen(TimeLapseInfo.stszfile, "r");
-      if(fp) fclose(fp);
-    } else {
-      fp = NULL;
-    }
-    if((TimeLapseInfo.count >= TimeLapseInfo.numOfTimes) && (fp == NULL)) return "timelapse: not operating.";
     Directive = Directive_Restart;
     TimelapseFd = fd;
     pthread_mutex_unlock(&TimelapseMutex);
     return NULL;
   }
 
-  int mp4Flag = 0;
+  Filename[0] = 0;
   if(p && !strcmp(p, "mp4")) {
-    mp4Flag = 1;
     p = strtok_r(NULL, " \t\r\n", &tokenPtr);
-  }
+    if(!p) return "error : filename error.";
+    strncpy(Filename, p, 250);
+    char *q = strrchr(Filename, '.');
+    if(!q) q = Filename + strlen(Filename);
+    strcpy(q, ".stsz");
+    Directive = Directive_ToMP4;
+  } else { // start
+    strncpy(Filename, p, 250);
+    char *q = strrchr(Filename, '.');
+    if(!q) q = Filename + strlen(Filename);
 
-  strncpy(TimeLapseInfo.mp4file, p, 250);
-  char *q = strrchr(TimeLapseInfo.mp4file, '.');
-  if(!q) q = TimeLapseInfo.mp4file + strlen(TimeLapseInfo.mp4file);
-  strcpy(q, ".mp4");
-
-  strncpy(TimeLapseInfo.mp4xfile, TimeLapseInfo.mp4file, 250);
-  q = strrchr(TimeLapseInfo.mp4xfile, '.');
-  strcpy(q, "._mp4");
-
-  strncpy(TimeLapseInfo.stszfile, TimeLapseInfo.mp4file, 250);
-  q = strrchr(TimeLapseInfo.stszfile, '.');
-  strcpy(q, ".stsz");
-
-  if(!mp4Flag) {
+    struct StszHeaderSt stszHeader;
+    stszHeader.magic = STSZMagic;
     p = strtok_r(NULL, " \t\r\n", &tokenPtr);
     if(!p) return "error";
-    TimeLapseInfo.interval = atoi(p);
-    if(TimeLapseInfo.interval < 1) TimeLapseInfo.interval = 1;
+    stszHeader.interval = atoi(p);
+    if(stszHeader.interval < 1) stszHeader.interval = 1;
 
     p = strtok_r(NULL, " \t\r\n", &tokenPtr);
     if(!p) return "error";
-    TimeLapseInfo.numOfTimes = atoi(p);
-    if(TimeLapseInfo.numOfTimes < 1) TimeLapseInfo.numOfTimes = 1;
+    stszHeader.numOfTimes = atoi(p);
+    if(stszHeader.numOfTimes < 1) stszHeader.numOfTimes = 1;
 
-    TimeLapseInfo.count = 0;
-    TimeLapseInfo.mdatSize = 8;
-    TimeLapseInfo.spsSize = 0;
-    TimeLapseInfo.ppsSize = 0;
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    stszHeader.endTime = tv.tv_sec + stszHeader.interval * stszHeader.numOfTimes;
 
-    FILE *fp = fopen(TimeLapseInfo.mp4xfile, "w");
+    strcpy(q, "._mp4");
+    FILE *fp = fopen(Filename, "w");
     if(!fp) return strerror(errno);
     fwrite(mp4Header, sizeof(mp4Header), 1, fp);
     fclose(fp);
 
-    fp = fopen(TimeLapseInfo.stszfile, "w");
-    if(!fp) return strerror(errno);
+    strcpy(q, ".stsz");
+    fp = fopen(Filename, "w");
+    if(!fp) return "error : can't open stsz file";
+    fwrite(&stszHeader, sizeof(stszHeader), 1, fp);
     fclose(fp);
+
+    sync();
+
+    Directive = Directive_Start;
   }
 
-  Directive = mp4Flag ? Directive_ToMP4 : Directive_Start;
   TimelapseFd = fd;
   pthread_mutex_unlock(&TimelapseMutex);
   return NULL;
+}
+
+static void *TimelapseThread() {
+
+  while(1) {
+    if(Directive == Directive_Nop) pthread_mutex_lock(&TimelapseMutex);
+    // Directive Start / Restart / ToMP4
+
+    struct FrameCtrlSt frameCtrl;
+    memset(&frameCtrl, 0, sizeof(frameCtrl));
+    frameCtrl.buf = malloc(VideoBufSize);
+    if(!frameCtrl.buf) {
+      CommandResponse(TimelapseFd, "timelapse: error : not enough memory to video buffer");
+      goto finalize;
+    }
+
+    strcpy(ProcessingInfo.stszFile, Filename);
+    if((Directive == Directive_Start) || (Directive == Directive_Restart)) {
+      char file[256];
+      file[0] = 0;
+      FILE *fp = fopen(TimelapseInfoFile, "r");
+      if(fp) {
+        fgets(file, 255, fp);
+        fclose(fp);
+      }
+      fp = NULL;
+      if(strlen(file)) fp = fopen(file, "r");
+      if(fp) {
+        fclose(fp);
+        strcpy(ProcessingInfo.stszFile, file);
+        if(Directive == Directive_Start) Directive = Directive_CloseAndStart;
+      } else {
+        if(Directive == Directive_Restart) {
+          CommandResponse(TimelapseFd, "timelapse: not operating.");
+          goto finalize;
+        }
+      }
+    } else if(Directive == Directive_CloseAndStart) {
+      Directive = Directive_Start;
+    }
+
+    struct StszHeaderSt stszHeader;
+    FILE *fp = fopen(ProcessingInfo.stszFile, "r");
+    if(!fp) {
+      CommandResponse(TimelapseFd, "timelapse: error : can't open stsz file");
+      goto finalize;
+    }
+    fread(&stszHeader, sizeof(stszHeader), 1, fp);
+    fseek(fp, 0, SEEK_END);
+    ProcessingInfo.count = (ftell(fp) - sizeof(stszHeader)) / 8;
+    fclose(fp);
+    if(stszHeader.magic != STSZMagic) {
+      unlink(ProcessingInfo.stszFile);
+      CommandResponse(TimelapseFd, "timelapse: stsz file error.");
+      goto finalize;
+    }
+    ProcessingInfo.interval = stszHeader.interval;
+    ProcessingInfo.numOfTimes = stszHeader.numOfTimes;
+    ProcessingInfo.endTime = stszHeader.endTime;
+
+
+    strcpy(ProcessingInfo.mpxFile, ProcessingInfo.stszFile);
+    char *q = strrchr(ProcessingInfo.mpxFile, '.');
+    strcpy(q, "._mp4");
+
+    strcpy(ProcessingInfo.mp4File, ProcessingInfo.stszFile);
+    q = strrchr(ProcessingInfo.mp4File, '.');
+    strcpy(q, ".mp4");
+
+    if(Directive == Directive_Start) {
+      fp = fopen(TimelapseInfoFile, "w");
+      if(fp) {
+        fputs(ProcessingInfo.stszFile, fp);
+        fclose(fp);
+      }
+    }
+
+    int mdatSize = 8;
+    if(Directive == Directive_Restart) {
+      FILE *fp = fopen(ProcessingInfo.mpxFile, "r+"); // Do not open in append mode when seeking and writing.
+      if(fp) {
+        unsigned char buf[4];
+        fseek(fp, sizeof(mp4Header) - 8, SEEK_SET);
+        fread(buf, 4, 1, fp);
+        mdatSize = (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf[3];
+        fclose(fp);
+      }
+    }
+
+    State = State_Recording;
+    while((Directive < Directive_CloseAndStart)) {
+      if(ProcessingInfo.count >= ProcessingInfo.numOfTimes) break;
+      int ret = video_get_frame(0, 0, 2, frameCtrl.buf, &frameCtrl);
+      if(ret) fprintf(stderr, "[timelapse] error video_get_frame %d\n", ret);
+      if(frameCtrl.stat) fprintf(stderr, "[timelapse] error video_get_frame frame.sstat %d\n", frameCtrl.stat);
+      int lastSC = -1;
+      for(int i = 0; i < 0x100; i++) {
+        if((frameCtrl.buf[i] == 0) && (frameCtrl.buf[i + 1] == 0) && (frameCtrl.buf[i + 2] == 0) && (frameCtrl.buf[i + 3] == 1)) {
+          int nulUnitType = frameCtrl.buf[i + 4] & 0x1f;
+          if(lastSC >= 0) {
+            int size = i - lastSC - 4;
+            frameCtrl.buf[lastSC] = size >> 24;
+            frameCtrl.buf[lastSC + 1] = size >> 16;
+            frameCtrl.buf[lastSC + 2] = size >> 8;
+            frameCtrl.buf[lastSC + 3] = size;
+            int lastNulType = frameCtrl.buf[lastSC + 4] & 0x1f;
+          }
+          lastSC = i;
+          if(nulUnitType == 5) {
+            int size = frameCtrl.size - i - 4;
+            frameCtrl.buf[i] = size >> 24;
+            frameCtrl.buf[i + 1] = size >> 16;
+            frameCtrl.buf[i + 2] = size >> 8;
+            frameCtrl.buf[i + 3] = size;
+            break;
+          }
+          i+= 4;
+        }
+      }
+
+      if(!ret && !frameCtrl.stat) {
+        FILE *fp = fopen(ProcessingInfo.mpxFile, "r+"); // Do not open in append mode when seeking and writing.
+        if(fp) {
+          unsigned int mdatOffset = mdatSize + sizeof(mp4Header) - 8;
+          fseek(fp, mdatOffset, SEEK_SET);
+          fwrite(frameCtrl.buf, frameCtrl.size, 1, fp);
+          mdatSize += frameCtrl.size; // sizeof(mp4Header) - 8 = mdat size offset
+          unsigned char buf[4];
+          buf[0] = mdatSize >> 24;
+          buf[1] = mdatSize >> 16;
+          buf[2] = mdatSize >> 8;
+          buf[3] = mdatSize;
+          fseek(fp, sizeof(mp4Header) - 8, SEEK_SET);
+          fwrite(buf, 4, 1, fp);
+          fclose(fp);
+          fp = fopen(ProcessingInfo.stszFile, "a");
+          if(fp) {
+            unsigned char buf[8];
+            buf[0] = mdatOffset >> 24;
+            buf[1] = mdatOffset >> 16;
+            buf[2] = mdatOffset >> 8;
+            buf[3] = mdatOffset;
+            buf[4] = frameCtrl.size >> 24;
+            buf[5] = frameCtrl.size >> 16;
+            buf[6] = frameCtrl.size >> 8;
+            buf[7] = frameCtrl.size;
+            fwrite(buf, 8, 1, fp);
+            fclose(fp);
+          }
+          sync();
+        }
+      }
+
+      if(Directive != Directive_Nop) {
+        CommandResponse(TimelapseFd, "ok");
+        TimelapseFd = -1;
+        Directive = Directive_Nop;
+      }
+
+      ProcessingInfo.count++;
+      fprintf(stderr, "[timelapse] %d/%d\n", ProcessingInfo.count, ProcessingInfo.numOfTimes);
+      fprintf(stdout, "[webhook] time_lapse_event %s %d/%d\n", ProcessingInfo.mp4File, ProcessingInfo.count, ProcessingInfo.numOfTimes);
+      if(ProcessingInfo.count >= ProcessingInfo.numOfTimes) break;
+
+      struct timeval now;
+      gettimeofday(&now, NULL);
+      int targetTime = ProcessingInfo.endTime - ((ProcessingInfo.endTime - now.tv_sec) * 1000 - 500) / (ProcessingInfo.interval * 1000) * ProcessingInfo.interval;
+      while(targetTime > now.tv_sec) {
+        sleep(1);
+        gettimeofday(&now, NULL);
+        if(Directive >= Directive_ToMP4) break;
+      }
+    }
+
+    if(Directive == Directive_Stop) {
+      CommandResponse(TimelapseFd, "ok");
+      goto finalize;
+    }
+
+    State = State_ConvertToMP4;
+    ProcessingInfo.numOfTimes = ProcessingInfo.count;
+
+    char *res = AppendMoov();
+    if(!strcmp(res, "ok")) {
+      fprintf(stdout, "[webhook] time_lapse_finish %s %d/%d\n", ProcessingInfo.mp4File, ProcessingInfo.count, ProcessingInfo.numOfTimes);
+      fprintf(stderr, "[timelapse] finish %s %d/%d\n", ProcessingInfo.mp4File, ProcessingInfo.count, ProcessingInfo.numOfTimes);
+    }
+    CommandResponse(TimelapseFd, res);
+
+finalize:
+    free(frameCtrl.buf);
+    if(Directive != Directive_CloseAndStart) {
+      TimelapseFd = -1;
+      Directive = Directive_Nop;
+      State = State_Ready;
+    }
+  }
 }
 
 static char *AppendMoov() {
@@ -266,61 +468,66 @@ static char *AppendMoov() {
   unsigned int timeScale = 1000;
   unsigned char sizeBuf[5];
 
-  FILE *fp = fopen(TimeLapseInfo.mp4xfile, "r+"); // Do not open in append mode when seeking and writing.
+  FILE *fp = fopen(ProcessingInfo.mpxFile, "r+"); // Do not open in append mode when seeking and writing.
   if(!fp) return "error : can't open mp4 file";
-  TimeLapseInfo.spsOffset = 0;
-  TimeLapseInfo.spsSize = 0;
-  TimeLapseInfo.ppsOffset = 0;
-  TimeLapseInfo.ppsSize = 0;
+  unsigned int spsOffset = 0;
+  unsigned int spsSize = 0;
+  unsigned int ppsOffset = 0;
+  unsigned int ppsSize = 0;
   fseek(fp, sizeof(mp4Header) - 8, SEEK_SET);
   fread(sizeBuf, 4, 1, fp);
   int mdatSize = (sizeBuf[0] << 24) | (sizeBuf[1] << 16) | (sizeBuf[2] << 8) | sizeBuf[3];
-  if(mdatSize != 8) TimeLapseInfo.mdatSize = mdatSize;
 
   int offset = sizeof(mp4Header);
   for(int i = 0; i < 10; i++) {
-    if(TimeLapseInfo.spsSize && TimeLapseInfo.ppsSize) break;
+    if(spsSize && ppsSize) break;
     if(fseek(fp, offset, SEEK_SET)) break;
     if(fread(sizeBuf, 1, 5, fp) != 5) break;
     int size = (sizeBuf[0] << 24) | (sizeBuf[1] << 16) | (sizeBuf[2] << 8) | sizeBuf[3];
-    if(!TimeLapseInfo.spsSize && (sizeBuf[4] == 0x27)) { // SPS
-      TimeLapseInfo.spsOffset = offset + 4;
-      TimeLapseInfo.spsSize = size;
+    if(!spsSize && (sizeBuf[4] == 0x27)) { // SPS
+      spsOffset = offset + 4;
+      spsSize = size;
     }
-    if(!TimeLapseInfo.ppsSize && (sizeBuf[4] == 0x28)) { // PPS
-      TimeLapseInfo.ppsOffset = offset + 4;
-      TimeLapseInfo.ppsSize = size;
+    if(!ppsSize && (sizeBuf[4] == 0x28)) { // PPS
+      ppsOffset = offset + 4;
+      ppsSize = size;
     }
     offset += 4 + size;
   }
-  if(!TimeLapseInfo.spsSize || !TimeLapseInfo.ppsSize) return "error : _mp4 format error";
+  if(!spsSize || !ppsSize) {
+    fclose(fp);
+    return "error : _mp4 format error";
+  }
 
-  FILE *fp2 = fopen(TimeLapseInfo.stszfile, "r");
-  if(!fp2) return "error : can't open stsz file";
-  fseek(fp2, 0, SEEK_END);
-  TimeLapseInfo.count = TimeLapseInfo.numOfTimes = ftell(fp2) / 8;
-
-  unsigned char *buf = malloc(sizeof(moov) + 2 + TimeLapseInfo.spsSize + 3 + TimeLapseInfo.ppsSize);
-  if(!buf) return "error : can't allocate moov memory";
-
+  FILE *fp2 = fopen(ProcessingInfo.stszFile, "r");
+  if(!fp2) {
+    fclose(fp);
+    return "error : can't open stsz file";
+  }
+  unsigned char *buf = malloc(sizeof(moov) + 2 + spsSize + 3 + ppsSize);
+  if(!buf) {
+    fclose(fp);
+    fclose(fp2);
+    return "error : can't allocate moov memory";
+  }
   memcpy(buf, moov, sizeof(moov));
-  fseek(fp, TimeLapseInfo.spsOffset, SEEK_SET);
-  fread(buf + sizeof(moov) + 2, TimeLapseInfo.spsSize, 1, fp);
-  buf[sizeof(moov)] = TimeLapseInfo.spsSize >> 8;
-  buf[sizeof(moov)  + 1] = TimeLapseInfo.spsSize;
-  fseek(fp, TimeLapseInfo.ppsOffset, SEEK_SET);
-  fread(buf + sizeof(moov) + 2 + TimeLapseInfo.spsSize + 3, TimeLapseInfo.ppsSize, 1, fp);
-  buf[sizeof(moov) + 2 + TimeLapseInfo.spsSize] = 1;
-  buf[sizeof(moov) + 2 + TimeLapseInfo.spsSize + 1] = TimeLapseInfo.ppsSize >> 8;
-  buf[sizeof(moov) + 2 + TimeLapseInfo.spsSize + 2] = TimeLapseInfo.ppsSize;
+  fseek(fp, spsOffset, SEEK_SET);
+  fread(buf + sizeof(moov) + 2, spsSize, 1, fp);
+  buf[sizeof(moov)] = spsSize >> 8;
+  buf[sizeof(moov)  + 1] = spsSize;
+  fseek(fp, ppsOffset, SEEK_SET);
+  fread(buf + sizeof(moov) + 2 + spsSize + 3, ppsSize, 1, fp);
+  buf[sizeof(moov) + 2 + spsSize] = 1;
+  buf[sizeof(moov) + 2 + spsSize + 1] = ppsSize >> 8;
+  buf[sizeof(moov) + 2 + spsSize + 2] = ppsSize;
 
-  unsigned int stcoChunkCount = (TimeLapseInfo.count + 7) / 8;
+  unsigned int stcoChunkCount = (ProcessingInfo.numOfTimes + 7) / 8;
   unsigned int stcoSize = 16 + stcoChunkCount * 4;
-  unsigned int stscEntry = (stcoChunkCount > 1) && (TimeLapseInfo.count % 8) ? 2 : 1;
+  unsigned int stscEntry = (stcoChunkCount > 1) && (ProcessingInfo.numOfTimes % 8) ? 2 : 1;
   unsigned int stscSize = 16 + stscEntry * 12;
-  unsigned int stszSize = 20 + TimeLapseInfo.count * 4;
+  unsigned int stszSize = 20 + ProcessingInfo.numOfTimes * 4;
 
-  unsigned int avcCSize = 16 + TimeLapseInfo.spsSize + 3 + TimeLapseInfo.ppsSize;
+  unsigned int avcCSize = 16 + spsSize + 3 + ppsSize;
   buf[0x1ee] = avcCSize >> 24;
   buf[0x1ef] = avcCSize >> 16;
   buf[0x1f0] = avcCSize >> 8;
@@ -373,7 +580,7 @@ static char *AppendMoov() {
   buf[0x002] = moovSize >> 8;
   buf[0x003] = moovSize;
 
-  unsigned int duration = TimeLapseInfo.count * timeScale / fps;
+  unsigned int duration = ProcessingInfo.numOfTimes * timeScale / fps;
   buf[0x01c] = timeScale >> 24;
   buf[0x01d] = timeScale >> 16;
   buf[0x01e] = timeScale >> 8;
@@ -399,10 +606,10 @@ static char *AppendMoov() {
   buf[0x0fa] = duration >> 8;
   buf[0x0fb] = duration;
 
-  buf[0x180] = TimeLapseInfo.count >> 24;
-  buf[0x181] = TimeLapseInfo.count >> 16;
-  buf[0x182] = TimeLapseInfo.count >> 8;
-  buf[0x183] = TimeLapseInfo.count;
+  buf[0x180] = ProcessingInfo.numOfTimes >> 24;
+  buf[0x181] = ProcessingInfo.numOfTimes >> 16;
+  buf[0x182] = ProcessingInfo.numOfTimes >> 8;
+  buf[0x183] = ProcessingInfo.numOfTimes;
 
   unsigned int sampleDelta = timeScale / fps;
   buf[0x184] = sampleDelta >> 24;
@@ -410,8 +617,8 @@ static char *AppendMoov() {
   buf[0x186] = sampleDelta >> 8;
   buf[0x187] = sampleDelta;
 
-  fseek(fp, TimeLapseInfo.mdatSize + sizeof(mp4Header) - 8, SEEK_SET);
-  fwrite(buf, sizeof(moov) + 2 + TimeLapseInfo.spsSize + 3 + TimeLapseInfo.ppsSize, 1, fp);
+  fseek(fp, mdatSize + sizeof(mp4Header) - 8, SEEK_SET);
+  fwrite(buf, sizeof(moov) + 2 + spsSize + 3 + ppsSize, 1, fp);
 
   // stsc
   buf[0] = stscSize >> 24;
@@ -425,11 +632,11 @@ static char *AppendMoov() {
   memset(buf + 8, 0, (2 + 6) * 4);
   buf[15] = stscEntry;
   buf[19] = 1;
-  buf[23] = TimeLapseInfo.count >= 8 ? 8 : TimeLapseInfo.count;
+  buf[23] = ProcessingInfo.numOfTimes >= 8 ? 8 : ProcessingInfo.numOfTimes;
   buf[27] = 1;
   if(stscEntry > 1) {
-    buf[31] = (TimeLapseInfo.count / 8) + 1;
-    buf[35] = (TimeLapseInfo.count % 8);
+    buf[31] = (ProcessingInfo.numOfTimes / 8) + 1;
+    buf[35] = (ProcessingInfo.numOfTimes % 8);
     buf[39] = 1;
   }
   fwrite(buf, stscSize, 1, fp);
@@ -444,13 +651,13 @@ static char *AppendMoov() {
   buf[6] = 's';
   buf[7] = 'z';
   memset(buf + 8, 0, 8);
-  buf[16] = TimeLapseInfo.count >> 24;
-  buf[17] = TimeLapseInfo.count >> 16;
-  buf[18] = TimeLapseInfo.count >> 8;
-  buf[19] = TimeLapseInfo.count;
+  buf[16] = ProcessingInfo.numOfTimes >> 24;
+  buf[17] = ProcessingInfo.numOfTimes >> 16;
+  buf[18] = ProcessingInfo.numOfTimes >> 8;
+  buf[19] = ProcessingInfo.numOfTimes;
   fwrite(buf, 20, 1, fp);
-  fseek(fp2, 0, SEEK_SET);
-  for(int i = 0; i < TimeLapseInfo.count; i++) {
+  fseek(fp2, sizeof(struct StszHeaderSt), SEEK_SET);
+  for(int i = 0; i < ProcessingInfo.numOfTimes; i++) {
     fread(buf, 8, 1, fp2);
     fwrite(buf + 4, 4, 1, fp);
   }
@@ -472,186 +679,15 @@ static char *AppendMoov() {
   fwrite(buf, 16, 1, fp);
 
   for(int i = 0; i < stcoChunkCount; i++) {
-    fseek(fp2, 8 * i * 8, SEEK_SET);
+    fseek(fp2, sizeof(struct StszHeaderSt) + 8 * i * 8, SEEK_SET);
     fread(buf, 4, 1, fp2);
     fwrite(buf, 4, 1, fp);
   }
   fclose(fp2);
   fclose(fp);
 
-  rename(TimeLapseInfo.mp4xfile, TimeLapseInfo.mp4file);
-  unlink(TimeLapseInfo.stszfile);
-  fp = fopen("/proc/sys/vm/drop_caches", "w");
-  if(fp) {
-    fwrite("1", 2, 1, fp);
-    fclose(fp);
-  }
+  rename(ProcessingInfo.mpxFile, ProcessingInfo.mp4File);
+  unlink(ProcessingInfo.stszFile);
+  sync();
   return "ok";
-}
-
-static void *TimelapseThread() {
-
-  while(1) {
-    pthread_mutex_lock(&TimelapseMutex);
-
-    struct FrameCtrlSt frameCtrl;
-    memset(&frameCtrl, 0, sizeof(frameCtrl));
-    frameCtrl.buf = malloc(VideoBufSize);
-    if(!frameCtrl.buf) {
-      CommandResponse(TimelapseFd, "timelapse: error : not enough memory to video buffer");
-      goto finalize;
-    }
-
-    State = State_Recording;
-    struct timeval startTime = { .tv_sec = 0, .tv_usec = 0 };
-    while((Directive < Directive_ToMP4)) {
-      if(TimeLapseInfo.count >= TimeLapseInfo.numOfTimes) break;
-      int ret = video_get_frame(0, 0, 2, frameCtrl.buf, &frameCtrl);
-      if(ret) fprintf(stderr, "[timelapse] error video_get_frame %d\n", ret);
-      if(frameCtrl.stat) fprintf(stderr, "[timelapse] error video_get_frame frame.sstat %d\n", frameCtrl.stat);
-      int lastSC = -1;
-      for(int i = 0; i < 0x100; i++) {
-        if((frameCtrl.buf[i] == 0) && (frameCtrl.buf[i + 1] == 0) && (frameCtrl.buf[i + 2] == 0) && (frameCtrl.buf[i + 3] == 1)) {
-          int nulUnitType = frameCtrl.buf[i + 4] & 0x1f;
-          if(lastSC >= 0) {
-            int size = i - lastSC - 4;
-            frameCtrl.buf[lastSC] = size >> 24;
-            frameCtrl.buf[lastSC + 1] = size >> 16;
-            frameCtrl.buf[lastSC + 2] = size >> 8;
-            frameCtrl.buf[lastSC + 3] = size;
-            int lastNulType = frameCtrl.buf[lastSC + 4] & 0x1f;
-            if(!TimeLapseInfo.spsSize && (lastNulType == 7)) { // SPS
-              TimeLapseInfo.spsOffset = lastSC + sizeof(mp4Header) + 4;
-              TimeLapseInfo.spsSize = size;
-            }
-            if(!TimeLapseInfo.ppsSize && (lastNulType == 8)) { // PPS
-              TimeLapseInfo.ppsOffset = lastSC + sizeof(mp4Header) + 4;
-              TimeLapseInfo.ppsSize = size;
-            }
-          }
-          lastSC = i;
-          if(nulUnitType == 5) {
-            int size = frameCtrl.size - i - 4;
-            frameCtrl.buf[i] = size >> 24;
-            frameCtrl.buf[i + 1] = size >> 16;
-            frameCtrl.buf[i + 2] = size >> 8;
-            frameCtrl.buf[i + 3] = size;
-            break;
-          }
-          i+= 4;
-        }
-      }
-
-      if(!startTime.tv_sec) {
-        gettimeofday(&startTime, NULL);
-        if((Directive == Directive_Start) || (Directive == Directive_Restart)) {
-          startTime.tv_sec -= TimeLapseInfo.interval * TimeLapseInfo.count;
-          CommandResponse(TimelapseFd, "ok");
-          TimelapseFd = -1;
-          Directive = Directive_Nop;
-        }
-      }
-
-      if(!ret && !frameCtrl.stat) {
-        unsigned int mdatOffset = TimeLapseInfo.mdatSize + sizeof(mp4Header) - 8;
-        FILE *fp = fopen(TimeLapseInfo.mp4xfile, "r+"); // Do not open in append mode when seeking and writing.
-        if(fp) {
-          fseek(fp, TimeLapseInfo.mdatSize + sizeof(mp4Header) - 8, SEEK_SET);
-          fwrite(frameCtrl.buf, frameCtrl.size, 1, fp);
-          TimeLapseInfo.mdatSize += frameCtrl.size; // sizeof(mp4Header) - 8 = mdat size offset
-          unsigned char buf[4];
-          buf[0] = TimeLapseInfo.mdatSize >> 24;
-          buf[1] = TimeLapseInfo.mdatSize >> 16;
-          buf[2] = TimeLapseInfo.mdatSize >> 8;
-          buf[3] = TimeLapseInfo.mdatSize;
-          fseek(fp, sizeof(mp4Header) - 8, SEEK_SET);
-          fwrite(buf, 4, 1, fp);
-          fclose(fp);
-        }
-        fp = fopen(TimeLapseInfo.stszfile, "a");
-        if(fp) {
-          unsigned char buf[8];
-          buf[0] = mdatOffset >> 24;
-          buf[1] = mdatOffset >> 16;
-          buf[2] = mdatOffset >> 8;
-          buf[3] = mdatOffset;
-          buf[4] = frameCtrl.size >> 24;
-          buf[5] = frameCtrl.size >> 16;
-          buf[6] = frameCtrl.size >> 8;
-          buf[7] = frameCtrl.size;
-          fwrite(buf, 8, 1, fp);
-          fclose(fp);
-        }
-      }
-      TimeLapseInfo.count++;
-      FILE *fp = fopen(TimelapseInfoFile, "w");
-      if(fp) {
-        fwrite(&TimeLapseInfo, sizeof(TimeLapseInfo), 1, fp);
-        fclose(fp);
-      }
-      fp = fopen("/proc/sys/vm/drop_caches", "w");
-      if(fp) {
-        fwrite("1", 2, 1, fp);
-        fclose(fp);
-      }
-      fprintf(stderr, "[timelapse] %d/%d\n", TimeLapseInfo.count, TimeLapseInfo.numOfTimes);
-      fprintf(stdout, "[webhook] time_lapse_event %s %d/%d\n", TimeLapseInfo.mp4xfile, TimeLapseInfo.count, TimeLapseInfo.numOfTimes);
-
-      if(TimeLapseInfo.count >= TimeLapseInfo.numOfTimes) break;
-      if(Directive >= Directive_ToMP4) break;
-
-      while(1) {
-        struct timeval now;
-        gettimeofday(&now, NULL);
-        int ms = (startTime.tv_sec + TimeLapseInfo.interval * TimeLapseInfo.count - now.tv_sec) * 1000  + ((int)startTime.tv_usec - (int)now.tv_usec) / 1000;
-        if(ms <= 0) break;
-        if(Directive >= Directive_ToMP4) break;
-        if(ms > 1000) ms = 1000;
-        usleep(ms * 1000);
-      }
-    }
-    State = State_ConvertToMP4;
-
-    if(Directive == Directive_Stop) {
-      CommandResponse(TimelapseFd, "ok");
-      goto finalize;
-    }
-    if(Directive == Directive_Close) {
-      TimeLapseInfo.numOfTimes = TimeLapseInfo.count;
-      FILE *fp = fopen(TimelapseInfoFile, "w");
-      if(fp) {
-        fwrite(&TimeLapseInfo, sizeof(TimeLapseInfo), 1, fp);
-        fclose(fp);
-      }
-      fp = fopen("/proc/sys/vm/drop_caches", "w");
-      if(fp) {
-        fwrite("1", 2, 1, fp);
-        fclose(fp);
-      }
-    }
-
-    char *res = AppendMoov();
-    if(!strcmp(res, "ok")) {
-      fprintf(stdout, "[webhook] time_lapse_finish %s %d/%d\n", TimeLapseInfo.mp4file, TimeLapseInfo.count, TimeLapseInfo.numOfTimes);
-      fprintf(stderr, "[timelapse] finish %s %d/%d\n", TimeLapseInfo.mp4file, TimeLapseInfo.count, TimeLapseInfo.numOfTimes);
-    }
-    CommandResponse(TimelapseFd, res);
-
-finalize:
-    free(frameCtrl.buf);
-    TimelapseFd = -1;
-    State = State_Ready;
-    Directive = Directive_Nop;
-  }
-}
-
-static void __attribute ((constructor)) TimelapseInit(void) {
-
-  pthread_mutex_lock(&TimelapseMutex);
-  pthread_t thread;
-  if(pthread_create(&thread, NULL, TimelapseThread, NULL)) {
-    fprintf(stderr, "pthread_create error\n");
-    pthread_mutex_unlock(&TimelapseMutex);
-    return;
-  }
 }

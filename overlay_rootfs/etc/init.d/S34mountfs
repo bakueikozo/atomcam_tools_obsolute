@@ -75,6 +75,7 @@ case "$1" in
     mkdir -p /media/mmc/tmp
     rm -f /media/mmc/tmp/*
     rm -f /media/mmc/timelapse.info
+    rm -f /media/mmc/time_lapse.info
   ;;
   stop)
     umount /var/spool/cron/crontabs
