@@ -81,7 +81,7 @@ static int video0_encode_capture(struct frames_st *frames);
 static int video1_encode_capture(struct frames_st *frames);
 static int video2_encode_capture(struct frames_st *frames);
 static int userBitrate[4] = { 0, 0, 0, 0 };
-static int appBitrate[4] = { 240, 180, 0, 160 };
+static int appBitrate[4] = { 960, 180, 0, 800 };
 
 struct video_capture_st {
   framecb capture;
@@ -456,6 +456,8 @@ int local_sdk_video_set_kbps(int ch, int kbps) {
     if(userBitrate[ch]) {
       kbps = userBitrate[ch];
       fprintf(stderr, "video_set_kbps ch%d: %d -> %d\n", ch, appBitrate[ch], kbps);
+    } else {
+      fprintf(stderr, "video_set_kbps ch%d: %d\n", ch, kbps);
     }
   }
   return real_local_sdk_video_set_kbps(ch, kbps);
