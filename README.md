@@ -8,6 +8,48 @@
 
 
 
+> [!IMPORTANT]
+>
+> **WebUIのUpdateから行う場合はVer.1.x.xからVer.2.x.xへは２回Updateする必要があります**。
+> １回目のUpdateでinitramfsを含むkernelがupdateされますが、表面上はUpdateされていないように見えます。
+>
+> ２回目のUpdateでcramfsのroot file systemが置き換わり、WebUIのVer.がVer.2.0.0に変わります。
+> お手数ですがUpdateを２度実行してください。
+> 直接SD-Cardに書き込む場合は通常の書き込み方で大丈夫です。
+
+
+
+> [!IMPORTANT]
+>
+> **Ver.2.0.0pre1~4, Ver.2.0.0, Ver.2.1.0のWebUIのUpdateの判断にbugがありUpdateできません。**
+>
+> - 対処方法1（SD-Cardにアクセスできる場合）
+>   atomcam_tools.zipを展開後、
+>   factory_t31_ZMC6tiIDQNとrootfs_hack.squashfsをSD-Cardに直接書き込む
+>
+> - 対処方法2（sshでloginできる場合）
+>   PCでatomcam_tools.zipを取得
+>   scp atomcam_tools.zip http://atomcam.local/media/mmc/update
+>   その後、WebUIでリブート
+>
+> - 対処方法3
+>   WebUIのカスタム更新ZIPファイルをONにして、URLに下記を設定
+>   https://github.com/mnakada/atomcam_tools/releases/download/Ver.2.1.1/atomcam_tools.zip
+>   UpdateのLockをはずしてUpdate
+>   その後、カスタム更新ZIPファイルをOFFにする <- 忘れないで
+
+
+
+> [!IMPORTANT]
+>
+> **Timelapseを設定している場合**
+>
+> Ver.1.x.xとVer.2.0.0とVer.2.1.0以降ではTimelapseの中間ファイルに互換性がありません。
+>
+> Timelapseの処理が終わってからUpdateするか、一旦中止してmp4ファイルを生成してからUpdateするようにしてください。
+
+
+
 ## 実現される機能
 - WebUI (Port: 80)
   - ATOMCamのアプリから設定できない追加機能について設定します。
@@ -27,7 +69,7 @@
   - 定期的に周期と回数を指定してTime Lapse録画を実行します。
   - SD-Card録画、NAS録画の設定がonになっているメディアに記録します。
   - SD-Cardのtime_lapse/フォルダに中間ファイルを生成し、最後にmp4に変換して指定メディアに記録します。
-  
+
 - RTSPServer(Port:8554)
   - RTSP streaming を送出します。
   - Main(video0)に1080p AVC、Sub(video1)に360p HEVCを出しています。
@@ -73,6 +115,14 @@
 
   - WebUIからのpan/tiltと待ち時間の登録
   - 待ち時間中の動体検知、動体追尾の選択
+
+- iCamera_app起動後に実行するshell-scriptの追加
+
+  - SD-Cardにpost_icamera.shファイルが存在すると実行
+  - RootFSがReadOnlyになったため、hook pointとして追加
+
+
+
 ## セキュリティに関わる重要事項
 上記項目に書いてある各ポートが利用可能となります。  
 現時点ではこのポートはセキュリティ上の懸念材料となりますので、  
@@ -516,11 +566,9 @@ GitHubのLatest VersionにUpdate します。GitHubからLatest Versionをダウ
 台数が多い場合や回線が細い場合、PCで[GitHubのLatest Version](https://github.com/mnakada/atomcam_tools/releases/latest)のatomcam_tools.zipをダウンロードし、展開せずにそのままSamba経由でSD-Cardのupdateフォルダに入れて、リブートすることでもUpdateできます。この場合はVerのチェックは行われません。
 
 
+
+
 ### Copyright
 
 LICENSEファイルを参照してください
 
-
-### 寄付について
-このアプリの使用条件は特にありませんが、以下のリンクから買い物をすると、売り上げの一部が大元のhackをしてくれたhoneylabさんに還元されます。
-https://honeylab.hatenablog.jp/entry/2021/09/29/115855
