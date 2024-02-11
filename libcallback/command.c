@@ -15,7 +15,7 @@ static const unsigned short CommandPort = 4000;
 static int SelfPipe[2];
 
 extern char *JpegCapture(int fd, char *tokenPtr);
-extern char *VideoCapture(int fd, char *tokenPtr);
+extern char *VideoCommand(int fd, char *tokenPtr);
 extern char *AudioCapture(int fd, char *tokenPtr);
 extern char *MotorMove(int fd, char *tokenPtr);
 extern char *WaitMotion(int fd, char *tokenPtr);
@@ -30,7 +30,7 @@ struct CommandTableSt {
 };
 
 struct CommandTableSt CommandTable[] = {
-  { "video",      &VideoCapture },
+  { "video",      &VideoCommand },
   { "audio",      &AudioCapture },
   { "jpeg",       &JpegCapture },
   { "move",       &MotorMove },
