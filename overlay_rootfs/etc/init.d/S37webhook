@@ -9,7 +9,7 @@ case "$1" in
     /scripts/webhook.sh &
   ;;
   stop)
-    kill `pidof webhook.sh`
+    killall webhook.sh > /dev/null 2>&1
   ;;
   restart|reload)
     $0 stop

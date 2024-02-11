@@ -5,13 +5,13 @@
 
 start() {
 	printf "Starting crond: "
-	start-stop-daemon -b -S -q -m -p /var/run/crond.pid --exec /usr/sbin/crond -- -l 8
+	/usr/sbin/crond -l 8
 	echo "OK"
 }
 
 stop() {
 	printf "Stopping crond: "
-	start-stop-daemon -K -q -p /var/run/crond.pid
+	killall crond
 	echo "OK"
 }
 

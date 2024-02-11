@@ -69,6 +69,14 @@ case "$1" in
   stop)
     [ -x /media/mmc/post_icamera.sh ] && /media/mmc/post_icamera.sh stop
     killall -SIGUSR2 iCamera_app
+    killall -SIGKILL hl_client
+    killall -SIGKILL assis
+    killall -SIGKILL sysMonitor.sh
+    fuser -k /atom/sbin
+    fuser -k /atom/bin
+    sleep 1
+    sync
+    mount | grep '/atom/mnt' && umount /atom/mnt
     umount /atom/system/bin/restart_wlan0.sh
     umount /atom/usr/boa/boa
     umount /atom_patch/sbin/flash_erase
