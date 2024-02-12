@@ -1,51 +1,49 @@
 # atomcam_tools
 
-これはATOMCam/ATOMCam2/AtomSwingの機能を拡張するツールキットです。
-標準的な機能に満足できないユーザーが、各自の責任において機能を拡張するためのツール・スクリプトをまとめたものです。
-利用にあたって、当然のことながらカメラメーカへの問い合わせなどは厳に慎んでください。
-それ以外、自由に利用できますが、仮に悪用し、他人へ迷惑をかけた場合の責任は、その設定を行った者が負うべきものであることを理解してください。
+これはATOMCam/ATOMCam2/AtomSwingの機能を拡張するツールキットです。  
+標準的な機能に満足できないユーザーが、各自の責任において機能を拡張するためのツール・スクリプトをまとめたものです。  
+利用にあたって、当然のことながらカメラメーカへの問い合わせなどは厳に慎んでください。  
+それ以外、自由に利用できますが、仮に悪用し、他人へ迷惑をかけた場合の責任は、その設定を行った者が負うべきものであることを理解してください。  
 質問、動作不具合、機能のリクエストは　Issues を立ててください。
 
 
 
 > [!IMPORTANT]
 >
-> **WebUIのUpdateから行う場合はVer.1.x.xからVer.2.x.xへは２回Updateする必要があります**。
-> １回目のUpdateでinitramfsを含むkernelがupdateされますが、表面上はUpdateされていないように見えます。
->
-> ２回目のUpdateでcramfsのroot file systemが置き換わり、WebUIのVer.がVer.2.0.0に変わります。
-> お手数ですがUpdateを２度実行してください。
+> **WebUIのUpdateから行う場合はVer.1.x.xからVer.2.x.xへは２回Updateする必要があります**。  
+> １回目のUpdateでinitramfsを含むkernelがupdateされますが、表面上はUpdateされていないように見えます。  
+> ２回目のUpdateでcramfsのroot file systemが置き換わり、WebUIのVer.がVer.2.0.0に変わります。  
+> お手数ですがUpdateを２度実行してください。  
 > 直接SD-Cardに書き込む場合は通常の書き込み方で大丈夫です。
 
 
 
 > [!IMPORTANT]
 >
-> **Ver.2.0.0pre1~4, Ver.2.0.0, Ver.2.1.0のWebUIのUpdateの判断にbugがありUpdateできません。**
+> **Ver.2.0.0pre1~4, Ver.2.0.0, Ver.2.1.0のWebUIのUpdateの判断にbugがありUpdateできません。**  
 >
-> - 対処方法1（SD-Cardにアクセスできる場合）
->   atomcam_tools.zipを展開後、
->   factory_t31_ZMC6tiIDQNとrootfs_hack.squashfsをSD-Cardに直接書き込む
+> - 対処方法1（SD-Cardにアクセスできる場合）  
+>   atomcam_tools.zipを展開後、  
+>   factory_t31_ZMC6tiIDQNとrootfs_hack.squashfsを
+>   SD-Cardに直接書き込む
 >
-> - 対処方法2（sshでloginできる場合）
->   PCでatomcam_tools.zipを取得
->   scp atomcam_tools.zip http://atomcam.local/media/mmc/update
+> - 対処方法2（sshでloginできる場合）  
+>   PCでatomcam_tools.zipを取得  
+>   scp atomcam_tools.zip http://atomcam.local/media/mmc/update  
 >   その後、WebUIでリブート
 >
-> - 対処方法3
->   WebUIのカスタム更新ZIPファイルをONにして、URLに下記を設定
->   https://github.com/mnakada/atomcam_tools/releases/download/Ver.2.1.1/atomcam_tools.zip
->   UpdateのLockをはずしてUpdate
->   その後、カスタム更新ZIPファイルをOFFにする <- 忘れないで
-
+> - 対処方法3  
+>   WebUIのカスタム更新ZIPファイルをONにする  
+>   UpdateのLockをはずす  
+>   カスタム更新ZIPファイルをOFFにする   
+>   CustomUpdateボタンを押してUpdateを実行
 
 
 > [!IMPORTANT]
 >
 > **Timelapseを設定している場合**
 >
-> Ver.1.x.xとVer.2.0.0とVer.2.1.0以降ではTimelapseの中間ファイルに互換性がありません。
->
+> Ver.1.x.xとVer.2.0.0とVer.2.1.0以降ではTimelapseの中間ファイルに互換性がありません。  
 > Timelapseの処理が終わってからUpdateするか、一旦中止してmp4ファイルを生成してからUpdateするようにしてください。
 
 
