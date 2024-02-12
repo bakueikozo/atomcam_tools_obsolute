@@ -72,6 +72,7 @@ case "$1" in
     killall -SIGKILL hl_client
     killall -SIGKILL assis
     killall -SIGKILL sysMonitor.sh
+    killall -SIGKILL sleep
     fuser -k /atom/sbin
     fuser -k /atom/bin
     sleep 1
@@ -80,8 +81,11 @@ case "$1" in
     umount /atom/system/bin/restart_wlan0.sh
     umount /atom/usr/boa/boa
     umount /atom_patch/sbin/flash_erase
+    umount /atom/sbin/flash_erase
     umount /atom_patch/bin/hostapd
+    umount /atom/bin/hostapd
     umount /atom_patch/bin/busybox
+    umount /atom/bin/busybox
     umount /atom/tmp/system/usr/lib
     umount /atom/tmp/system/lib
     umount /atom/tmp/system/bin/busybox

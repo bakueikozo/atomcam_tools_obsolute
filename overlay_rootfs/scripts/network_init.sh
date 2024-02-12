@@ -1,8 +1,8 @@
 #!/bin/sh
 
 if [ "$1" = "stop" -o "$1" = "restart" ] ; then
-  kill `pidof wpa_supplicant`
-  kill `pidof udhcpc`
+  killall -SIGKILL wpa_supplicant
+  killall -SIGKILL udhcpc
   [ "$1" = "stop" ] && exit 0
 fi
 

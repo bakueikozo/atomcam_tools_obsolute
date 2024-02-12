@@ -84,6 +84,7 @@ case "$1" in
     umount /etc/wpa_supplicant.conf
     umount /etc/lighttpd
     umount /etc/ssh
+    umount /atom/media/mmc
     umount /atom/media
     umount /atom/tmp
     umount /atom/run
